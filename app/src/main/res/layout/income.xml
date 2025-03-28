@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="?attr/background">
+
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottomNavigationView2"
+        android:layout_width="match_parent"
+        android:layout_height="88dp"
+        app:menu="@menu/bottom_nav_menu"
+        app:itemIconSize="45dp"
+        app:itemPaddingTop="10dp"
+        app:itemTextColor="?attr/colorOnSurface"
+        app:itemIconTint="?attr/colorOnSurface"
+        android:background="?attr/colorSurface"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"/>
+
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar2"
+        android:layout_width="match_parent"
+        android:layout_height="63dp"
+        android:background="?attr/colorPrimary"
+        android:minHeight="?attr/actionBarSize"
+        android:theme="?attr/actionBarTheme"
+        app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:navigationIcon="@drawable/user"
+        app:navigationIconTint="?attr/colorOnPrimary"
+        app:itemTextColor="?attr/colorOnPrimary"
+        app:itemIconTint="?attr/colorOnPrimary"
+        app:menu="@menu/menu_toolbar"/>
+
+    <Button
+        android:id="@+id/button5"
+        android:layout_width="wrap_content"
+        android:layout_height="67dp"
+        android:layout_marginBottom="28dp"
+        android:text="@string/update"
+        android:textAlignment="center"
+        android:textSize="22sp"
+        android:textColor="?attr/colorOnPrimary"
+        android:backgroundTint="?attr/colorPrimary"
+        app:layout_constraintBottom_toTopOf="@+id/bottomNavigationView2"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.497"
+        app:layout_constraintStart_toStartOf="parent"/>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="571dp"
+        android:layout_marginTop="48dp"
+        app:layout_constraintBottom_toTopOf="@+id/button5"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/toolbar2">
+
+        <TableLayout
+            android:id="@+id/tableLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:stretchColumns="*"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="40dp">
+
+            <!-- Header Row -->
+            <TableRow android:background="?attr/colorSecondary">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:padding="10dp"
+                    android:text="@string/icon"
+                    android:textStyle="bold"
+                    android:textColor="?attr/colorOnSecondary"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:padding="10dp"
+                    android:text="@string/source"
+                    android:textStyle="bold"
+                    android:textColor="?attr/colorOnSecondary"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:padding="10dp"
+                    android:text="@string/amount"
+                    android:textStyle="bold"
+                    android:textColor="?attr/colorOnSecondary"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:padding="10dp"
+                    android:text="@string/date"
+                    android:textStyle="bold"
+                    android:textColor="?attr/colorOnSecondary"/>
+            </TableRow>
+
+            <!-- Sample Data Rows -->
+            <TableRow android:layout_height="80dp" android:gravity="center_vertical">
+                <ImageView android:layout_width="50dp" android:layout_height="50dp" android:src="@android:drawable/ic_menu_info_details"/>
+                <TextView android:padding="15dp" android:textColor="@color/textPrimary" android:text="@string/salary"/>
+                <TextView android:padding="15dp" android:textColor="@color/textPrimary" android:text="$2000"/>
+                <TextView android:padding="15dp" android:textColor="@color/textPrimary" android:text="25 Mar 2025"/>
+            </TableRow>
+
+            <TableRow android:layout_height="80dp" android:gravity="center_vertical">
+                <ImageView android:layout_width="50dp" android:layout_height="50dp" android:src="@android:drawable/ic_menu_myplaces"/>
+                <TextView android:padding="15dp" android:textColor="@color/textPrimary" android:text="@string/freelance"/>
+                <TextView android:padding="15dp" android:textColor="@color/textPrimary" android:text="$500"/>
+                <TextView android:padding="15dp" android:textColor="@color/textPrimary" android:text="20 Mar 2025"/>
+            </TableRow>
+
+            <TableRow android:layout_height="80dp" android:gravity="center_vertical">
+                <ImageView android:layout_width="50dp" android:layout_height="50dp" android:src="@android:drawable/ic_menu_gallery"/>
+                <TextView android:padding="15dp" android:textColor="@color/textPrimary" android:text="@string/investments"/>
+                <TextView android:padding="15dp" android:textColor="@color/textPrimary" android:text="$300"/>
+                <TextView android:padding="15dp" android:textColor="@color/textPrimary" android:text="18 Mar 2025"/>
+            </TableRow>
+
+            <TableRow android:layout_height="80dp" android:gravity="center_vertical">
+                <ImageView android:layout_width="50dp" android:layout_height="50dp" android:src="@android:drawable/ic_menu_camera"/>
+                <TextView android:padding="15dp" android:textColor="@color/textPrimary" android:text="@string/side_hustle"/>
+                <TextView android:padding="15dp" android:textColor="@color/textPrimary" android:text="$150"/>
+                <TextView android:padding="15dp" android:textColor="@color/textPrimary" android:text="15 Mar 2025"/>
+            </TableRow>
+
+            <TableRow android:layout_height="80dp" android:gravity="center_vertical">
+                <ImageView android:layout_width="50dp" android:layout_height="50dp" android:src="@android:drawable/ic_menu_agenda"/>
+                <TextView android:padding="15dp" android:textColor="@color/textPrimary" android:text="Rental Income"/>
+                <TextView android:padding="15dp" android:textColor="@color/textPrimary" android:text="$800"/>
+                <TextView android:padding="15dp" android:textColor="@color/textPrimary" android:text="10 Mar 2025"/>
+            </TableRow>
+
+            <TableRow android:layout_height="80dp" android:gravity="center_vertical">
+                <ImageView android:layout_width="50dp" android:layout_height="50dp" android:src="@android:drawable/ic_menu_mapmode"/>
+                <TextView android:padding="15dp" android:textColor="@color/textPrimary" android:text="@string/bonus"/>
+                <TextView android:padding="15dp" android:textColor="@color/textPrimary" android:text="$1000"/>
+                <TextView android:padding="15dp" android:textColor="@color/textPrimary" android:text="5 Mar 2025"/>
+            </TableRow>
+
+        </TableLayout>
+    </ScrollView>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

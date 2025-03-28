@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="?attr/background">
+
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottomNavigationView2"
+        android:layout_width="match_parent"
+        android:layout_height="88dp"
+        app:menu="@menu/bottom_nav_menu"
+        app:itemIconSize="45dp"
+        app:itemPaddingTop="10dp"
+        android:background="?attr/colorSurface"
+        app:itemIconTint="?attr/colorOnSurface"
+        app:itemTextColor="?attr/colorOnSurface"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"/>
+
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar2"
+        android:layout_width="match_parent"
+        android:layout_height="63dp"
+        android:background="?attr/colorPrimary"
+        android:minHeight="?attr/actionBarSize"
+        android:theme="?attr/actionBarTheme"
+        app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
+        app:navigationIcon="@drawable/user"
+        app:navigationIconTint="?attr/colorOnPrimary"
+        app:itemTextColor="?attr/colorOnPrimary"
+        app:itemIconTint="?attr/colorOnPrimary"
+        app:menu="@menu/menu_toolbar"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <EditText
+        android:id="@+id/editTextNumber"
+        android:layout_width="230dp"
+        android:layout_height="55dp"
+        android:layout_marginTop="392dp"
+        android:ems="10"
+        android:inputType="number"
+        android:textAlignment="center"
+        android:textSize="24sp"
+        android:textColor="?attr/colorOnSurface"
+        android:background="@drawable/border"
+        android:hint="@string/enter_amount"
+        android:textColorHint="?attr/colorOnSurface"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="145.56" />
+
+    <Button
+        android:id="@+id/button2"
+        android:layout_width="230dp"
+        android:layout_height="64dp"
+        android:layout_marginBottom="132dp"
+        android:text="@string/add_expense"
+        android:textSize="24sp"
+        android:textColor="?attr/colorOnPrimary"
+        android:backgroundTint="?attr/colorPrimary"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <Spinner
+        android:id="@+id/spinner"
+        android:layout_width="230dp"
+        android:layout_height="59dp"
+        android:layout_marginTop="52dp"
+        android:popupBackground="?attr/colorSurface"
+        android:textColor="?attr/colorOnSurface"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/editTextNumber" />
+
+    <CheckBox
+        android:id="@+id/checkBox"
+        android:layout_width="wrap_content"
+        android:layout_height="59dp"
+        android:layout_marginTop="36dp"
+        android:text="@string/recurring_payment"
+        android:textSize="20sp"
+        android:textColor="?attr/colorOnSurface"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.502"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/spinner" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="?attr/background">
+
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottomNavigationView2"
+        android:layout_width="match_parent"
+        android:layout_height="88dp"
+        app:menu="@menu/bottom_nav_menu"
+        app:itemIconSize="45dp"
+        app:itemPaddingTop="10dp"
+        app:itemTextColor="?attr/colorOnSurface"
+        app:itemIconTint="?attr/colorOnSurface"
+        android:background="?attr/colorSurface"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"/>
+
+    <EditText
+        android:id="@+id/editTextNumber2"
+        android:layout_width="230dp"
+        android:layout_height="55dp"
+        android:layout_marginTop="308dp"
+        android:background="@drawable/border"
+        android:ems="10"
+        android:hint="@string/enter_income"
+        android:importantForAccessibility="no"
+        android:inputType="number"
+        android:textAlignment="center"
+        android:textColor="?attr/colorOnSurface"
+        android:textColorHint="?attr/colorOnSurface"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/toolbar2" />
+
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar2"
+        android:layout_width="match_parent"
+        android:layout_height="63dp"
+        android:background="?attr/colorPrimary"
+        android:minHeight="?attr/actionBarSize"
+        android:theme="?attr/actionBarTheme"
+        app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:navigationIcon="@drawable/user"
+        app:navigationIconTint="?attr/colorOnPrimary"
+        app:itemTextColor="?attr/colorOnPrimary"
+        app:itemIconTint="?attr/colorOnPrimary"
+        app:menu="@menu/menu_toolbar" />
+
+    <Spinner
+        android:id="@+id/spinner2"
+        android:layout_width="230dp"
+        android:layout_height="59dp"
+        android:layout_marginTop="44dp"
+        android:popupBackground="?attr/colorSurface"
+        android:textColor="?attr/colorOnSurface"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/editTextNumber2" />
+
+    <Button
+        android:id="@+id/button4"
+        android:layout_width="wrap_content"
+        android:layout_height="64dp"
+        android:layout_marginBottom="140dp"
+        android:text="@string/add_income"
+        android:textSize="24sp"
+        android:textColor="?attr/colorOnPrimary"
+        android:backgroundTint="?attr/colorPrimary"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <CheckBox
+        android:id="@+id/checkBox2"
+        android:layout_width="wrap_content"
+        android:layout_height="59dp"
+        android:layout_marginTop="52dp"
+        android:text="@string/recurring_income"
+        android:textSize="20sp"
+        android:textColor="?attr/colorOnSurface"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/spinner2" />
+</androidx.constraintlayout.widget.ConstraintLayout>

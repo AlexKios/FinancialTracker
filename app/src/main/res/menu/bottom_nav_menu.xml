@@ -1,0 +1,21 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- Income item -->
+    <item
+        android:id="@+id/nav_income"
+        android:icon="@drawable/profit"
+        android:title="@string/income"/>
+
+    <!-- Home item (middle icon) -->
+    <item
+        android:id="@+id/nav_home"
+        android:icon="@drawable/home"
+        android:title="@string/home" />
+
+    <!-- Expense item -->
+    <item
+        android:id="@+id/nav_expense"
+        android:icon="@drawable/expences"
+        android:title="@string/expense" />
+
+</menu>

@@ -13,6 +13,13 @@
         android:theme="@style/Theme.FinancialTracker"
         tools:targetApi="31">
         <activity android:name=".ExpenseActivity" />
+        <activity android:name=".IncomeActivity"/>
+        <activity android:name=".LoginActivity"/>
+        <activity android:name=".RegisterActivity"/>
+        <activity android:name=".AccountActivity"/>
+        <activity android:name=".SettingsActivity"/>
+        <activity android:name=".AddExpenseActivity"/>
+        <activity android:name=".AddIncomeActivity"/>
         <activity
             android:name=".MainActivity"
             android:exported="true">

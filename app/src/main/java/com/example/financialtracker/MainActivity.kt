@@ -1,20 +1,85 @@
 package com.example.financialtracker
 
 import android.os.Bundle
-import androidx.activity.enableEdgeToEdge
+import android.widget.TableRow
+import android.widget.TextView
+import android.widget.ImageView
+import android.widget.TableLayout
+import android.widget.ProgressBar
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.setPadding
 
 class MainActivity : AppCompatActivity() {
+
+    private lateinit var tableLayout: TableLayout
+    private lateinit var progressBar: ProgressBar
+    private lateinit var textViewRemaining: TextView
+    private lateinit var textViewAmount: TextView
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
         setContentView(R.layout.activity_main)
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
-            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
-            insets
+
+        // Initialize Views
+        tableLayout = findViewById(R.id.tableLayout)
+        progressBar = findViewById(R.id.progressBar2)
+        textViewRemaining = findViewById(R.id.textView2)
+        textViewAmount = findViewById(R.id.textView)
+
+        // Set sample remaining amount
+        textViewAmount.text = "800лв"
+        textViewRemaining.text = getString(R.string.remaining)
+
+        // Set sample progress
+        progressBar.progress = 50 // Example: 50% progress
+
+        // Add sample data to TableLayout
+        addSampleData()
+
+    }
+
+    private fun addSampleData() {
+        val sampleData = listOf(
+            ExpenseItem("Groceries", "$50", "18 Mar 2025", R.drawable.home),
+            ExpenseItem("Transport", "$15", "17 Mar 2025", R.drawable.home),
+            ExpenseItem("Entertainment", "$30", "16 Mar 2025", R.drawable.home),
+            ExpenseItem("Dining", "$25", "15 Mar 2025", R.drawable.home),
+            ExpenseItem("Shopping", "$100", "14 Mar 2025", R.drawable.home),
+            ExpenseItem("Gym Membership", "$40", "13 Mar 2025", R.drawable.home),
+            ExpenseItem("Travel", "$200", "12 Mar 2025", R.drawable.home),
+            ExpenseItem("Subscription", "$10", "11 Mar 2025", R.drawable.home),
+            ExpenseItem("Education", "$60", "10 Mar 2025", R.drawable.home),
+            ExpenseItem("Healthcare", "$75", "9 Mar 2025", R.drawable.home)
+        )
+
+        for (expense in sampleData) {
+            val row = TableRow(this)
+            row.layoutParams = TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, 80)
+
+            val imageView = ImageView(this)
+            imageView.layoutParams = TableRow.LayoutParams(50, 50)
+            imageView.setImageResource(expense.icon)
+
+            val expenseName = TextView(this)
+            expenseName.setPadding(15)
+            expenseName.text = expense.name
+
+            val expenseAmount = TextView(this)
+            expenseAmount.setPadding(15)
+            expenseAmount.text = expense.amount
+
+            val expenseDate = TextView(this)
+            expenseDate.setPadding(15)
+            expenseDate.text = expense.date
+
+            row.addView(imageView)
+            row.addView(expenseName)
+            row.addView(expenseAmount)
+            row.addView(expenseDate)
+
+            tableLayout.addView(row)
         }
     }
+
+    data class ExpenseItem(val name: String, val amount: String, val date: String, val icon: Int)
 }

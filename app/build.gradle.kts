@@ -45,5 +45,10 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
-
+    // QR Code Generator (zxing)
+    implementation(libs.zxing.android.embedded)
+    // QR Scanner (ML Kit)
+    implementation(libs.barcode.scanning)
+    //Jetpack Fragment KTX
+    implementation(libs.androidx.fragment.ktx)
 }

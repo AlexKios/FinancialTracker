@@ -12,14 +12,16 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.FinancialTracker"
         tools:targetApi="31">
+        <activity android:name=".ui.activities.ChatActivity" />
+        <activity android:name=".ui.activities.FriendsActivity" />
         <activity android:name=".ui.activities.ExpenseActivity" />
-        <activity android:name=".ui.activities.IncomeActivity"/>
-        <activity android:name=".ui.activities.LoginActivity"/>
-        <activity android:name=".ui.activities.RegisterActivity"/>
-        <activity android:name=".ui.activities.AccountActivity"/>
-        <activity android:name=".ui.activities.SettingsActivity"/>
-        <activity android:name=".ui.activities.AddExpenseActivity"/>
-        <activity android:name=".ui.activities.AddIncomeActivity"/>
+        <activity android:name=".ui.activities.IncomeActivity" />
+        <activity android:name=".ui.activities.LoginActivity" />
+        <activity android:name=".ui.activities.RegisterActivity" />
+        <activity android:name=".ui.activities.AccountActivity" />
+        <activity android:name=".ui.activities.SettingsActivity" />
+        <activity android:name=".ui.activities.AddExpenseActivity" />
+        <activity android:name=".ui.activities.AddIncomeActivity" />
         <activity
             android:name=".ui.activities.MainActivity"
             android:exported="true">
@@ -30,4 +32,5 @@
             </intent-filter>
         </activity>
     </application>
+
 </manifest>

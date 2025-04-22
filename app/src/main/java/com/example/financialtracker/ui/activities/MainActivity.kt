@@ -1,4 +1,4 @@
-package com.example.financialtracker
+package com.example.financialtracker.ui.activities
 
 import android.os.Bundle
 import android.widget.TableRow
@@ -8,6 +8,7 @@ import android.widget.TableLayout
 import android.widget.ProgressBar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.setPadding
+import com.example.financialtracker.R
 
 class MainActivity : AppCompatActivity() {
 

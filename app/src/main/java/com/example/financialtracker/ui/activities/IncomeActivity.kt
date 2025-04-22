@@ -1,4 +1,4 @@
-package com.example.financialtracker
+package com.example.financialtracker.ui.activities
 
 import android.os.Bundle
 import android.view.Gravity
@@ -7,42 +7,39 @@ import android.widget.TableLayout
 import android.widget.TableRow
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import com.example.financialtracker.R
 
-class ExpenseActivity : AppCompatActivity() {
+class IncomeActivity : AppCompatActivity() {
 
-    data class Expense(
+    data class Income(
         val iconResId: Int,
-        val name: String,
+        val source: String,
         val amount: String,
         val date: String
     )
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.expenses)
+        setContentView(R.layout.income) // <- Make sure this matches your layout file name
 
         val tableLayout = findViewById<TableLayout>(R.id.tableLayout)
 
-        // Clear the sample rows if needed (keep header only)
+        // Clear all data rows except the header
         if (tableLayout.childCount > 1) {
             tableLayout.removeViews(1, tableLayout.childCount - 1)
         }
 
-        // Temporary sample data (replace with DB fetch later)
-        val expenses = listOf(
-            Expense(android.R.drawable.ic_menu_gallery, "Groceries", "$50", "18 Mar 2025"),
-            Expense(android.R.drawable.ic_menu_camera, "Transport", "$15", "17 Mar 2025"),
-            Expense(android.R.drawable.ic_menu_compass, "Entertainment", "$30", "16 Mar 2025"),
-            Expense(android.R.drawable.ic_menu_call, "Dining", "$25", "15 Mar 2025"),
-            Expense(android.R.drawable.ic_menu_crop, "Shopping", "$100", "14 Mar 2025"),
-            Expense(android.R.drawable.ic_menu_agenda, "Gym Membership", "$40", "13 Mar 2025"),
-            Expense(android.R.drawable.ic_menu_mapmode, "Travel", "$200", "12 Mar 2025"),
-            Expense(android.R.drawable.ic_menu_manage, "Subscription", "$10", "11 Mar 2025"),
-            Expense(android.R.drawable.ic_menu_edit, "Education", "$60", "10 Mar 2025"),
-            Expense(android.R.drawable.ic_menu_help, "Healthcare", "$75", "9 Mar 2025")
+        // Temporary mock data (replace with database retrieval later)
+        val incomes = listOf(
+            Income(android.R.drawable.ic_menu_info_details, "Salary", "$2000", "25 Mar 2025"),
+            Income(android.R.drawable.ic_menu_myplaces, "Freelance", "$500", "20 Mar 2025"),
+            Income(android.R.drawable.ic_menu_gallery, "Investments", "$300", "18 Mar 2025"),
+            Income(android.R.drawable.ic_menu_camera, "Side Hustle", "$150", "15 Mar 2025"),
+            Income(android.R.drawable.ic_menu_agenda, "Rental Income", "$800", "10 Mar 2025"),
+            Income(android.R.drawable.ic_menu_mapmode, "Bonus", "$1000", "5 Mar 2025")
         )
 
-        for (expense in expenses) {
+        for (income in incomes) {
             val row = TableRow(this).apply {
                 layoutParams = TableRow.LayoutParams(
                     TableRow.LayoutParams.MATCH_PARENT,
@@ -53,30 +50,30 @@ class ExpenseActivity : AppCompatActivity() {
             }
 
             val icon = ImageView(this).apply {
-                setImageResource(expense.iconResId)
+                setImageResource(income.iconResId)
                 layoutParams = TableRow.LayoutParams(100, 100)
             }
 
-            val name = TextView(this).apply {
-                text = expense.name
+            val source = TextView(this).apply {
+                text = income.source
                 setPadding(15, 10, 15, 10)
                 setTextColor(getColor(R.color.textPrimary))
             }
 
             val amount = TextView(this).apply {
-                text = expense.amount
+                text = income.amount
                 setPadding(15, 10, 15, 10)
                 setTextColor(getColor(R.color.textPrimary))
             }
 
             val date = TextView(this).apply {
-                text = expense.date
+                text = income.date
                 setPadding(15, 10, 15, 10)
                 setTextColor(getColor(R.color.textPrimary))
             }
 
             row.addView(icon)
-            row.addView(name)
+            row.addView(source)
             row.addView(amount)
             row.addView(date)
 

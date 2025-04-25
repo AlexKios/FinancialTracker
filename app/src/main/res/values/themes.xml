@@ -11,7 +11,7 @@
         <item name="colorSecondary">@color/secondary</item>
         <item name="colorOnPrimary">@color/on_primary</item>
         <item name="colorOnSecondary">@color/on_secondary</item>
-
+        <item name="colorOutline">@color/outline</item>
         <!-- background & surface -->
         <item name="android:colorBackground">@color/background</item>
         <item name="colorSurface">@color/surface</item>
@@ -22,6 +22,7 @@
 
         <!-- toolbar icons, etc. -->
         <item name="colorControlNormal">@color/toolbar_icon_color</item>
+        <item name="textInputStyle">@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense</item>
     </style>
 
 </resources>

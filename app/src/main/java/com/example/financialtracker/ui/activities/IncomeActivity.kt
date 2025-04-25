@@ -1,5 +1,6 @@
 package com.example.financialtracker.ui.activities
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.Gravity
 import android.widget.ImageView
@@ -8,6 +9,7 @@ import android.widget.TableRow
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import com.example.financialtracker.R
+import com.google.android.material.bottomnavigation.BottomNavigationView
 
 class IncomeActivity : AppCompatActivity() {
 
@@ -23,6 +25,17 @@ class IncomeActivity : AppCompatActivity() {
         setContentView(R.layout.income) // <- Make sure this matches your layout file name
 
         val tableLayout = findViewById<TableLayout>(R.id.tableLayout)
+
+        val bottomNavigationView = findViewById<BottomNavigationView>(R.id.bottomNavigationView2)
+
+        bottomNavigationView.setOnNavigationItemSelectedListener { menuItem ->
+            when (menuItem.itemId) {
+                R.id.nav_income -> startActivity(Intent(this, IncomeActivity::class.java))
+                R.id.nav_home -> startActivity(Intent(this, MainActivity::class.java))
+                R.id.nav_expense -> startActivity(Intent(this, ExpenseActivity::class.java))
+            }
+            true
+        }
 
         // Clear all data rows except the header
         if (tableLayout.childCount > 1) {

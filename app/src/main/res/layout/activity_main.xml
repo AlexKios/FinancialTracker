@@ -9,24 +9,28 @@
     tools:context=".ui.activities.MainActivity">
 
     <!-- Toolbar (Stays Fixed at the Top) -->
+
+    <!-- ScrollView for the Main Content -->
+
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar2"
         android:layout_width="match_parent"
         android:layout_height="63dp"
+        android:layout_marginTop="48dp"
         android:background="?attr/colorPrimary"
         android:minHeight="?attr/actionBarSize"
         android:theme="?attr/actionBarTheme"
-        app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
+        app:itemIconTint="?attr/colorOnPrimary"
+        app:itemTextColor="?attr/colorOnPrimary"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
+        app:menu="@menu/menu_toolbar"
         app:navigationIcon="@drawable/user"
         app:navigationIconTint="?attr/colorOnPrimary"
-        app:itemTextColor="?attr/colorOnPrimary"
-        app:itemIconTint="?attr/colorOnPrimary"
-        app:menu="@menu/menu_toolbar"/>
+        app:popupTheme="@style/ThemeOverlay.AppCompat.Light" />
 
-    <!-- ScrollView for the Main Content -->
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"

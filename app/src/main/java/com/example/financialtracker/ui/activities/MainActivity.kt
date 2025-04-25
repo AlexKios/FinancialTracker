@@ -1,14 +1,19 @@
 package com.example.financialtracker.ui.activities
 
+import android.content.Intent
 import android.os.Bundle
+import android.view.Menu
+import android.view.MenuItem
 import android.widget.TableRow
 import android.widget.TextView
 import android.widget.ImageView
 import android.widget.TableLayout
 import android.widget.ProgressBar
+import androidx.appcompat.widget.Toolbar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.setPadding
 import com.example.financialtracker.R
+import com.google.android.material.bottomnavigation.BottomNavigationView
 
 class MainActivity : AppCompatActivity() {
 
@@ -16,6 +21,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var progressBar: ProgressBar
     private lateinit var textViewRemaining: TextView
     private lateinit var textViewAmount: TextView
+    private lateinit var bottomNavigationView: BottomNavigationView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -34,11 +40,58 @@ class MainActivity : AppCompatActivity() {
         // Set sample progress
         progressBar.progress = 50 // Example: 50% progress
 
+        bottomNavigationView = findViewById<BottomNavigationView>(R.id.bottomNavigationView2)
+
+        bottomNavigationView.setOnNavigationItemSelectedListener { menuItem ->
+            when (menuItem.itemId) {
+                R.id.nav_income -> {
+                    // Start the income activity
+                    val intent = Intent(this, IncomeActivity::class.java)
+                    startActivity(intent)
+                    true
+                }
+                R.id.nav_home -> {
+                    // Start the home activity
+                    val intent = Intent(this, MainActivity::class.java)
+                    startActivity(intent)
+                    true
+                }
+                R.id.nav_expense -> {
+                    // Start the expense activity
+                    val intent = Intent(this, ExpenseActivity::class.java)
+                    startActivity(intent)
+                    true
+                }
+                else -> false
+            }
+        }
+
+        val toolbar = findViewById<Toolbar>(R.id.toolbar2)
+        setSupportActionBar(toolbar)
+
+        // 2) Handle navigation (user icon) click
+        toolbar.setNavigationOnClickListener {
+            startActivity(Intent(this, AccountActivity::class.java))
+        }
+
         // Add sample data to TableLayout
         addSampleData()
 
     }
 
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.menu_toolbar, menu)
+        return true
+    }
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            R.id.action_settings -> {
+                startActivity(Intent(this, SettingsActivity::class.java))
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
+    }
     private fun addSampleData() {
         val sampleData = listOf(
             ExpenseItem("Groceries", "$50", "18 Mar 2025", R.drawable.home),

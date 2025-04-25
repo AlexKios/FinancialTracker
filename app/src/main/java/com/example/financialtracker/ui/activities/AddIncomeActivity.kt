@@ -21,7 +21,7 @@ class AddIncomeActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.add_income) // Replace with your actual XML layout file name
+        setContentView(R.layout.add_income)
 
         // Initialize UI elements
         amountEditText = findViewById(R.id.editTextNumber2)

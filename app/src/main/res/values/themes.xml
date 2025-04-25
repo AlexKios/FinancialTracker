@@ -1,22 +1,27 @@
-<resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Base application theme. -->
-    <style name="Base.Theme.FinancialTracker" parent="Theme.Material3.DayNight.NoActionBar">
-        <item name="colorPrimary">@color/primary</item>
-        <item name="colorSecondary">@color/secondary</item>
+<!-- res/values/themes.xml -->
+<resources>
 
-        <!-- Background & Surface -->
+    <!-- Base application theme: light and dark at runtime -->
+    <style name="Theme.FinancialTracker"
+        parent="Theme.MaterialComponents.DayNight.NoActionBar">
+
+        <!-- your shared theme attributes -->
+        <item name="colorPrimary">@color/primary</item>
+        <item name="colorPrimaryVariant">@color/primary_variant</item>
+        <item name="colorSecondary">@color/secondary</item>
+        <item name="colorOnPrimary">@color/on_primary</item>
+        <item name="colorOnSecondary">@color/on_secondary</item>
+
+        <!-- background & surface -->
         <item name="android:colorBackground">@color/background</item>
         <item name="colorSurface">@color/surface</item>
 
-        <!-- Text Colors -->
+        <!-- text colors -->
         <item name="android:textColorPrimary">@color/textPrimary</item>
         <item name="android:textColorSecondary">@color/textSecondary</item>
+
+        <!-- toolbar icons, etc. -->
         <item name="colorControlNormal">@color/toolbar_icon_color</item>
     </style>
 
-    <style name="ToolbarTheme" parent="ThemeOverlay.AppCompat.Dark.ActionBar">
-        <item name="colorControlNormal">@color/toolbar_icon_color</item>
-    </style>
-
-    <style name="Theme.FinancialTracker" parent="Base.Theme.FinancialTracker" />
 </resources>

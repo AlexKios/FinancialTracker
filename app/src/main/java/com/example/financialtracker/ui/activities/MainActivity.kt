@@ -1,31 +1,25 @@
 package com.example.financialtracker.ui.activities
 
-import android.content.Intent
 import android.os.Bundle
-import android.view.Menu
-import android.view.MenuItem
 import android.widget.TableRow
 import android.widget.TextView
 import android.widget.ImageView
 import android.widget.TableLayout
 import android.widget.ProgressBar
-import androidx.appcompat.widget.Toolbar
-import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.setPadding
 import com.example.financialtracker.R
-import com.google.android.material.bottomnavigation.BottomNavigationView
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : BaseActivity() {
 
+    override val navMenuItemId = R.id.nav_home
     private lateinit var tableLayout: TableLayout
     private lateinit var progressBar: ProgressBar
     private lateinit var textViewRemaining: TextView
     private lateinit var textViewAmount: TextView
-    private lateinit var bottomNavigationView: BottomNavigationView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        layoutInflater.inflate(R.layout.activity_main, findViewById(R.id.content_container), true)
 
         tableLayout = findViewById(R.id.tableLayout)
         progressBar = findViewById(R.id.progressBar2)
@@ -37,53 +31,9 @@ class MainActivity : AppCompatActivity() {
 
         progressBar.progress = 50
 
-        bottomNavigationView = findViewById<BottomNavigationView>(R.id.bottomNavigationView2)
-
-        bottomNavigationView.setOnNavigationItemSelectedListener { menuItem ->
-            when (menuItem.itemId) {
-                R.id.nav_income -> {
-                    val intent = Intent(this, IncomeActivity::class.java)
-                    startActivity(intent)
-                    true
-                }
-                R.id.nav_home -> {
-                    val intent = Intent(this, MainActivity::class.java)
-                    startActivity(intent)
-                    true
-                }
-                R.id.nav_expense -> {
-                    val intent = Intent(this, ExpenseActivity::class.java)
-                    startActivity(intent)
-                    true
-                }
-                else -> false
-            }
-        }
-
-        val toolbar = findViewById<Toolbar>(R.id.toolbar2)
-        setSupportActionBar(toolbar)
-
-        toolbar.setNavigationOnClickListener {
-            startActivity(Intent(this, AccountActivity::class.java))
-        }
-
         addSampleData()
-
     }
 
-    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        menuInflater.inflate(R.menu.menu_toolbar, menu)
-        return true
-    }
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return when (item.itemId) {
-            R.id.action_settings -> {
-                startActivity(Intent(this, SettingsActivity::class.java))
-                true
-            }
-            else -> super.onOptionsItemSelected(item)
-        }
-    }
     private fun addSampleData() {
         val sampleData = listOf(
             ExpenseItem("Groceries", "$50", "18 Mar 2025", R.drawable.home),

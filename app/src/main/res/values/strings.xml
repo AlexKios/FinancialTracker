@@ -54,4 +54,5 @@
     <string name="save_changes">Save Changes</string>
     <string name="enter_amount">Enter Amount</string>
     <string name="save">Save</string>
+    <string name="search_hint">Search</string>
 </resources>

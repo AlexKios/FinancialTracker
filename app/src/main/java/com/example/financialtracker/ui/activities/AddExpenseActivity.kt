@@ -1,78 +1,35 @@
 package com.example.financialtracker.ui.activities
 
-import android.content.Intent
 import android.os.Bundle
-import android.view.Menu
-import android.view.MenuItem
 import android.widget.Button
 import android.widget.CheckBox
 import android.widget.EditText
 import android.widget.Spinner
 import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.Toolbar
 import com.example.financialtracker.R
-import com.google.android.material.bottomnavigation.BottomNavigationView
 
-class AddExpenseActivity : AppCompatActivity() {
+class AddExpenseActivity : BaseActivity() {
 
+    override val navMenuItemId = 0
     // Declare the UI elements
     private lateinit var amountEditText: EditText
     private lateinit var categorySpinner: Spinner
     private lateinit var recurringCheckBox: CheckBox
     private lateinit var addExpenseButton: Button
-    private lateinit var toolbar: Toolbar
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.add_expense) // Replace with your actual XML layout file name
+        layoutInflater.inflate(R.layout.add_expense, findViewById(R.id.content_container), true)
 
         // Initialize UI elements
         amountEditText = findViewById(R.id.editTextNumber)
         categorySpinner = findViewById(R.id.spinner)
         recurringCheckBox = findViewById(R.id.checkBox)
         addExpenseButton = findViewById(R.id.button2)
-        toolbar = findViewById(R.id.toolbar2)
-
-        // Set up the toolbar (if needed for navigation, such as a back button)
-        setSupportActionBar(toolbar)
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
         // Set click listener for the Add Expense button
         addExpenseButton.setOnClickListener {
             onAddExpenseClicked()
-        }
-
-        val toolbar = findViewById<Toolbar>(R.id.toolbar2)
-        setSupportActionBar(toolbar)
-
-        toolbar.setNavigationOnClickListener {
-            startActivity(Intent(this, AccountActivity::class.java))
-        }
-
-        val bottomNavigationView = findViewById<BottomNavigationView>(R.id.bottomNavigationView2)
-
-        bottomNavigationView.setOnNavigationItemSelectedListener { menuItem ->
-            when (menuItem.itemId) {
-                R.id.nav_income -> startActivity(Intent(this, IncomeActivity::class.java))
-                R.id.nav_home -> startActivity(Intent(this, MainActivity::class.java))
-                R.id.nav_expense -> startActivity(Intent(this, ExpenseActivity::class.java))
-            }
-            true
-        }
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        menuInflater.inflate(R.menu.menu_toolbar, menu)
-        return true
-    }
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return when (item.itemId) {
-            R.id.action_settings -> {
-                startActivity(Intent(this, SettingsActivity::class.java))
-                true
-            }
-            else -> super.onOptionsItemSelected(item)
         }
     }
 

@@ -55,4 +55,5 @@
     <string name="save_changes">Запази промените</string>
     <string name="enter_amount">Въведи Стойност</string>
     <string name="save">Запази</string>
+    <string name="search_hint">Търсене</string>
 </resources>

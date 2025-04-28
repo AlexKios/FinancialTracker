@@ -1,0 +1,71 @@
+package com.example.financialtracker.ui.activities
+
+import android.content.Intent
+import android.os.Bundle
+import android.view.Menu
+import android.view.MenuItem
+import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.Toolbar
+import com.example.financialtracker.R
+import com.google.android.material.bottomnavigation.BottomNavigationView
+
+abstract class BaseActivity : AppCompatActivity() {
+
+    protected open val navMenuItemId: Int = 0
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.base_layout)
+
+        // Set up Toolbar
+        val toolbar = findViewById<Toolbar>(R.id.toolbar).also { toolbar ->
+            setSupportActionBar(toolbar)
+            supportActionBar?.setDisplayShowTitleEnabled(false)
+        }
+
+        toolbar.setNavigationOnClickListener {
+            startActivity(Intent(this, AccountActivity::class.java))
+        }
+
+        val bottomNavigationView = findViewById<BottomNavigationView>(R.id.bottomNavigationView2)
+        bottomNavigationView.selectedItemId = navMenuItemId
+        bottomNavigationView.setOnItemSelectedListener  { menuItem ->
+            if (menuItem.itemId == navMenuItemId) return@setOnItemSelectedListener true
+
+            when (menuItem.itemId) {
+                R.id.nav_income -> {
+                    val intent = Intent(this, IncomeActivity::class.java)
+                    startActivity(intent)
+                    true
+                }
+
+                R.id.nav_home -> {
+                    val intent = Intent(this, MainActivity::class.java)
+                    startActivity(intent)
+                    true
+                }
+
+                R.id.nav_expense -> {
+                    val intent = Intent(this, ExpenseActivity::class.java)
+                    startActivity(intent)
+                    true
+                }
+
+                else -> false
+            }
+        }
+    }
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.menu_toolbar, menu)
+        return true
+    }
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            R.id.action_settings -> {
+                startActivity(Intent(this, SettingsActivity::class.java))
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
+    }
+}

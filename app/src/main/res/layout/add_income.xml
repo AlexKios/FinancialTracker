@@ -4,7 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="?android:colorBackground">
+    android:background="?android:colorBackground"
+    android:fitsSystemWindows="true">
 
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottomNavigationView2"
@@ -52,7 +53,7 @@
         app:navigationIconTint="?attr/colorOnPrimary"
         app:itemTextColor="?attr/colorOnPrimary"
         app:itemIconTint="?attr/colorOnPrimary"
-        app:menu="@menu/menu_toolbar" />
+        app:menu="@menu/menu_toolbar"/>
 
     <Spinner
         android:id="@+id/spinner2"

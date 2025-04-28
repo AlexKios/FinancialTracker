@@ -6,6 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="?android:colorBackground"
+    android:fitsSystemWindows="true"
     tools:context=".ui.activities.MainActivity">
 
     <!-- Toolbar (Stays Fixed at the Top) -->
@@ -16,7 +17,6 @@
         android:id="@+id/toolbar2"
         android:layout_width="match_parent"
         android:layout_height="63dp"
-        android:layout_marginTop="48dp"
         android:background="?attr/colorPrimary"
         android:minHeight="?attr/actionBarSize"
         android:theme="?attr/actionBarTheme"

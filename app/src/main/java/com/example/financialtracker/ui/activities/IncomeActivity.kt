@@ -3,11 +3,15 @@ package com.example.financialtracker.ui.activities
 import android.content.Intent
 import android.os.Bundle
 import android.view.Gravity
+import android.view.Menu
+import android.view.MenuItem
+import android.widget.Button
 import android.widget.ImageView
 import android.widget.TableLayout
 import android.widget.TableRow
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.Toolbar
 import com.example.financialtracker.R
 import com.google.android.material.bottomnavigation.BottomNavigationView
 
@@ -24,7 +28,20 @@ class IncomeActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.income) // <- Make sure this matches your layout file name
 
+        val button = findViewById<Button>(R.id.button5)
+        button.setOnClickListener {
+            val intent = Intent(this, AddIncomeActivity::class.java)
+            startActivity(intent)
+        }
+
         val tableLayout = findViewById<TableLayout>(R.id.tableLayout)
+
+        val toolbar = findViewById<Toolbar>(R.id.toolbar2)
+        setSupportActionBar(toolbar)
+
+        toolbar.setNavigationOnClickListener {
+            startActivity(Intent(this, AccountActivity::class.java))
+        }
 
         val bottomNavigationView = findViewById<BottomNavigationView>(R.id.bottomNavigationView2)
 
@@ -91,6 +108,19 @@ class IncomeActivity : AppCompatActivity() {
             row.addView(date)
 
             tableLayout.addView(row)
+        }
+    }
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.menu_toolbar, menu)
+        return true
+    }
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            R.id.action_settings -> {
+                startActivity(Intent(this, SettingsActivity::class.java))
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
         }
     }
 }

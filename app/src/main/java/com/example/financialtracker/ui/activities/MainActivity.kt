@@ -27,37 +27,31 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        // Initialize Views
         tableLayout = findViewById(R.id.tableLayout)
         progressBar = findViewById(R.id.progressBar2)
         textViewRemaining = findViewById(R.id.textView2)
         textViewAmount = findViewById(R.id.textView)
 
-        // Set sample remaining amount
         textViewAmount.text = "800лв"
         textViewRemaining.text = getString(R.string.remaining)
 
-        // Set sample progress
-        progressBar.progress = 50 // Example: 50% progress
+        progressBar.progress = 50
 
         bottomNavigationView = findViewById<BottomNavigationView>(R.id.bottomNavigationView2)
 
         bottomNavigationView.setOnNavigationItemSelectedListener { menuItem ->
             when (menuItem.itemId) {
                 R.id.nav_income -> {
-                    // Start the income activity
                     val intent = Intent(this, IncomeActivity::class.java)
                     startActivity(intent)
                     true
                 }
                 R.id.nav_home -> {
-                    // Start the home activity
                     val intent = Intent(this, MainActivity::class.java)
                     startActivity(intent)
                     true
                 }
                 R.id.nav_expense -> {
-                    // Start the expense activity
                     val intent = Intent(this, ExpenseActivity::class.java)
                     startActivity(intent)
                     true
@@ -69,12 +63,10 @@ class MainActivity : AppCompatActivity() {
         val toolbar = findViewById<Toolbar>(R.id.toolbar2)
         setSupportActionBar(toolbar)
 
-        // 2) Handle navigation (user icon) click
         toolbar.setNavigationOnClickListener {
             startActivity(Intent(this, AccountActivity::class.java))
         }
 
-        // Add sample data to TableLayout
         addSampleData()
 
     }

@@ -16,20 +16,26 @@
         <activity android:name=".ui.activities.FriendsActivity" />
         <activity android:name=".ui.activities.ExpenseActivity" />
         <activity android:name=".ui.activities.IncomeActivity" />
-        <activity android:name=".ui.activities.LoginActivity" />
+        <activity android:name=".ui.activities.LoginActivity" android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+            </activity>
         <activity android:name=".ui.activities.RegisterActivity" />
         <activity android:name=".ui.activities.AccountActivity" />
         <activity android:name=".ui.activities.SettingsActivity" />
         <activity android:name=".ui.activities.AddExpenseActivity" />
         <activity android:name=".ui.activities.AddIncomeActivity" />
         <activity
-            android:name=".ui.activities.MainActivity"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
+            android:name=".ui.activities.MainActivity">
 
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
+<!--            android:exported="true">-->
+<!--            <intent-filter>-->
+<!--                <action android:name="android.intent.action.MAIN" />-->
+<!--                <category android:name="android.intent.category.LAUNCHER" />-->
+<!--            </intent-filter>-->
+
         </activity>
     </application>
 

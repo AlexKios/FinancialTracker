@@ -55,4 +55,5 @@
     <string name="enter_amount">Enter Amount</string>
     <string name="save">Save</string>
     <string name="search_hint">Search</string>
+    <string name="chat">Chat</string>
 </resources>

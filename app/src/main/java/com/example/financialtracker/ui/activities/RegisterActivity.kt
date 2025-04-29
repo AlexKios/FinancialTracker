@@ -1,5 +1,6 @@
 package com.example.financialtracker.ui.activities
 
+import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
 import android.widget.EditText
@@ -24,7 +25,7 @@ class RegisterActivity : AppCompatActivity() {
         nameEditText = findViewById(R.id.editTextText2)
         usernameEditText = findViewById(R.id.editTextText3)
         emailEditText = findViewById(R.id.editTextTextEmailAddress)
-        passwordEditText = findViewById(R.id.editTextNumberPassword)
+        passwordEditText = findViewById(R.id.editTextPassword)
         registerButton = findViewById(R.id.button3)
 
         // Set click listener for the register button
@@ -54,8 +55,7 @@ class RegisterActivity : AppCompatActivity() {
 
             Toast.makeText(this, "Registration successful", Toast.LENGTH_SHORT).show()
 
-            // Optionally, navigate to another activity (e.g., login screen)
-            // startActivity(Intent(this, LoginActivity::class.java))
+            startActivity(Intent(this, MainActivity::class.java))
         }
     }
 }

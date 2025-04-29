@@ -4,20 +4,21 @@ import android.content.Intent
 import android.os.Bundle
 import android.widget.ListView
 import android.widget.ArrayAdapter
-import androidx.appcompat.app.AppCompatActivity
 import com.example.financialtracker.R
 
 // import com.google.firebase.auth.FirebaseAuth
 // import com.google.firebase.firestore.FirebaseFirestore
 
-class FriendsActivity : AppCompatActivity() {
+class FriendsActivity : BaseActivity() {
 
+    override val navMenuItemId = R.id.nav_friends
     private lateinit var friendsListView: ListView
     private val friendsList = mutableListOf<String>()  // This will be populated with friend names (or IDs)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_friends)
+        layoutInflater.inflate(R.layout.activity_friends, findViewById(R.id.content_container), true)
+
 
         friendsListView = findViewById(R.id.friendsListView)
 

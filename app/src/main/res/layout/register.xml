@@ -60,7 +60,7 @@
         android:textSize="24sp"
         android:textColor="?attr/colorOnSurface"
         android:textColorHint="?attr/colorOnSurface"
-        app:layout_constraintBottom_toTopOf="@+id/editTextNumberPassword"
+        app:layout_constraintBottom_toTopOf="@+id/editTextPassword"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
@@ -87,7 +87,7 @@
         app:layout_constraintStart_toStartOf="parent" />
 
     <EditText
-        android:id="@+id/editTextNumberPassword"
+        android:id="@+id/editTextPassword"
         android:layout_width="250dp"
         android:layout_height="55dp"
         android:layout_marginBottom="40dp"
@@ -100,7 +100,7 @@
         android:paddingEnd="10dp"
         android:drawablePadding="12dp"
         android:autofillHints="password"
-        android:inputType="numberPassword"
+        android:inputType="textPassword"
         android:textSize="24sp"
         android:textColor="?attr/colorOnSurface"
         android:textColorHint="?attr/colorOnSurface"
@@ -118,5 +118,5 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        tools:srcCompat="@drawable/icon" />
+        android:src="@drawable/icon" />
 </androidx.constraintlayout.widget.ConstraintLayout>

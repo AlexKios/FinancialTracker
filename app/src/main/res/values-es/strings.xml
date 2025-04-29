@@ -56,4 +56,5 @@
     <string name="enter_amount">Ingresar cantidad</string>
     <string name="save">Guardar</string>
     <string name="search_hint">Buscar</string>
+    <string name="chat">Charlar</string>
 </resources>

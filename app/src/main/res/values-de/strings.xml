@@ -56,4 +56,5 @@
     <string name="enter_amount">Betrag eingeben</string>
     <string name="save">Speichern</string>
     <string name="search_hint">Suchen</string>
+    <string name="chat">Chat</string>
 </resources>

@@ -17,7 +17,6 @@ abstract class BaseActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.base_layout)
 
-        // Set up Toolbar
         val toolbar = findViewById<Toolbar>(R.id.toolbar).also { toolbar ->
             setSupportActionBar(toolbar)
             supportActionBar?.setDisplayShowTitleEnabled(false)
@@ -41,6 +40,12 @@ abstract class BaseActivity : AppCompatActivity() {
 
                 R.id.nav_home -> {
                     val intent = Intent(this, MainActivity::class.java)
+                    startActivity(intent)
+                    true
+                }
+
+                R.id.nav_friends -> {
+                    val intent = Intent(this, FriendsActivity::class.java)
                     startActivity(intent)
                     true
                 }

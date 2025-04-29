@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1024130354000",
+    "project_id": "financialtracker-ff2019de",
+    "storage_bucket": "financialtracker-ff2019de.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1024130354000:android:b7c870301c1d3aab44ba55",
+        "android_client_info": {
+          "package_name": "com.example.financialtracker"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDXIciOqOFIntccluRBcypZ8wykdxG9Rq4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

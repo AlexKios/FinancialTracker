@@ -9,10 +9,10 @@
             <InsightsFilterSettings>
               <option name="connection">
                 <ConnectionSetting>
-                  <option name="appId" value="PLACEHOLDER" />
-                  <option name="mobileSdkAppId" value="" />
-                  <option name="projectId" value="" />
-                  <option name="projectNumber" value="" />
+                  <option name="appId" value="com.example.financialtracker" />
+                  <option name="mobileSdkAppId" value="1:1024130354000:android:b7c870301c1d3aab44ba55" />
+                  <option name="projectId" value="financialtracker-ff2019de" />
+                  <option name="projectNumber" value="1024130354000" />
                 </ConnectionSetting>
               </option>
               <option name="signal" value="SIGNAL_UNSPECIFIED" />

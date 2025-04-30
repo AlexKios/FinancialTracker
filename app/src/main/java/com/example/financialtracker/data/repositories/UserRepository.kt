@@ -152,4 +152,60 @@ class UserRepository {
                 }
             }
     }
+
+    fun updateUserData(
+        newUsername: String?,
+        newEmail: String?,
+        newPassword: String?,
+        newName: String?,
+        onSuccess: () -> Unit,
+        onFailure: (Exception) -> Unit
+    ) {
+        val user = auth.currentUser
+        val userId = user?.uid
+
+        if (user != null && userId != null) {
+            val updates = mutableMapOf<String, Any>()
+
+            // Add Firestore updates
+            if (!newUsername.isNullOrBlank()) updates["username"] = newUsername
+            if (!newName.isNullOrBlank()) updates["name"] = newName
+            if (!newEmail.isNullOrBlank()) updates["email"] = newEmail
+
+            val userDocRef = db.collection("users").document(userId)
+
+            // Start batched updates
+            userDocRef.update(updates)
+                .addOnSuccessListener {
+                    // Handle email/password updates
+                    val emailTasks = if (!newEmail.isNullOrBlank()) {
+                        user.updateEmail(newEmail)
+                    } else null
+
+                    val passwordTasks = if (!newPassword.isNullOrBlank()) {
+                        user.updatePassword(newPassword)
+                    } else null
+
+                    // Wait for both email and password updates to complete (if needed)
+                    if (emailTasks != null && passwordTasks != null) {
+                        emailTasks.addOnSuccessListener {
+                            passwordTasks.addOnSuccessListener {
+                                onSuccess()
+                            }.addOnFailureListener { onFailure(it) }
+                        }.addOnFailureListener { onFailure(it) }
+                    } else if (emailTasks != null) {
+                        emailTasks.addOnSuccessListener { onSuccess() }
+                            .addOnFailureListener { onFailure(it) }
+                    } else if (passwordTasks != null) {
+                        passwordTasks.addOnSuccessListener { onSuccess() }
+                            .addOnFailureListener { onFailure(it) }
+                    } else {
+                        onSuccess()
+                    }
+                }
+                .addOnFailureListener { onFailure(it) }
+        } else {
+            onFailure(Exception("User not authenticated"))
+        }
+    }
 }

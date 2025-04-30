@@ -57,4 +57,9 @@
     <string name="search_hint">Search</string>
     <string name="chat">Chat</string>
     <string name="scan">Scan</string>
+    <string name="change_name">Change Name</string>
+    <string name="new_name">New Name</string>
+    <string name="show_qr_code">Show QR Code</string>"
+    <string name="qr_code">QR Code</string>"
+    <string name="hide_qr_code">Hide QR Code</string>"
 </resources>

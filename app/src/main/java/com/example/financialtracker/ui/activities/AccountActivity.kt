@@ -1,70 +1,141 @@
 package com.example.financialtracker.ui.activities
 
+import android.graphics.Bitmap
 import android.os.Bundle
+import android.util.Log
+import android.view.View
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.ViewModelProvider
 import com.example.financialtracker.R
+import com.example.financialtracker.ui.viewmodels.AccountViewModel
+import com.google.rpc.Code
+import com.google.zxing.BarcodeFormat
+import com.google.zxing.common.BitMatrix
+import com.google.zxing.qrcode.QRCodeWriter
 
 class AccountActivity : AppCompatActivity() {
 
-    // Declare the UI elements
+    private lateinit var viewModel: AccountViewModel
+
     private lateinit var accountTitle: TextView
     private lateinit var profilePicture: ImageView
     private lateinit var changeProfilePictureButton: Button
     private lateinit var usernameEditText: EditText
+    private lateinit var nameEditText: EditText
     private lateinit var emailEditText: EditText
     private lateinit var passwordEditText: EditText
     private lateinit var saveChangesButton: Button
+    private lateinit var showQrCode: Button
+    private lateinit var qrCodeImageView: ImageView
+    private lateinit var toggleQrCodeButton: Button
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.account) // Replace with your actual XML layout file name
+        setContentView(R.layout.account)
 
-        // Initialize UI elements
         accountTitle = findViewById(R.id.account_control_title)
         profilePicture = findViewById(R.id.profile_picture)
         changeProfilePictureButton = findViewById(R.id.change_profile_picture_button)
         usernameEditText = findViewById(R.id.username_input)
+        nameEditText = findViewById(R.id.name_input)
         emailEditText = findViewById(R.id.email_input)
         passwordEditText = findViewById(R.id.password_input)
         saveChangesButton = findViewById(R.id.save_changes_button)
+        showQrCode = findViewById(R.id.show_qr_code_button)
+        qrCodeImageView = findViewById(R.id.qr_code_image_view)
+        toggleQrCodeButton = findViewById(R.id.toggle_qr_code_button)
 
-        // Set click listeners for buttons
         changeProfilePictureButton.setOnClickListener {
             // Open a gallery or camera to change the profile picture (implement this logic)
         }
 
+        viewModel = ViewModelProvider(
+            this,
+            ViewModelProvider.AndroidViewModelFactory.getInstance(application)
+        )[AccountViewModel::class.java]
+
+        // Observe user data to populate fields
+        viewModel.currentUser.observe(this) { user ->
+            usernameEditText.setText(user.username)
+            emailEditText.setText(user.email)
+            nameEditText.setText(user.name)
+            passwordEditText.setText("") // Do not display passwords
+        }
+
+        // Observe update results
+        viewModel.updateResult.observe(this) { result ->
+            result.onSuccess {
+                Toast.makeText(this, "Changes saved successfully", Toast.LENGTH_SHORT).show()
+            }.onFailure { error ->
+                Toast.makeText(this, "Error: ${error.message}", Toast.LENGTH_LONG).show()
+            }
+        }
+
+        // Load user data
+        viewModel.loadCurrentUser()
+
+        // Handle save button click
         saveChangesButton.setOnClickListener {
-            onSaveChangesClicked()
+            val newUsername = usernameEditText.text?.toString()?.trim().takeIf { !it.isNullOrEmpty() }
+            val newEmail = emailEditText.text?.toString()?.trim().takeIf { !it.isNullOrEmpty() }
+            val newPassword = passwordEditText.text?.toString()?.trim().takeIf { !it.isNullOrEmpty() }
+            val newName = nameEditText.text?.toString()?.trim().takeIf { !it.isNullOrEmpty() }
+
+            viewModel.updateProfile(
+                newUsername = newUsername,
+                newEmail = newEmail,
+                newPassword = newPassword,
+                newName = newName
+            )
         }
-    }
 
-    // Handle the Save Changes button click
-    private fun onSaveChangesClicked() {
-        // Get input values from EditText fields
-        val username = usernameEditText.text.toString()
-        val email = emailEditText.text.toString()
-        val password = passwordEditText.text.toString()
-
-        // Validate the inputs (basic validation)
-        if (username.isEmpty() || email.isEmpty() || password.isEmpty()) {
-            Toast.makeText(this, "All fields are required", Toast.LENGTH_SHORT).show()
-        } else if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-            Toast.makeText(this, "Invalid email address", Toast.LENGTH_SHORT).show()
-        } else if (password.length < 6) {
-            Toast.makeText(this, "Password must be at least 6 characters", Toast.LENGTH_SHORT).show()
-        } else {
-            // Save the account details (replace this with your actual logic)
-            // For example, you can update the account in the database or call an API
-
-            Toast.makeText(this, "Account details updated successfully", Toast.LENGTH_SHORT).show()
-
-            // Optionally, navigate to another activity (e.g., home or profile page)
-            // startActivity(Intent(this, HomeActivity::class.java))
+        showQrCode.setOnClickListener {
+            viewModel.currentUser.value?.let { user ->
+                val userId = user.uid // Assuming `user.id` is the unique identifier
+                Log.d("QR Code", "User ID: $userId")
+                generateQrCode(userId)
+            }?: run {
+                Toast.makeText(this, "User not found", Toast.LENGTH_SHORT).show()
+            }
         }
+
+        toggleQrCodeButton.setOnClickListener(object : View.OnClickListener {
+            override fun onClick(v: View?) {
+                if (qrCodeImageView.visibility == View.VISIBLE) {
+                    qrCodeImageView.visibility = View.GONE
+                    toggleQrCodeButton.visibility = View.GONE
+                }
+            }
+        })
     }
+        private fun generateQrCode(userId: String) {
+            val qrCodeWriter = QRCodeWriter()
+            try {
+                // Create a BitMatrix based on user ID
+                val bitMatrix: BitMatrix = qrCodeWriter.encode(userId, BarcodeFormat.QR_CODE, 512, 512)
+
+                // Convert BitMatrix to Bitmap
+                val width = bitMatrix.width
+                val height = bitMatrix.height
+                val bmp = Bitmap.createBitmap(width, height, Bitmap.Config.RGB_565)
+
+                for (x in 0 until width) {
+                    for (y in 0 until height) {
+                        bmp.setPixel(x, y, if (bitMatrix.get(x, y)) android.graphics.Color.BLACK else android.graphics.Color.WHITE)
+                    }
+                }
+
+                toggleQrCodeButton.visibility = View.VISIBLE
+
+                qrCodeImageView.setImageBitmap(bmp)
+            } catch (e: Exception) {
+                Toast.makeText(this, "Error generating QR Code", Toast.LENGTH_SHORT).show()
+            }
+        }
 }

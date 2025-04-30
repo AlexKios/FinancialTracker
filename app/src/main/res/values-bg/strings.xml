@@ -58,4 +58,9 @@
     <string name="search_hint">Търсене</string>
     <string name="chat">Чат</string>
     <string name="scan">Сканиране</string>
+    <string name="change_name">Промяна на името</string>
+    <string name="new_name">Ново име</string>
+    <string name="show_qr_code">Показване на QR код</string>
+    <string name="qr_code">QR код</string>
+    <string name="hide_qr_code">Скриване на QR кода</string>
 </resources>

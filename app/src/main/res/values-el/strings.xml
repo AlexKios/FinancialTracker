@@ -58,4 +58,9 @@
     <string name="search_hint">Ερευνα</string>
     <string name="chat">Kουβέντα</string>
     <string name="scan">Σάρωση</string>
+    <string name="change_name">Αλλαγή ονόματος</string>
+    <string name="new_name">Νέο Όνομα</string>
+    <string name="show_qr_code">Εμφάνιση κωδικού QR</string>
+    <string name="qr_code">Κωδικός QR</string>
+    <string name="hide_qr_code">Απόκρυψη κωδικού QR</string>
 </resources>

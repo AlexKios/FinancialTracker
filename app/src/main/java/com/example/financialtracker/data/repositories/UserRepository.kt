@@ -103,6 +103,8 @@ class UserRepository {
                         val user = User(
                             uid = userId,
                             username = username,
+                            name = name,
+                            email = email,
                             friends = listOf()  // start with empty friends list
                         )
                         db.collection("users")

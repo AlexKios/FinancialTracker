@@ -57,4 +57,5 @@
     <string name="save">Запази</string>
     <string name="search_hint">Търсене</string>
     <string name="chat">Чат</string>
+    <string name="scan">Сканиране</string>
 </resources>

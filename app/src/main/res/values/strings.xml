@@ -56,4 +56,5 @@
     <string name="save">Save</string>
     <string name="search_hint">Search</string>
     <string name="chat">Chat</string>
+    <string name="scan">Scan</string>
 </resources>

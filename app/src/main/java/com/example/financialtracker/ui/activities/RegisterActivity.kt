@@ -40,7 +40,7 @@ class RegisterActivity : AppCompatActivity() {
         viewModel.registrationSuccess.observe(this, Observer { success ->
             if (success) {
                 Toast.makeText(this, "Registration successful. Please verify your email.", Toast.LENGTH_LONG).show()
-                startActivity(Intent(this, MainActivity::class.java))
+                startActivity(Intent(this, LoginActivity::class.java))
                 finish()
             }
         })

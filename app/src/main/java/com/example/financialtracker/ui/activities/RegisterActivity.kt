@@ -5,8 +5,11 @@ import android.os.Bundle
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.Observer
 import com.example.financialtracker.R
+import com.example.financialtracker.ui.viewmodels.RegisterViewModel
 
 class RegisterActivity : AppCompatActivity() {
 
@@ -16,6 +19,7 @@ class RegisterActivity : AppCompatActivity() {
     private lateinit var emailEditText: EditText
     private lateinit var passwordEditText: EditText
     private lateinit var registerButton: Button
+    private val viewModel: RegisterViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -32,17 +36,27 @@ class RegisterActivity : AppCompatActivity() {
         registerButton.setOnClickListener {
             onRegisterClicked()
         }
+
+        viewModel.registrationSuccess.observe(this, Observer { success ->
+            if (success) {
+                Toast.makeText(this, "Registration successful. Please verify your email.", Toast.LENGTH_LONG).show()
+                startActivity(Intent(this, MainActivity::class.java))
+                finish()
+            }
+        })
+
+        viewModel.errorMessage.observe(this, Observer { error ->
+            Toast.makeText(this, error, Toast.LENGTH_SHORT).show()
+        })
     }
 
-    // Handle the Register button click
     private fun onRegisterClicked() {
-        // Get input values from EditText fields
+
         val name = nameEditText.text.toString()
         val username = usernameEditText.text.toString()
         val email = emailEditText.text.toString()
         val password = passwordEditText.text.toString()
 
-        // Validate the inputs (basic validation)
         if (name.isEmpty() || username.isEmpty() || email.isEmpty() || password.isEmpty()) {
             Toast.makeText(this, "All fields are required", Toast.LENGTH_SHORT).show()
         } else if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
@@ -50,12 +64,7 @@ class RegisterActivity : AppCompatActivity() {
         } else if (password.length < 6) {
             Toast.makeText(this, "Password must be at least 6 characters", Toast.LENGTH_SHORT).show()
         } else {
-            // Registration logic (replace this with your actual logic)
-            // For example, you can store the data in a database or send it to a server
-
-            Toast.makeText(this, "Registration successful", Toast.LENGTH_SHORT).show()
-
-            startActivity(Intent(this, MainActivity::class.java))
+            viewModel.registerUser(name, username, email, password)
         }
     }
 }

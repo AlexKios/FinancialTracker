@@ -1,0 +1,85 @@
+package com.example.financialtracker.data.repositories
+
+import com.example.financialtracker.data.model.Chat
+import com.example.financialtracker.data.model.Message
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.Query
+
+class ChatRepository {
+
+    private val db = FirebaseFirestore.getInstance()
+    private val auth = FirebaseAuth.getInstance()
+
+    fun createChat(friendUid: String, onSuccess: (String) -> Unit, onFailure: (Exception) -> Unit) {
+        val currentUserId = auth.currentUser?.uid
+        if (currentUserId != null) {
+            val chatId = if (currentUserId < friendUid) {
+                "${currentUserId}_$friendUid"
+            } else {
+                "${friendUid}_$currentUserId"
+            }
+
+            val chat = Chat(
+                chatId = chatId,
+                participants = listOf(currentUserId, friendUid),
+                timestamp = System.currentTimeMillis()
+            )
+
+            db.collection("chats")
+                .document(chatId)
+                .set(chat)
+                .addOnSuccessListener {
+                    onSuccess(chatId)
+                }
+                .addOnFailureListener { exception ->
+                    onFailure(exception)
+                }
+        } else {
+            onFailure(Exception("User is not authenticated"))
+        }
+    }
+
+    fun getMessages(chatId: String, onSuccess: (List<Message>) -> Unit, onFailure: (Exception) -> Unit) {
+        db.collection("chats")
+            .document(chatId)
+            .collection("messages")
+            .orderBy("timestamp", Query.Direction.ASCENDING)
+            .get()
+            .addOnSuccessListener { querySnapshot ->
+                val messages = querySnapshot.documents.mapNotNull { it.toObject(Message::class.java) }
+                onSuccess(messages)
+            }
+            .addOnFailureListener { exception ->
+                onFailure(exception)
+            }
+    }
+
+    fun sendMessage(chatId: String, message: Message, onSuccess: () -> Unit, onFailure: (Exception) -> Unit) {
+        val currentUserId = auth.currentUser?.uid
+        if (currentUserId != null) {
+            val messageId = db.collection("chats").document(chatId).collection("messages").document().id
+            db.collection("chats")
+                .document(chatId)
+                .collection("messages")
+                .document(messageId)
+                .set(message)
+                .addOnSuccessListener {
+                    db.collection("chats")
+                        .document(chatId)
+                        .update("timestamp", message.timestamp)
+                        .addOnSuccessListener {
+                            onSuccess()
+                        }
+                        .addOnFailureListener { e ->
+                            onFailure(e)
+                        }
+                }
+                .addOnFailureListener { exception ->
+                    onFailure(exception)
+                }
+        } else {
+            onFailure(Exception("User is not authenticated"))
+        }
+    }
+}

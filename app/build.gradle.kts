@@ -1,6 +1,6 @@
 plugins {
     alias(libs.plugins.android.application)
-    alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.kotlin.android) version "2.1.0"
     id("com.google.gms.google-services")
 }
 
@@ -47,14 +47,12 @@ dependencies {
     implementation(libs.firebase.database.ktx)
     implementation(libs.firebase.database)
     implementation(libs.firebase.firestore)
+    implementation(libs.firebase.auth.ktx)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
-    // QR Code Generator (zxing)
     implementation(libs.zxing.android.embedded)
-    // QR Scanner (ML Kit)
     implementation(libs.barcode.scanning)
-    //Jetpack Fragment KTX
     implementation(libs.androidx.fragment.ktx)
     implementation(platform(libs.firebase.bom))
 }

@@ -1,8 +1,6 @@
 package com.example.financialtracker.ui.activities
 
-import android.content.ContentValues.TAG
 import android.os.Bundle
-import android.util.Log
 import android.widget.TableRow
 import android.widget.TextView
 import android.widget.ImageView
@@ -10,10 +8,6 @@ import android.widget.TableLayout
 import android.widget.ProgressBar
 import androidx.core.view.setPadding
 import com.example.financialtracker.R
-import com.google.firebase.Firebase
-import com.google.firebase.FirebaseApp
-import com.google.firebase.database.database
-import com.google.firebase.firestore.firestore
 
 class MainActivity : BaseActivity() {
 
@@ -26,24 +20,6 @@ class MainActivity : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         layoutInflater.inflate(R.layout.activity_main, findViewById(R.id.content_container), true)
-
-        FirebaseApp.initializeApp(this)
-        val db = Firebase.firestore
-        val user = hashMapOf(
-            "first" to "Ada",
-            "last" to "Lovelace",
-            "born" to 1815
-        )
-
-// Add a new document with a generated ID
-        db.collection("users")
-            .add(user)
-            .addOnSuccessListener { documentReference ->
-                Log.d(TAG, "DocumentSnapshot added with ID: ${documentReference.id}")
-            }
-            .addOnFailureListener { e ->
-                Log.w(TAG, "Error adding document", e)
-            }
 
         tableLayout = findViewById(R.id.tableLayout)
         progressBar = findViewById(R.id.progressBar2)

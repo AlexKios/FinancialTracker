@@ -5,62 +5,61 @@ import android.os.Bundle
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.Observer
 import com.example.financialtracker.R
+import com.example.financialtracker.ui.viewmodels.LoginViewModel
 
 class LoginActivity : AppCompatActivity() {
 
     // Declare the UI elements
-    private lateinit var usernameEditText: EditText
+    private lateinit var emailEditText: EditText
     private lateinit var passwordEditText: EditText
     private lateinit var loginButton: Button
     private lateinit var registerButton: Button
 
+    private val loginViewModel: LoginViewModel by viewModels()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.login) // Replace with your actual XML layout file name
+        setContentView(R.layout.login)
 
-        // Initialize the UI elements
-        usernameEditText = findViewById(R.id.editTextText)
+        emailEditText = findViewById(R.id.editTextText)
         passwordEditText = findViewById(R.id.editTextTextPassword)
         loginButton = findViewById(R.id.login)
         registerButton = findViewById(R.id.register)
 
-        // Set click listener for the login button
-        loginButton.setOnClickListener {
-            onLoginClicked()
-        }
+        loginButton.setOnClickListener { onLoginClicked() }
+
         registerButton.setOnClickListener {
             startActivity(Intent(this, RegisterActivity::class.java))
         }
+
+        loginViewModel.loginSuccess.observe(this, Observer { success ->
+            if (success) {
+                Toast.makeText(this, "Login successful", Toast.LENGTH_SHORT).show()
+                startActivity(Intent(this, MainActivity::class.java))
+                finish()
+            }
+        })
+
+        loginViewModel.errorMessage.observe(this, Observer { error ->
+            error?.let {
+                Toast.makeText(this, it, Toast.LENGTH_LONG).show()
+                loginViewModel.clearError()
+            }
+        })
     }
 
-    // Handle the Login button click
     private fun onLoginClicked() {
-        // Get input values from EditText fields
-        val username = usernameEditText.text.toString()
-        val password = passwordEditText.text.toString()
+        val email = emailEditText.text.toString().trim()
+        val password = passwordEditText.text.toString().trim()
 
-        // Validate the inputs (basic validation)
-        if (username.isEmpty() || password.isEmpty()) {
+        if (email.isEmpty() || password.isEmpty()) {
             Toast.makeText(this, "Both fields are required", Toast.LENGTH_SHORT).show()
         } else {
-            // Check credentials (replace this with your actual validation logic)
-            if (isValidCredentials(username, password)) {
-                Toast.makeText(this, "Login successful", Toast.LENGTH_SHORT).show()
-
-
-                startActivity(Intent(this, MainActivity::class.java))
-            } else {
-                Toast.makeText(this, "Invalid credentials", Toast.LENGTH_SHORT).show()
-            }
+            loginViewModel.login(email, password)
         }
-    }
-
-    // A placeholder for actual credential validation logic
-    private fun isValidCredentials(username: String, password: String): Boolean {
-        // This should be replaced with your actual backend/API logic
-        // For now, we just check if the username is "user" and password is "password"
-        return username == "user" && password == "password"
     }
 }

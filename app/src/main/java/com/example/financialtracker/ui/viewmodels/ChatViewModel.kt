@@ -13,7 +13,6 @@ class ChatViewModel() : ViewModel() {
     val messages: LiveData<List<Message>> get() = _messages
 
     private val _error = MutableLiveData<String>()
-    val error: LiveData<String> get() = _error
 
     fun listenForMessages(chatId: String, currentUserId: String) {
         chatRepository.listenForMessages(chatId, { newMessages ->

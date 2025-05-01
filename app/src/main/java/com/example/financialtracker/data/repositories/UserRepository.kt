@@ -51,27 +51,55 @@ class UserRepository {
     }
 
 
-    fun getFriends(onSuccess: (List<Friend>) -> Unit, onFailure: (Exception) -> Unit) {
-        val userId = auth.currentUser?.uid
-        if (userId != null) {
-            db.collection("users")
-                .document(userId)
-                .get()
-                .addOnSuccessListener { document ->
-                    val user = document.toObject(User::class.java)
-                    if (user != null) {
-                        val friends = user.friends.map { Friend(it, "") }
-                        onSuccess(friends)
+    fun getFriendUsernames(
+        onSuccess: (List<String>) -> Unit,
+        onFailure: (Exception) -> Unit
+    ) {
+        val auth = FirebaseAuth.getInstance()
+        val db = FirebaseFirestore.getInstance()
+        val userId = auth.currentUser?.uid ?: return onSuccess(emptyList())
+
+        db.collection("users").document(userId)
+            .get()
+            .addOnSuccessListener { document ->
+                val friendUids = document.get("friends") as? List<*> ?: emptyList<String>()
+                if (friendUids.isEmpty()) {
+                    onSuccess(emptyList())
+                    return@addOnSuccessListener
+                }
+
+                val usernames = mutableListOf<String>()
+                var loaded = 0
+
+                for (uid in friendUids) {
+                    if (uid is String) {
+                        db.collection("users").document(uid)
+                            .get()
+                            .addOnSuccessListener { friendDoc ->
+                                val username = friendDoc.getString("username") ?: "Unknown"
+                                usernames.add(username)
+                                loaded++
+                                if (loaded == friendUids.size) {
+                                    onSuccess(usernames)
+                                }
+                            }
+                            .addOnFailureListener {
+                                loaded++
+                                if (loaded == friendUids.size) {
+                                    onSuccess(usernames)
+                                }
+                            }
                     } else {
-                        onFailure(Exception("User not found"))
+                        loaded++
+                        if (loaded == friendUids.size) {
+                            onSuccess(usernames)
+                        }
                     }
                 }
-                .addOnFailureListener { exception ->
-                    onFailure(exception)
-                }
-        } else {
-            onFailure(Exception("User is not authenticated"))
-        }
+            }
+            .addOnFailureListener { exception ->
+                onFailure(exception)
+            }
     }
 
     fun addFriend(friendUid: String, onSuccess: () -> Unit, onFailure: (Exception) -> Unit) {

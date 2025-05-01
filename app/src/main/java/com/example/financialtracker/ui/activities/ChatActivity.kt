@@ -8,7 +8,10 @@ import android.widget.EditText
 import android.widget.Button
 import android.widget.Toast
 import androidx.lifecycle.ViewModelProvider
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.example.financialtracker.R
+import com.example.financialtracker.data.adapter.MessageAdapter
 import com.example.financialtracker.data.model.Message
 import com.example.financialtracker.data.repositories.ChatRepository
 import com.example.financialtracker.ui.viewmodels.ChatViewModel
@@ -23,7 +26,8 @@ class ChatActivity : AppCompatActivity() {
     private lateinit var viewModel: ChatViewModel
     private lateinit var adapter: ArrayAdapter<String>
     private val displayMessages = mutableListOf<String>()
-
+    private lateinit var messagesRecyclerView: RecyclerView
+    private lateinit var messageAdapter: MessageAdapter
     private lateinit var chatId: String
     private lateinit var currentUserId: String
 
@@ -33,19 +37,18 @@ class ChatActivity : AppCompatActivity() {
 
         friendName = intent.getStringExtra("friend_name") ?: "Unknown Friend"
 
-        messagesListView = findViewById(R.id.messageList)
+        messagesRecyclerView = findViewById(R.id.messageList)
         messageInput = findViewById(R.id.messageInput)
         sendButton = findViewById(R.id.sendButton)
+        messageAdapter = MessageAdapter(emptyList())
+        messagesRecyclerView.layoutManager = LinearLayoutManager(this)
+        messagesRecyclerView.adapter = messageAdapter
 
         val friendUid = intent.getStringExtra("friend_uid")!!
         currentUserId = FirebaseAuth.getInstance().currentUser?.uid ?: return
 
-        messagesListView = findViewById(R.id.messageList)
         val messageInput = findViewById<EditText>(R.id.messageInput)
         val sendButton = findViewById<Button>(R.id.sendButton)
-
-        adapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, displayMessages)
-        messagesListView.adapter = adapter
 
         viewModel = ViewModelProvider(this, ViewModelProvider.NewInstanceFactory())[ChatViewModel::class.java]
 
@@ -58,16 +61,13 @@ class ChatActivity : AppCompatActivity() {
         })
 
         viewModel.messages.observe(this) { messages ->
-            displayMessages.clear()
-            displayMessages.addAll(messages.map {
-                val prefix = if (it.senderId == currentUserId) "You" else "Friend"
-                "$prefix: ${it.messageContent} [${it.status}]"
-            })
-            adapter.notifyDataSetChanged()
+            messageAdapter.updateMessages(messages)
 
             messages.filter { it.senderId != currentUserId }.forEach {
                 viewModel.markMessageAsSeen(chatId, it)
             }
+
+            messagesRecyclerView.scrollToPosition(messages.size - 1)
         }
 
         sendButton.setOnClickListener {

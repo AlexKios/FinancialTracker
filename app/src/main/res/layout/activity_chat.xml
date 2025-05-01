@@ -4,14 +4,12 @@
     android:orientation="vertical"
     android:padding="16dp">
 
-    <!-- ListView to display messages -->
-    <ListView
+    <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/messageList"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:divider="@android:color/darker_gray"
-        android:dividerHeight="0.5dp" />
+        android:padding="8dp" />
 
     <EditText
         android:id="@+id/messageInput"

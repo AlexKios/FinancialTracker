@@ -2,6 +2,7 @@ package com.example.financialtracker.data.repositories
 
 import com.example.financialtracker.data.model.Chat
 import com.example.financialtracker.data.model.Message
+import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
@@ -23,7 +24,7 @@ class ChatRepository {
             val chat = Chat(
                 chatId = chatId,
                 participants = listOf(currentUserId, friendUid),
-                timestamp = System.currentTimeMillis()
+                timestamp = Timestamp(System.currentTimeMillis() / 1000, 0)
             )
 
             db.collection("chats")
@@ -38,21 +39,6 @@ class ChatRepository {
         } else {
             onFailure(Exception("User is not authenticated"))
         }
-    }
-
-    fun getMessages(chatId: String, onSuccess: (List<Message>) -> Unit, onFailure: (Exception) -> Unit) {
-        db.collection("chats")
-            .document(chatId)
-            .collection("messages")
-            .orderBy("timestamp", Query.Direction.ASCENDING)
-            .get()
-            .addOnSuccessListener { querySnapshot ->
-                val messages = querySnapshot.documents.mapNotNull { it.toObject(Message::class.java) }
-                onSuccess(messages)
-            }
-            .addOnFailureListener { exception ->
-                onFailure(exception)
-            }
     }
 
     fun sendMessage(chatId: String, message: Message, onSuccess: () -> Unit, onFailure: (Exception) -> Unit) {
@@ -87,14 +73,22 @@ class ChatRepository {
         db.collection("chats")
             .document(chatId)
             .collection("messages")
-            .orderBy("timestamp", Query.Direction.DESCENDING)
+            .orderBy("timestamp", Query.Direction.ASCENDING)
             .addSnapshotListener { snapshots, error ->
                 if (error != null) {
                     onFailure(error)
                     return@addSnapshotListener
                 }
-                val messages = snapshots?.documents?.mapNotNull { it.toObject(Message::class.java) } ?: listOf()
-                onSuccess(messages)
+
+                try {
+                    val messages = snapshots?.documents?.mapNotNull {
+                        it.toObject(Message::class.java)
+                    } ?: emptyList()
+
+                    onSuccess(messages)
+                } catch (e: Exception) {
+                    onFailure(e)
+                }
             }
     }
 
@@ -109,5 +103,22 @@ class ChatRepository {
                     document.reference.update("status", newStatus)
                 }
             }
+    }
+
+    private fun getSenderName(senderId: String, onResult: (String) -> Unit) {
+        val db = FirebaseFirestore.getInstance()
+        val userDocRef = db.collection("users").document(senderId)
+
+        userDocRef.get().addOnSuccessListener { document ->
+            if (document.exists()) {
+                // Assuming you have a "name" field in your user document
+                val senderName = document.getString("name") ?: "Unknown"
+                onResult(senderName)
+            } else {
+                onResult("Unknown")
+            }
+        }.addOnFailureListener {
+            onResult("Unknown")
+        }
     }
 }

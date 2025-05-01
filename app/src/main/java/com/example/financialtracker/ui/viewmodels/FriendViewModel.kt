@@ -65,4 +65,12 @@ class FriendsViewModel : ViewModel() {
                 }
             }
     }
+
+    fun removeFriend(
+        friendUsername: String,
+        onSuccess: () -> Unit,
+        onFailure: (Exception) -> Unit
+    ) {
+        userRepository.removeFriendByUsername(friendUsername, onSuccess, onFailure)
+    }
 }

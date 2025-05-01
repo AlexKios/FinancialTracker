@@ -63,4 +63,5 @@
     <string name="show_qr_code">Εμφάνιση κωδικού QR</string>
     <string name="qr_code">Κωδικός QR</string>
     <string name="hide_qr_code">Απόκρυψη κωδικού QR</string>
+    <string name="remove">Αφαιρώ</string>
 </resources>

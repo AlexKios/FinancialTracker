@@ -63,4 +63,5 @@
     <string name="show_qr_code">QR-Code anzeigen</string>
     <string name="qr_code">QR-Code</string>
     <string name="hide_qr_code">QR-Code ausblenden</string>
+    <string name="remove">Entfernen</string>
 </resources>

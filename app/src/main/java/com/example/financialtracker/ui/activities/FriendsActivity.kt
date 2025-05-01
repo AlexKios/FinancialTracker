@@ -1,6 +1,7 @@
 package com.example.financialtracker.ui.activities
 
 import android.Manifest
+import android.app.AlertDialog
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
@@ -21,6 +22,7 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
 import com.example.financialtracker.R
+import com.example.financialtracker.data.adapter.FriendsAdapter
 import com.example.financialtracker.ui.viewmodels.FriendsViewModel
 import com.google.mlkit.vision.barcode.BarcodeScanning
 import com.google.mlkit.vision.common.InputImage
@@ -62,7 +64,24 @@ class FriendsActivity : BaseActivity() {
 
         friendsViewModel = ViewModelProvider(this)[FriendsViewModel::class.java]
 
-        val adapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, friendsList)
+        val adapter = FriendsAdapter(this, friendsList) { friendName ->
+            AlertDialog.Builder(this)
+                .setTitle("Remove Friend")
+                .setMessage("Are you sure you want to remove $friendName?")
+                .setPositiveButton("Yes") { _, _ ->
+                    friendsViewModel.removeFriend(friendName,
+                        onSuccess = {
+                            Toast.makeText(this, "$friendName removed", Toast.LENGTH_SHORT).show()
+                            friendsViewModel.loadFriends()
+                        },
+                        onFailure = { e ->
+                            Toast.makeText(this, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
+                        }
+                    )
+                }
+                .setNegativeButton("Cancel", null)
+                .show()
+        }
         friendsListView.adapter = adapter
 
         friendsViewModel.friendsList.observe(this) { updatedList ->

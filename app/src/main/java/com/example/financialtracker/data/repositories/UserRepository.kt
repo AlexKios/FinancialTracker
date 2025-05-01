@@ -167,7 +167,6 @@ class UserRepository {
         if (user != null && userId != null) {
             val updates = mutableMapOf<String, Any>()
 
-            // Add Firestore updates
             if (!newUsername.isNullOrBlank()) updates["username"] = newUsername
             if (!newName.isNullOrBlank()) updates["name"] = newName
             if (!newEmail.isNullOrBlank()) updates["email"] = newEmail
@@ -207,5 +206,38 @@ class UserRepository {
         } else {
             onFailure(Exception("User not authenticated"))
         }
+    }
+    fun removeFriendByUsername(username: String, onSuccess: () -> Unit, onFailure: (Exception) -> Unit) {
+        val currentUid = auth.currentUser?.uid ?: return onFailure(Exception("Not authenticated"))
+
+        db.collection("users")
+            .whereEqualTo("username", username)
+            .get()
+            .addOnSuccessListener { querySnapshot ->
+                if (!querySnapshot.isEmpty) {
+                    val friendUid = querySnapshot.documents[0].id
+
+                    db.runTransaction { transaction ->
+                        val userRef = db.collection("users").document(currentUid)
+                        val friendRef = db.collection("users").document(friendUid)
+
+                        val userFriends = transaction.get(userRef).toObject(User::class.java)?.friends?.toMutableList() ?: mutableListOf()
+                        val friendFriends = transaction.get(friendRef).toObject(User::class.java)?.friends?.toMutableList() ?: mutableListOf()
+
+                        userFriends.remove(friendUid)
+                        friendFriends.remove(currentUid)
+
+                        transaction.update(userRef, "friends", userFriends)
+                        transaction.update(friendRef, "friends", friendFriends)
+                    }.addOnSuccessListener {
+                        onSuccess()
+                    }.addOnFailureListener {
+                        onFailure(it)
+                    }
+                } else {
+                    onFailure(Exception("Friend not found"))
+                }
+            }
+            .addOnFailureListener { onFailure(it) }
     }
 }

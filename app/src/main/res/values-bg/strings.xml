@@ -64,4 +64,7 @@
     <string name="qr_code">QR код</string>
     <string name="hide_qr_code">Скриване на QR кода</string>
     <string name="remove">Премахнете</string>
+    <string name="send">Изпратете</string>
+    <string name="type_message">Въведете съобщение</string>
+    <string name="stop_scan">Спрете сканирането</string>
 </resources>

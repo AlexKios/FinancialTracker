@@ -64,4 +64,7 @@
     <string name="qr_code">QR-Code</string>
     <string name="hide_qr_code">QR-Code ausblenden</string>
     <string name="remove">Entfernen</string>
+    <string name="send">Schicken</string>
+    <string name="type_message">Geben Sie eine Nachricht ein</string>
+    <string name="stop_scan">Stoppen Sie den Scan</string>
 </resources>

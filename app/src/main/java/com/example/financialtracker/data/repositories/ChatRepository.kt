@@ -82,4 +82,32 @@ class ChatRepository {
             onFailure(Exception("User is not authenticated"))
         }
     }
+
+    fun listenForMessages(chatId: String, onSuccess: (List<Message>) -> Unit, onFailure: (Exception) -> Unit) {
+        db.collection("chats")
+            .document(chatId)
+            .collection("messages")
+            .orderBy("timestamp", Query.Direction.DESCENDING)
+            .addSnapshotListener { snapshots, error ->
+                if (error != null) {
+                    onFailure(error)
+                    return@addSnapshotListener
+                }
+                val messages = snapshots?.documents?.mapNotNull { it.toObject(Message::class.java) } ?: listOf()
+                onSuccess(messages)
+            }
+    }
+
+    fun updateMessageStatus(chatId: String, message: Message, newStatus: String) {
+        db.collection("chats")
+            .document(chatId)
+            .collection("messages")
+            .whereEqualTo("timestamp", message.timestamp)  // unique identifier
+            .get()
+            .addOnSuccessListener { result ->
+                for (document in result.documents) {
+                    document.reference.update("status", newStatus)
+                }
+            }
+    }
 }

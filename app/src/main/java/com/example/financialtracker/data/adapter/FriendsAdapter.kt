@@ -12,7 +12,8 @@ import com.example.financialtracker.R
 class FriendsAdapter(
     private val context: Context,
     private val friends: List<String>,
-    private val onRemoveClick: (String) -> Unit
+    private val onRemoveClick: (String) -> Unit,
+    private val onFriendClick: (String) -> Unit
 ) : ArrayAdapter<String>(context, 0, friends) {
 
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
@@ -26,6 +27,10 @@ class FriendsAdapter(
 
         removeButton.setOnClickListener {
             onRemoveClick(friend)
+        }
+
+        view.setOnClickListener {
+            onFriendClick(friend)
         }
 
         return view

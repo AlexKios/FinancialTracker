@@ -8,7 +8,6 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.widget.ListView
-import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.Toast
 import androidx.annotation.OptIn
@@ -23,6 +22,7 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
 import com.example.financialtracker.R
 import com.example.financialtracker.data.adapter.FriendsAdapter
+import com.example.financialtracker.data.repositories.UserRepository
 import com.example.financialtracker.ui.viewmodels.FriendsViewModel
 import com.google.mlkit.vision.barcode.BarcodeScanning
 import com.google.mlkit.vision.common.InputImage
@@ -38,50 +38,57 @@ class FriendsActivity : BaseActivity() {
     private lateinit var scanButton: Button
     private lateinit var cameraExecutor: ExecutorService
     private lateinit var previewView: PreviewView
+    private var isScanning = false
+    private var cameraProvider: ProcessCameraProvider? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         layoutInflater.inflate(R.layout.activity_friends, findViewById(R.id.content_container), true)
         scanButton = findViewById(R.id.scanButton)
-
         friendsListView = findViewById(R.id.friendsListView)
-
-        friendsListView.setOnItemClickListener { _, _, position, _ ->
-            val selectedFriend = friendsList[position]
-            startChat(selectedFriend)
-        }
-
         previewView = findViewById(R.id.previewView)
         cameraExecutor = Executors.newSingleThreadExecutor()
 
         scanButton.setOnClickListener {
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
-                openCameraPreview()
+            if (isScanning) {
+                stopCamera()
             } else {
-                ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.CAMERA), 101)
+                if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
+                    openCameraPreview()
+                } else {
+                    ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.CAMERA), 101)
+                }
             }
         }
 
         friendsViewModel = ViewModelProvider(this)[FriendsViewModel::class.java]
 
-        val adapter = FriendsAdapter(this, friendsList) { friendName ->
-            AlertDialog.Builder(this)
-                .setTitle("Remove Friend")
-                .setMessage("Are you sure you want to remove $friendName?")
-                .setPositiveButton("Yes") { _, _ ->
-                    friendsViewModel.removeFriend(friendName,
-                        onSuccess = {
-                            Toast.makeText(this, "$friendName removed", Toast.LENGTH_SHORT).show()
-                            friendsViewModel.loadFriends()
-                        },
-                        onFailure = { e ->
-                            Toast.makeText(this, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
-                        }
-                    )
-                }
-                .setNegativeButton("Cancel", null)
-                .show()
-        }
+        val adapter = FriendsAdapter(
+            this,
+            friendsList,
+            onRemoveClick = { friendName ->
+                AlertDialog.Builder(this)
+                    .setTitle("Remove Friend")
+                    .setMessage("Are you sure you want to remove $friendName?")
+                    .setPositiveButton("Yes") { _, _ ->
+                        friendsViewModel.removeFriend(friendName,
+                            onSuccess = {
+                                Toast.makeText(this, "$friendName removed", Toast.LENGTH_SHORT).show()
+                                friendsViewModel.loadFriends()
+                            },
+                            onFailure = { e ->
+                                Toast.makeText(this, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
+                            }
+                        )
+                    }
+                    .setNegativeButton("Cancel", null)
+                    .show()
+            },
+            onFriendClick = { friendName ->
+                startChat(friendName)
+            }
+        )
+
         friendsListView.adapter = adapter
 
         friendsViewModel.friendsList.observe(this) { updatedList ->
@@ -94,14 +101,23 @@ class FriendsActivity : BaseActivity() {
     }
 
     private fun startChat(friendName: String) {
-        val intent = Intent(this, ChatActivity::class.java)
-        intent.putExtra("friend_name", friendName)
-        startActivity(intent)
+        val userRepository = UserRepository()
+
+        userRepository.getUserIdByUsername(friendName, { friendUid ->
+            val intent = Intent(this, ChatActivity::class.java)
+            intent.putExtra("friend_name", friendName   )
+            intent.putExtra("friend_uid", friendUid)
+            startActivity(intent)
+        }, { error ->
+            Toast.makeText(this, "Error: ${error.message}", Toast.LENGTH_SHORT).show()
+        })
     }
 
     @OptIn(ExperimentalGetImage::class)
     private fun openCameraPreview() {
         previewView.visibility = View.VISIBLE
+        scanButton.text = getString(R.string.stop_scan)
+        isScanning = true
 
         val cameraProviderFuture = ProcessCameraProvider.getInstance(this)
         cameraProviderFuture.addListener({
@@ -167,5 +183,12 @@ class FriendsActivity : BaseActivity() {
     override fun onDestroy() {
         super.onDestroy()
         cameraExecutor.shutdown()
+    }
+
+    private fun stopCamera() {
+        cameraProvider?.unbindAll()
+        previewView.visibility = View.GONE
+        scanButton.text = getString(R.string.scan)
+        isScanning = false
     }
 }

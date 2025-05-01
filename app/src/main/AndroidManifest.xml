@@ -21,7 +21,8 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.FinancialTracker"
         tools:targetApi="31" >
-        <activity android:name=".ui.activities.ChatActivity" />
+        <activity android:name=".ui.activities.ChatActivity"
+            android:windowSoftInputMode="adjustResize"/>
         <activity android:name=".ui.activities.FriendsActivity" />
         <activity android:name=".ui.activities.ExpenseActivity" />
         <activity android:name=".ui.activities.IncomeActivity" />

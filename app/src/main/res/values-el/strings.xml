@@ -64,4 +64,7 @@
     <string name="qr_code">Κωδικός QR</string>
     <string name="hide_qr_code">Απόκρυψη κωδικού QR</string>
     <string name="remove">Αφαιρώ</string>
+    <string name="send">Στέλνω</string>
+    <string name="type_message">Πληκτρολογήστε ένα μήνυμα</string>
+    <string name="stop_scan">Διακοπή σάρωσης</string>
 </resources>

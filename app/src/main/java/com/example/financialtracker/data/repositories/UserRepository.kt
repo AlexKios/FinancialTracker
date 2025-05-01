@@ -33,6 +33,24 @@ class UserRepository {
         }
     }
 
+    fun getUserIdByUsername(username: String, onSuccess: (String) -> Unit, onFailure: (Exception) -> Unit) {
+        db.collection("users")
+            .whereEqualTo("username", username)
+            .get()
+            .addOnSuccessListener { querySnapshot ->
+                if (!querySnapshot.isEmpty) {
+                    val userId = querySnapshot.documents[0].id
+                    onSuccess(userId)
+                } else {
+                    onFailure(Exception("User not found"))
+                }
+            }
+            .addOnFailureListener { exception ->
+                onFailure(exception)
+            }
+    }
+
+
     fun getFriends(onSuccess: (List<Friend>) -> Unit, onFailure: (Exception) -> Unit) {
         val userId = auth.currentUser?.uid
         if (userId != null) {
@@ -42,7 +60,7 @@ class UserRepository {
                 .addOnSuccessListener { document ->
                     val user = document.toObject(User::class.java)
                     if (user != null) {
-                        val friends = user.friends.map { Friend(it, "") }  // Populate with username if needed
+                        val friends = user.friends.map { Friend(it, "") }
                         onSuccess(friends)
                     } else {
                         onFailure(Exception("User not found"))

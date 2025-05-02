@@ -51,29 +51,6 @@ class UserRepository {
             }
     }
 
-    private fun listenToFriendStatuses(
-        friendUids: List<String>,
-        onUpdate: (Map<String, Pair<String, String>>) -> Unit // uid -> (username, status)
-    ) {
-        friendListeners.values.forEach { it.remove() }
-        friendListeners.clear()
-
-        val friendData = mutableMapOf<String, Pair<String, String>>()
-
-        for (uid in friendUids) {
-            val listener = db.collection("users").document(uid)
-                .addSnapshotListener { snapshot, _ ->
-                    if (snapshot != null && snapshot.exists()) {
-                        val username = snapshot.getString("username") ?: "Unknown"
-                        val status = snapshot.getString("status") ?: "offline"
-                        friendData[uid] = username to status
-                        onUpdate(friendData)
-                    }
-                }
-            friendListeners[uid] = listener
-        }
-    }
-
     fun listenToCurrentUserFriendStatuses(
         onUpdate: (Map<String, Pair<String, String>>) -> Unit
     ) {
@@ -88,6 +65,28 @@ class UserRepository {
             }
     }
 
+    private fun listenToFriendStatuses(
+        friendUids: List<String>,
+        onUpdate: (Map<String, Pair<String, String>>) -> Unit // uid -> (username, status)
+    ) {
+        val friendData = mutableMapOf<String, Pair<String, String>>()
+
+        for (uid in friendUids) {
+            val listener = db.collection("users").document(uid)
+                .addSnapshotListener { snapshot, _ ->
+                    if (snapshot != null && snapshot.exists()) {
+                        val username = snapshot.getString("username") ?: "Unknown"
+                        val status = snapshot.getString("status") ?: "offline"
+                        val online = snapshot.getBoolean("online") ?: false
+                        val finalStatus = if (online) "online" else status
+
+                        friendData[uid] = username to finalStatus
+                        onUpdate(friendData)
+                    }
+                }
+            friendListeners[uid] = listener
+        }
+    }
 
     fun getFriendUsernamesAndStatus(
         onSuccess: (List<Pair<String, String>>) -> Unit,  // Pair<Username, Status>

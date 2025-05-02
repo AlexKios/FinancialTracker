@@ -67,4 +67,5 @@
     <string name="send">Изпратете</string>
     <string name="type_message">Въведете съобщение</string>
     <string name="stop_scan">Спрете сканирането</string>
+    <string name="change_language">Промяна на езика</string>
 </resources>

@@ -66,4 +66,5 @@
     <string name="send">Send</string>
     <string name="type_message">Type a message</string>
     <string name="stop_scan">Stop Scan</string>
+    <string name="change_language">Change Language</string>
 </resources>

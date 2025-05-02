@@ -11,4 +11,8 @@
         <color name="textPrimary">#FFFFFF</color>
         <color name="textSecondary">#B3B3B3</color>
         <color name="toolbar_icon_color">#FFFFFF</color>
+        <color name="switch_thumb_color">#BB86FC</color>
+        <color name="switch_track_color">#121212</color>
+        <color name="message_sent_color">#2196F3</color>
+        <color name="message_received_color">#424242</color>"
 </resources>

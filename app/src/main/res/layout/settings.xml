@@ -28,7 +28,6 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 android:layout_marginBottom="14dp" />
 
-            <!-- Settings Title -->
             <TextView
                 android:id="@+id/settings_title"
                 android:layout_width="wrap_content"
@@ -42,7 +41,6 @@
                 android:paddingBottom="16dp"
                 android:paddingTop="16dp"/>
 
-            <!-- Divider -->
             <View
                 android:layout_width="match_parent"
                 android:layout_height="2dp"
@@ -52,7 +50,6 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 android:layout_marginBottom="24dp" />
 
-            <!-- Dark Mode Switch -->
             <TextView
                 android:id="@+id/dark_mode_label"
                 android:layout_width="wrap_content"
@@ -73,14 +70,13 @@
                 android:clickable="true"
                 android:focusable="true"
                 android:minHeight="48dp"
-                android:thumbTint="?attr/colorPrimary"
-                android:trackTint="?attr/colorSurface"
+                android:thumbTint="@color/switch_thumb_color"
+                android:trackTint="@color/switch_track_color"
                 app:layout_constraintBottom_toBottomOf="@id/dark_mode_label"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="@id/dark_mode_label"
                 app:showText="false" />
 
-            <!-- Divider -->
             <View
                 android:layout_width="match_parent"
                 android:layout_height="2dp"
@@ -90,7 +86,6 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 android:layout_marginTop="24dp" />
 
-            <!-- Font Size -->
             <TextView
                 android:id="@+id/font_size_label"
                 android:layout_width="wrap_content"
@@ -117,19 +112,17 @@
                 android:layout_marginTop="12dp"
                 android:contentDescription="@string/font_size"/>
 
-            <!-- Font Size Value Display -->
             <TextView
                 android:id="@+id/font_size_value"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="16sp"
+                android:text="16p"
                 android:textColor="?attr/colorOnSurface"
                 android:textSize="20sp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="@id/font_size_label"
                 android:layout_marginEnd="16dp"/>
 
-            <!-- Divider -->
             <View
                 android:layout_width="match_parent"
                 android:layout_height="2dp"
@@ -139,7 +132,6 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 android:layout_marginTop="24dp" />
 
-            <!-- Notifications Switch -->
             <TextView
                 android:id="@+id/notifications_label"
                 android:layout_width="wrap_content"
@@ -161,7 +153,6 @@
                 app:layout_constraintTop_toTopOf="@id/notifications_label"
                 app:layout_constraintBottom_toBottomOf="@id/notifications_label" />
 
-            <!-- Divider -->
             <View
                 android:layout_width="match_parent"
                 android:layout_height="2dp"

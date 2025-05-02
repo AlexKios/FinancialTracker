@@ -2,14 +2,15 @@ package com.example.financialtracker.data.repositories
 
 
 import android.util.Log
-import com.example.financialtracker.data.model.Friend
 import com.example.financialtracker.data.model.User
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.ListenerRegistration
 
 class UserRepository {
     private val db = FirebaseFirestore.getInstance()
     private val auth = FirebaseAuth.getInstance()
+    private val friendListeners = mutableMapOf<String, ListenerRegistration>()
 
     fun getCurrentUser(onSuccess: (User) -> Unit, onFailure: (Exception) -> Unit) {
         val userId = auth.currentUser?.uid
@@ -50,13 +51,48 @@ class UserRepository {
             }
     }
 
+    private fun listenToFriendStatuses(
+        friendUids: List<String>,
+        onUpdate: (Map<String, Pair<String, String>>) -> Unit // uid -> (username, status)
+    ) {
+        friendListeners.values.forEach { it.remove() }
+        friendListeners.clear()
 
-    fun getFriendUsernames(
-        onSuccess: (List<String>) -> Unit,
+        val friendData = mutableMapOf<String, Pair<String, String>>()
+
+        for (uid in friendUids) {
+            val listener = db.collection("users").document(uid)
+                .addSnapshotListener { snapshot, _ ->
+                    if (snapshot != null && snapshot.exists()) {
+                        val username = snapshot.getString("username") ?: "Unknown"
+                        val status = snapshot.getString("status") ?: "offline"
+                        friendData[uid] = username to status
+                        onUpdate(friendData)
+                    }
+                }
+            friendListeners[uid] = listener
+        }
+    }
+
+    fun listenToCurrentUserFriendStatuses(
+        onUpdate: (Map<String, Pair<String, String>>) -> Unit
+    ) {
+        val currentUserId = auth.currentUser?.uid ?: return
+
+        db.collection("users").document(currentUserId)
+            .get()
+            .addOnSuccessListener { doc ->
+                val rawList = doc.get("friends") as? List<*> ?: emptyList<Any>()
+                val friendUids = rawList.filterIsInstance<String>()
+                listenToFriendStatuses(friendUids, onUpdate)
+            }
+    }
+
+
+    fun getFriendUsernamesAndStatus(
+        onSuccess: (List<Pair<String, String>>) -> Unit,  // Pair<Username, Status>
         onFailure: (Exception) -> Unit
     ) {
-        val auth = FirebaseAuth.getInstance()
-        val db = FirebaseFirestore.getInstance()
         val userId = auth.currentUser?.uid ?: return onSuccess(emptyList())
 
         db.collection("users").document(userId)
@@ -68,7 +104,7 @@ class UserRepository {
                     return@addOnSuccessListener
                 }
 
-                val usernames = mutableListOf<String>()
+                val friendsData = mutableListOf<Pair<String, String>>()
                 var loaded = 0
 
                 for (uid in friendUids) {
@@ -77,22 +113,23 @@ class UserRepository {
                             .get()
                             .addOnSuccessListener { friendDoc ->
                                 val username = friendDoc.getString("username") ?: "Unknown"
-                                usernames.add(username)
+                                val status = friendDoc.getString("status") ?: "offline"
+                                friendsData.add(username to status)
                                 loaded++
                                 if (loaded == friendUids.size) {
-                                    onSuccess(usernames)
+                                    onSuccess(friendsData)
                                 }
                             }
                             .addOnFailureListener {
                                 loaded++
                                 if (loaded == friendUids.size) {
-                                    onSuccess(usernames)
+                                    onSuccess(friendsData)
                                 }
                             }
                     } else {
                         loaded++
                         if (loaded == friendUids.size) {
-                            onSuccess(usernames)
+                            onSuccess(friendsData)
                         }
                     }
                 }
@@ -219,19 +256,16 @@ class UserRepository {
 
             val userDocRef = db.collection("users").document(userId)
 
-            // Start batched updates
             userDocRef.update(updates)
                 .addOnSuccessListener {
-                    // Handle email/password updates
                     val emailTasks = if (!newEmail.isNullOrBlank()) {
-                        user.updateEmail(newEmail)
+                        user.verifyBeforeUpdateEmail(newEmail)
                     } else null
 
                     val passwordTasks = if (!newPassword.isNullOrBlank()) {
                         user.updatePassword(newPassword)
                     } else null
 
-                    // Wait for both email and password updates to complete (if needed)
                     if (emailTasks != null && passwordTasks != null) {
                         emailTasks.addOnSuccessListener {
                             passwordTasks.addOnSuccessListener {

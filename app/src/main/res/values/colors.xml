@@ -16,9 +16,14 @@
     <color name="outline">#1F000000</color>
     <color name="toolbar_icon_color">#FFFFFF</color>
 
-    <!-- MaterialComponents required colors -->
     <color name="on_primary">#FFFFFF</color>
     <color name="on_secondary">#000000</color>
     <color name="on_surface">#000000</color>
     <color name="error">#B00020</color>
+
+    <color name="switch_thumb_color">#6200EE</color>
+    <color name="switch_track_color">#E3F2FD</color>
+
+    <color name="message_sent_color">#2196F3</color>
+    <color name="message_received_color">#E0E0E0</color>"
 </resources>

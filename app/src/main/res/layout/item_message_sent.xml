@@ -11,7 +11,7 @@
         android:layout_height="wrap_content"
         android:text=""
         android:textStyle="bold"
-        android:textColor="@android:color/black"
+        android:textColor="@color/textPrimary"
         android:layout_marginBottom="5dp"/>
 
 
@@ -20,7 +20,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:background="@drawable/bg_message_sent"
-        android:textColor="@android:color/white"
+        android:textColor="@color/textPrimary"
         android:padding="10dp"
         android:textSize="16sp" />
 
@@ -30,6 +30,6 @@
         android:layout_height="wrap_content"
         android:text=""
         android:textSize="12sp"
-        android:textColor="@android:color/darker_gray"
+        android:textColor="@color/textSecondary"
         android:layout_marginTop="4dp"/>
 </LinearLayout>

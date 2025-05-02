@@ -33,7 +33,7 @@ class FriendsActivity : BaseActivity() {
 
     override val navMenuItemId = R.id.nav_friends
     private lateinit var friendsListView: ListView
-    private val friendsList = mutableListOf<String>()
+    private val friendsList = mutableListOf<Pair<String, String>>()
     private lateinit var friendsViewModel: FriendsViewModel
     private lateinit var scanButton: Button
     private lateinit var cameraExecutor: ExecutorService
@@ -62,6 +62,9 @@ class FriendsActivity : BaseActivity() {
         }
 
         friendsViewModel = ViewModelProvider(this)[FriendsViewModel::class.java]
+
+        friendsViewModel.loadFriends()
+        friendsViewModel.startListeningToFriendStatuses()
 
         val adapter = FriendsAdapter(
             this,
@@ -96,8 +99,6 @@ class FriendsActivity : BaseActivity() {
             friendsList.addAll(updatedList)
             adapter.notifyDataSetChanged()
         }
-
-        friendsViewModel.loadFriends()
     }
 
     private fun startChat(friendName: String) {

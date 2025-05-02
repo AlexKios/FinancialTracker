@@ -7,8 +7,8 @@ import com.example.financialtracker.data.repositories.UserRepository
 
 class FriendsViewModel : ViewModel() {
     private val userRepository = UserRepository()
-    private val _friendsList = MutableLiveData<List<String>>()
-    val friendsList: LiveData<List<String>> = _friendsList
+    private val _friendsList = MutableLiveData<List<Pair<String, String>>>()
+    val friendsList: LiveData<List<Pair<String, String>>> = _friendsList
 
     fun addFriendFromQrCode(
         scannedUid: String,
@@ -19,9 +19,9 @@ class FriendsViewModel : ViewModel() {
     }
 
     fun loadFriends() {
-        userRepository.getFriendUsernames(
-            onSuccess = { usernames ->
-                _friendsList.value = usernames
+        userRepository.getFriendUsernamesAndStatus(
+            onSuccess = { userPairs ->
+                _friendsList.value = userPairs
             },
             onFailure = {
                 _friendsList.value = emptyList()
@@ -36,4 +36,11 @@ class FriendsViewModel : ViewModel() {
     ) {
         userRepository.removeFriendByUsername(friendUsername, onSuccess, onFailure)
     }
+
+    fun startListeningToFriendStatuses() {
+        userRepository.listenToCurrentUserFriendStatuses { friendData ->
+            _friendsList.postValue(friendData.values.toList())
+        }
+    }
+
 }

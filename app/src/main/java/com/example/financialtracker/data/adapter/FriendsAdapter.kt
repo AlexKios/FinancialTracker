@@ -11,26 +11,28 @@ import com.example.financialtracker.R
 
 class FriendsAdapter(
     private val context: Context,
-    private val friends: List<String>,
+    private val friends: List<Pair<String, String>>,
     private val onRemoveClick: (String) -> Unit,
     private val onFriendClick: (String) -> Unit
-) : ArrayAdapter<String>(context, 0, friends) {
+) : ArrayAdapter<Pair<String, String>>(context, 0, friends) {
 
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
-        val friend = friends[position]
+        val (username, status) = friends[position]
         val view = convertView ?: LayoutInflater.from(context).inflate(R.layout.friend_list_item, parent, false)
 
         val nameTextView = view.findViewById<TextView>(R.id.friendNameTextView)
+        val statusTextView = view.findViewById<TextView>(R.id.friendStatusTextView)
         val removeButton = view.findViewById<Button>(R.id.removeFriendButton)
 
-        nameTextView.text = friend
+        nameTextView.text = username
+        statusTextView.text = status
 
         removeButton.setOnClickListener {
-            onRemoveClick(friend)
+            onRemoveClick(username)
         }
 
         view.setOnClickListener {
-            onFriendClick(friend)
+            onFriendClick(username)
         }
 
         return view

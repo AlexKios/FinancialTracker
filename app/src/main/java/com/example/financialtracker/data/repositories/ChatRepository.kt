@@ -55,6 +55,7 @@ class ChatRepository {
                         .document(chatId)
                         .update("timestamp", message.timestamp)
                         .addOnSuccessListener {
+                            updateMessageStatus(chatId, message, "sent")
                             onSuccess()
                         }
                         .addOnFailureListener { e ->
@@ -103,22 +104,5 @@ class ChatRepository {
                     document.reference.update("status", newStatus)
                 }
             }
-    }
-
-    private fun getSenderName(senderId: String, onResult: (String) -> Unit) {
-        val db = FirebaseFirestore.getInstance()
-        val userDocRef = db.collection("users").document(senderId)
-
-        userDocRef.get().addOnSuccessListener { document ->
-            if (document.exists()) {
-                // Assuming you have a "name" field in your user document
-                val senderName = document.getString("name") ?: "Unknown"
-                onResult(senderName)
-            } else {
-                onResult("Unknown")
-            }
-        }.addOnFailureListener {
-            onResult("Unknown")
-        }
     }
 }

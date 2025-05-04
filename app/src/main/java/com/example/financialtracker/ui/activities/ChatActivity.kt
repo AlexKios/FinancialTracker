@@ -1,8 +1,6 @@
 package com.example.financialtracker.ui.activities
 
 import android.os.Bundle
-import android.widget.ListView
-import android.widget.ArrayAdapter
 import androidx.appcompat.app.AppCompatActivity
 import android.widget.EditText
 import android.widget.Button
@@ -12,6 +10,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.financialtracker.R
 import com.example.financialtracker.data.adapter.MessageAdapter
+import com.example.financialtracker.data.helper.NotificationHelper
 import com.example.financialtracker.data.model.Message
 import com.example.financialtracker.data.repositories.ChatRepository
 import com.example.financialtracker.ui.viewmodels.ChatViewModel
@@ -19,17 +18,15 @@ import com.google.firebase.auth.FirebaseAuth
 
 class ChatActivity : AppCompatActivity() {
 
-    private lateinit var messagesListView: ListView
     private lateinit var messageInput: EditText
     private lateinit var sendButton: Button
     private lateinit var friendName: String
     private lateinit var viewModel: ChatViewModel
-    private lateinit var adapter: ArrayAdapter<String>
-    private val displayMessages = mutableListOf<String>()
     private lateinit var messagesRecyclerView: RecyclerView
     private lateinit var messageAdapter: MessageAdapter
     private lateinit var chatId: String
     private lateinit var currentUserId: String
+    private lateinit var notificationHelper: NotificationHelper
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -43,6 +40,7 @@ class ChatActivity : AppCompatActivity() {
         messageAdapter = MessageAdapter(emptyList())
         messagesRecyclerView.layoutManager = LinearLayoutManager(this)
         messagesRecyclerView.adapter = messageAdapter
+        notificationHelper = NotificationHelper(this)
 
         val friendUid = intent.getStringExtra("friend_uid")!!
         currentUserId = FirebaseAuth.getInstance().currentUser?.uid ?: return

@@ -97,7 +97,7 @@ class ChatRepository {
         db.collection("chats")
             .document(chatId)
             .collection("messages")
-            .whereEqualTo("timestamp", message.timestamp)  // unique identifier
+            .whereEqualTo("timestamp", message.timestamp)
             .get()
             .addOnSuccessListener { result ->
                 for (document in result.documents) {

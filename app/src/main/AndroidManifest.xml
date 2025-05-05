@@ -30,7 +30,8 @@
         <activity android:name=".ui.activities.IncomeActivity" />
         <activity
             android:name=".ui.activities.LoginActivity"
-            android:exported="true" >
+            android:exported="true"
+            android:windowSoftInputMode="adjustResize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -44,5 +45,4 @@
         <activity android:name=".ui.activities.AddIncomeActivity" />
         <activity android:name=".ui.activities.MainActivity" />
     </application>
-
 </manifest>

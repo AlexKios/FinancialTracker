@@ -4,6 +4,7 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
 import androidx.core.app.NotificationCompat
+import java.util.Random
 
 class NotificationHelper(private val context: Context) {
 
@@ -22,11 +23,11 @@ class NotificationHelper(private val context: Context) {
         val notification = NotificationCompat.Builder(context, channelId)
             .setContentTitle(title)
             .setContentText(message)
-            .setSmallIcon(android.R.drawable.ic_dialog_info) // Replace with your own icon
+            .setSmallIcon(android.R.drawable.ic_dialog_info)
             .setAutoCancel(true)
             .build()
 
         val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        notificationManager.notify(0, notification)
+        notificationManager.notify(Random().nextInt(), notification)
     }
 }

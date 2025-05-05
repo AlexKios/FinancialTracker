@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.financialtracker.R
 import com.example.financialtracker.data.adapter.MessageAdapter
+import com.example.financialtracker.data.helper.ChatSessionTracker
 import com.example.financialtracker.data.helper.NotificationHelper
 import com.example.financialtracker.data.model.Message
 import com.example.financialtracker.data.repositories.ChatRepository
@@ -53,7 +54,7 @@ class ChatActivity : AppCompatActivity() {
         val repo = ChatRepository()
         repo.createChat(friendUid, { generatedChatId ->
             chatId = generatedChatId
-            viewModel.listenForMessages(chatId, currentUserId)
+            viewModel.listenForMessages(chatId, currentUserId, friendUid)
         }, {
             Toast.makeText(this, "Failed to get chat", Toast.LENGTH_SHORT).show()
         })
@@ -68,6 +69,15 @@ class ChatActivity : AppCompatActivity() {
             messagesRecyclerView.scrollToPosition(messages.size - 1)
         }
 
+        viewModel.setOnNewMessageListener { message ->
+            notificationHelper.sendNotification(
+                title = friendName,
+                message = message.messageContent
+            )
+        }
+
+        ChatSessionTracker.activeChatUserId = friendUid
+
         sendButton.setOnClickListener {
             val text = messageInput.text.toString()
             if (text.isNotBlank()) {
@@ -76,5 +86,10 @@ class ChatActivity : AppCompatActivity() {
                 messageInput.text.clear()
             }
         }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        ChatSessionTracker.activeChatUserId = null
     }
 }

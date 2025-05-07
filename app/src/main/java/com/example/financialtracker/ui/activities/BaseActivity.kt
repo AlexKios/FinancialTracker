@@ -8,11 +8,18 @@ import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import com.example.financialtracker.R
+import com.example.financialtracker.data.helper.ChatSessionTracker
+import com.example.financialtracker.data.helper.NotificationHelper
+import com.example.financialtracker.data.repositories.ChatRepository
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.google.firebase.auth.FirebaseAuth
 
 abstract class BaseActivity : AppCompatActivity() {
 
     protected open val navMenuItemId: Int = 0
+    private val chatRepository = ChatRepository()
+    private lateinit var notificationHelper: NotificationHelper
+    private var notificationSentForMessage = mutableSetOf<String>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -64,6 +71,12 @@ abstract class BaseActivity : AppCompatActivity() {
                 else -> false
             }
         }
+
+        notificationHelper = NotificationHelper(this)
+        val currentUserId = FirebaseAuth.getInstance().currentUser?.uid
+        if (currentUserId != null) {
+            attachGlobalChatListener(currentUserId)
+        }
     }
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.menu_toolbar, menu)
@@ -77,5 +90,26 @@ abstract class BaseActivity : AppCompatActivity() {
             }
             else -> super.onOptionsItemSelected(item)
         }
+    }
+
+    private fun attachGlobalChatListener(currentUserId: String) {
+        chatRepository.listenToAllIncomingMessages(currentUserId) { message, senderId, chatId ->
+            if (message.timestamp != null && !notificationSentForMessage.contains(message.timestamp.toString())) {
+                if (!isInActiveChat(currentUserId, senderId)) {
+                    notificationHelper.sendNotification(message.senderId, message.messageContent, chatId)
+                    notificationSentForMessage.add(message.timestamp.toString())
+                    chatRepository.updateMessageStatus(chatId, message, "received")
+                }
+            }
+        }
+    }
+
+    private fun isInActiveChat(currentUserId: String, senderId: String): Boolean {
+        return senderId == ChatSessionTracker.activeChatUserId
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        chatRepository.removeGlobalListener()
     }
 }

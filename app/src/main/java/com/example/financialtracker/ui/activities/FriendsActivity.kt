@@ -192,4 +192,26 @@ class FriendsActivity : BaseActivity() {
         scanButton.text = getString(R.string.scan)
         isScanning = false
     }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putBoolean("isScanning", isScanning)
+        outState.putInt("scrollPosition", friendsListView.firstVisiblePosition)
+    }
+
+    override fun onRestoreInstanceState(savedInstanceState: Bundle) {
+        super.onRestoreInstanceState(savedInstanceState)
+        val scrollPosition = savedInstanceState.getInt("scrollPosition", 0)
+
+        isScanning = savedInstanceState.getBoolean("isScanning", false)
+        if (isScanning) {
+            openCameraPreview()
+        }
+        friendsViewModel.friendsList.observe(this) { updatedList ->
+            friendsList.clear()
+            friendsList.addAll(updatedList)
+            (friendsListView.adapter as? FriendsAdapter)?.notifyDataSetChanged()
+            friendsListView.setSelection(scrollPosition)
+        }
+    }
 }

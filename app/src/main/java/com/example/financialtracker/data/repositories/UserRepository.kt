@@ -3,7 +3,9 @@ package com.example.financialtracker.data.repositories
 
 import android.util.Log
 import com.example.financialtracker.data.model.User
+import com.google.android.gms.tasks.Task
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
 
@@ -318,5 +320,9 @@ class UserRepository {
                 }
             }
             .addOnFailureListener { onFailure(it) }
+    }
+
+    fun getUsername(userId: String): Task<DocumentSnapshot> {
+        return db.collection("users").document(userId).get()
     }
 }

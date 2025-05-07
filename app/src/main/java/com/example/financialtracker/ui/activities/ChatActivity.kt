@@ -69,12 +69,7 @@ class ChatActivity : AppCompatActivity() {
             messagesRecyclerView.scrollToPosition(messages.size - 1)
         }
 
-        viewModel.setOnNewMessageListener { message ->
-            notificationHelper.sendNotification(
-                title = friendName,
-                message = message.messageContent
-            )
-        }
+        viewModel.setOnNewMessageListener {}
 
         ChatSessionTracker.activeChatUserId = friendUid
 
@@ -91,5 +86,17 @@ class ChatActivity : AppCompatActivity() {
     override fun onDestroy() {
         super.onDestroy()
         ChatSessionTracker.activeChatUserId = null
+        viewModel.stopSingleChatListener()
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putString("draftMessage", messageInput.text.toString())
+    }
+
+    override fun onRestoreInstanceState(savedInstanceState: Bundle) {
+        super.onRestoreInstanceState(savedInstanceState)
+        val draft = savedInstanceState.getString("draftMessage", "")
+        messageInput.setText(draft)
     }
 }

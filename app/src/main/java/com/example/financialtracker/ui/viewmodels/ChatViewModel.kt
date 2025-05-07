@@ -56,4 +56,8 @@ class ChatViewModel : ViewModel() {
     fun setOnNewMessageListener(callback: (Message) -> Unit) {
         onNewIncomingMessage = callback
     }
+
+    fun stopSingleChatListener() {
+        chatRepository.stopSingleChatListener()
+    }
 }

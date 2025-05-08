@@ -91,35 +91,27 @@ class SettingsActivity : AppCompatActivity() {
 
         languageSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
-                // Get the selected language based on the spinner position
                 val selectedLanguage = when (position) {
-                    1 -> "bg" // Bulgarian
-                    2 -> "de" // German
-                    3 -> "el" // Greek
-                    4 -> "es" // Spanish
-                    else -> "en" // Default: English
+                    1 -> "bg"
+                    2 -> "de"
+                    3 -> "el"
+                    4 -> "es"
+                    else -> "en"
                 }
 
-                // Get the current language from SharedPreferences
                 val sharedPreferences = getSharedPreferences("UserSettings", MODE_PRIVATE)
                 val currentLanguage = sharedPreferences.getString("app_language", "en") ?: "en"
 
-                // Only change language and recreate if the selected language is different
                 if (selectedLanguage != currentLanguage) {
-                    // Save the new language to SharedPreferences
                     sharedPreferences.edit().putString("app_language", selectedLanguage).apply()
 
-                    // Change the locale using LocaleHelper
                     LocaleHelper.setLocale(this@SettingsActivity, selectedLanguage)
 
-                    // Manually apply the configuration change without recreating
                     val configuration = resources.configuration
                     Locale.setDefault(Locale(selectedLanguage))
                     configuration.setLocale(Locale(selectedLanguage))
                     resources.updateConfiguration(configuration, resources.displayMetrics)
 
-                    // You can call recreate() if you need to refresh the UI with the new locale
-                    // But we are avoiding doing it prematurely.
                     languageSpinner.postDelayed({
                         recreate()
                     }, 200)

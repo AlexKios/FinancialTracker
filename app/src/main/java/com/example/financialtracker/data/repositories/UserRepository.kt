@@ -91,7 +91,7 @@ class UserRepository {
     }
 
     fun getFriendUsernamesAndStatus(
-        onSuccess: (List<Pair<String, String>>) -> Unit,  // Pair<Username, Status>
+        onSuccess: (List<Pair<String, String>>) -> Unit,
         onFailure: (Exception) -> Unit
     ) {
         val userId = auth.currentUser?.uid ?: return onSuccess(emptyList())
@@ -189,7 +189,7 @@ class UserRepository {
                             username = username,
                             name = name,
                             email = email,
-                            friends = listOf()  // start with empty friends list
+                            friends = listOf()
                         )
                         db.collection("users")
                             .document(userId)

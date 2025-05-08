@@ -13,7 +13,6 @@ import com.example.financialtracker.ui.viewmodels.RegisterViewModel
 
 class RegisterActivity : AppCompatActivity() {
 
-    // Declare the UI elements
     private lateinit var nameEditText: EditText
     private lateinit var usernameEditText: EditText
     private lateinit var emailEditText: EditText
@@ -23,16 +22,14 @@ class RegisterActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.register) // Replace with your actual XML layout file name
+        setContentView(R.layout.register)
 
-        // Initialize UI elements
         nameEditText = findViewById(R.id.editTextText2)
         usernameEditText = findViewById(R.id.editTextText3)
         emailEditText = findViewById(R.id.editTextTextEmailAddress)
         passwordEditText = findViewById(R.id.editTextPassword)
         registerButton = findViewById(R.id.button3)
 
-        // Set click listener for the register button
         registerButton.setOnClickListener {
             onRegisterClicked()
         }

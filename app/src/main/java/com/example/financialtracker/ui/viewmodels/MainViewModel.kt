@@ -7,17 +7,20 @@ import com.example.financialtracker.data.repositories.ExpenseRepository
 import com.example.financialtracker.data.repositories.IncomeRepository
 import com.example.financialtracker.data.repositories.UserRepository
 
-private val userRepo = UserRepository()
-private val incomeRepo = IncomeRepository()
-private val expenseRepo = ExpenseRepository()
 
-private val _budget = MutableLiveData<Double>()
-val budget: LiveData<Double> = _budget
-
-private val _allTransactions = MutableLiveData<List<Pair<String, Double>>>()
-val allTransactions: LiveData<List<Pair<String, Double>>> = _allTransactions
 
 class MainViewModel : ViewModel() {
+
+    private val userRepo = UserRepository()
+    private val incomeRepo = IncomeRepository()
+    private val expenseRepo = ExpenseRepository()
+
+    private val _budget = MutableLiveData<Double>()
+    val budget: LiveData<Double> = _budget
+
+    private val _allTransactions = MutableLiveData<List<Triple<String, Double, String>>>()
+    val allTransactions: LiveData<List<Triple<String, Double, String>>> get() = _allTransactions
+
     fun loadUserData() {
         userRepo.getCurrentUser(
             onSuccess = { user ->
@@ -30,7 +33,7 @@ class MainViewModel : ViewModel() {
     }
 
     private fun loadTransactions(incomeIds: List<String>, expenseIds: List<String>) {
-        val transactions = mutableListOf<Pair<String, Double>>()
+        val transactions = mutableListOf<Triple<String, Double, String>>()
 
         if (incomeIds.isEmpty() && expenseIds.isEmpty()) {
             _allTransactions.value = emptyList()
@@ -43,23 +46,31 @@ class MainViewModel : ViewModel() {
             return
         }
 
+        val formatter = java.text.SimpleDateFormat("dd/MM/yyyy", java.util.Locale.getDefault())
+
         incomeIds.forEach { id ->
             incomeRepo.getIncomeById(id,
                 onSuccess = { income ->
-                    transactions.add("Income" to income.amount)
+                    val dateStr = formatter.format(income.date!!.toDate())
+                    transactions.add(Triple("Income: ${income.source}", income.amount, dateStr))
                     if (--remainingFetches == 0) _allTransactions.value = transactions
                 },
-                onFailure = { if (--remainingFetches == 0) _allTransactions.value = transactions }
+                onFailure = {
+                    if (--remainingFetches == 0) _allTransactions.value = transactions
+                }
             )
         }
 
         expenseIds.forEach { id ->
             expenseRepo.getExpenseById(id,
                 onSuccess = { expense ->
-                    transactions.add("Expense" to expense.amount)
+                    val dateStr = formatter.format(expense.date!!.toDate())
+                    transactions.add(Triple("Expense: ${expense.category}", expense.amount, dateStr))
                     if (--remainingFetches == 0) _allTransactions.value = transactions
                 },
-                onFailure = { if (--remainingFetches == 0) _allTransactions.value = transactions }
+                onFailure = {
+                    if (--remainingFetches == 0) _allTransactions.value = transactions
+                }
             )
         }
     }

@@ -53,19 +53,19 @@ class UserRepository {
             }
     }
 
-    fun listenToCurrentUserFriendStatuses(
-        onUpdate: (Map<String, Pair<String, String>>) -> Unit
-    ) {
-        val currentUserId = auth.currentUser?.uid ?: return
+        fun listenToCurrentUserFriendStatuses(
+            onUpdate: (Map<String, Pair<String, String>>) -> Unit
+        ) {
+            val currentUserId = auth.currentUser?.uid ?: return
 
-        db.collection("users").document(currentUserId)
-            .get()
-            .addOnSuccessListener { doc ->
-                val rawList = doc.get("friends") as? List<*> ?: emptyList<Any>()
-                val friendUids = rawList.filterIsInstance<String>()
-                listenToFriendStatuses(friendUids, onUpdate)
-            }
-    }
+            db.collection("users").document(currentUserId)
+                .get()
+                .addOnSuccessListener { doc ->
+                    val rawList = doc.get("friends") as? List<*> ?: emptyList<Any>()
+                    val friendUids = rawList.filterIsInstance<String>()
+                    listenToFriendStatuses(friendUids, onUpdate)
+                }
+        }
 
     private fun listenToFriendStatuses(
         friendUids: List<String>,

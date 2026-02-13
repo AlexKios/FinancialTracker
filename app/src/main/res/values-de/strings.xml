@@ -68,4 +68,5 @@
     <string name="type_message">Geben Sie eine Nachricht ein</string>
     <string name="stop_scan">Stoppen Sie den Scan</string>
     <string name="change_language">Sprache ändern</string>
+    <string name="amount_format">%1$.2f €</string>
 </resources>

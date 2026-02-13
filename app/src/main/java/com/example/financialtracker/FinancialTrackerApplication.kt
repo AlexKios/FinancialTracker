@@ -1,26 +1,16 @@
-package com.example.financialtracker.data.presence
+package com.example.financialtracker
 
 import android.app.Application
-import androidx.lifecycle.ProcessLifecycleOwner
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import com.example.financialtracker.workers.RecurringIncomeWorker
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FirebaseFirestore
 import java.util.concurrent.TimeUnit
 
-class MyApp : Application() {
+class FinancialTrackerApplication : Application() {
 
     override fun onCreate() {
         super.onCreate()
-
-        val presenceManager = PresenceManager(
-            FirebaseFirestore.getInstance(),
-            FirebaseAuth.getInstance()
-        )
-
-        ProcessLifecycleOwner.get().lifecycle.addObserver(presenceManager)
         setupRecurringIncomeWorker()
     }
 

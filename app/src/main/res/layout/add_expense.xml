@@ -29,14 +29,14 @@
         android:id="@+id/button2"
         android:layout_width="230dp"
         android:layout_height="64dp"
-        android:layout_marginBottom="132dp"
-        android:text="@string/add_expense"
-        android:textSize="24sp"
-        android:textColor="?attr/colorOnPrimary"
         android:backgroundTint="?attr/colorPrimary"
+        android:text="@string/add_expense"
+        android:textColor="?attr/colorOnPrimary"
+        android:textSize="24sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/checkBox" />
 
     <Spinner
         android:id="@+id/spinner"
@@ -55,8 +55,8 @@
         android:layout_height="59dp"
         android:layout_marginTop="36dp"
         android:text="@string/recurring_payment"
-        android:textSize="20sp"
         android:textColor="?attr/colorOnSurface"
+        android:textSize="20sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.502"
         app:layout_constraintStart_toStartOf="parent"

@@ -6,7 +6,8 @@ import androidx.lifecycle.ViewModel
 import com.example.financialtracker.data.repositories.ExpenseRepository
 import com.example.financialtracker.data.repositories.IncomeRepository
 import com.example.financialtracker.data.repositories.UserRepository
-
+import java.text.SimpleDateFormat
+import java.util.Locale
 
 
 class MainViewModel : ViewModel() {
@@ -25,57 +26,49 @@ class MainViewModel : ViewModel() {
         userRepo.getCurrentUser(
             onSuccess = { user ->
                 _budget.value = user.budget
-                loadTransactions(user.incomeIds, user.expenseIds)
+                listenForTransactions()
             },
             onFailure = {
             }
         )
     }
 
-    private fun loadTransactions(incomeIds: List<String>, expenseIds: List<String>) {
-        val transactions = mutableListOf<Triple<String, Double, String>>()
+    private fun listenForTransactions() {
+        incomeRepo.listenForIncomes(
+            onSuccess = { incomes ->
+                expenseRepo.listenForExpenses(
+                    onSuccess = { expenses ->
+                        val transactions = mutableListOf<Triple<String, Double, String>>()
+                        val formatter = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
 
-        if (incomeIds.isEmpty() && expenseIds.isEmpty()) {
-            _allTransactions.value = emptyList()
-            return
-        }
+                        incomes.forEach { income ->
+                            val dateStr = formatter.format(income.date!!.toDate())
+                            transactions.add(Triple("Income: ${income.source}", income.amount, dateStr))
+                        }
 
-        var remainingFetches = incomeIds.size + expenseIds.size
-        if (remainingFetches == 0) {
-            _allTransactions.value = transactions
-            return
-        }
+                        expenses.forEach { expense ->
+                            val dateStr = formatter.format(expense.date!!.toDate())
+                            transactions.add(Triple("Expense: ${expense.category}", expense.amount, dateStr))
+                        }
 
-        val formatter = java.text.SimpleDateFormat("dd/MM/yyyy", java.util.Locale.getDefault())
-
-        incomeIds.forEach { id ->
-            incomeRepo.getIncomeById(id,
-                onSuccess = { income ->
-                    val dateStr = formatter.format(income.date!!.toDate())
-                    transactions.add(Triple("Income: ${income.source}", income.amount, dateStr))
-                    if (--remainingFetches == 0) _allTransactions.value = transactions
-                },
-                onFailure = {
-                    if (--remainingFetches == 0) _allTransactions.value = transactions
-                }
-            )
-        }
-
-        expenseIds.forEach { id ->
-            expenseRepo.getExpenseById(id,
-                onSuccess = { expense ->
-                    val dateStr = formatter.format(expense.date!!.toDate())
-                    transactions.add(Triple("Expense: ${expense.category}", expense.amount, dateStr))
-                    if (--remainingFetches == 0) _allTransactions.value = transactions
-                },
-                onFailure = {
-                    if (--remainingFetches == 0) _allTransactions.value = transactions
-                }
-            )
-        }
+                        _allTransactions.value = transactions
+                    },
+                    onFailure = { 
+                    }
+                )
+            },
+            onFailure = { 
+            }
+        )
     }
 
     fun calculateBudgetPercentage(remaining: Double): Int {
         return ((remaining / 1000) * 100).toInt().coerceIn(0, 100)
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        incomeRepo.unregisterListener()
+        expenseRepo.unregisterListener()
     }
 }

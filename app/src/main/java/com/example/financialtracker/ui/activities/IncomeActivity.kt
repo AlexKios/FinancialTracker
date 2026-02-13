@@ -8,18 +8,18 @@ import android.widget.ImageView
 import android.widget.TableLayout
 import android.widget.TableRow
 import android.widget.TextView
+import androidx.lifecycle.ViewModelProvider
 import com.example.financialtracker.R
+import com.example.financialtracker.data.model.Income
+import com.example.financialtracker.ui.viewmodels.IncomeViewModel
+import java.text.SimpleDateFormat
+import java.util.Locale
 
 class IncomeActivity : BaseActivity() {
 
-    data class Income(
-        val iconResId: Int,
-        val source: String,
-        val amount: String,
-        val date: String
-    )
-
     override val navMenuItemId = R.id.nav_income
+    private lateinit var viewModel: IncomeViewModel
+    private lateinit var tableLayout: TableLayout
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -31,22 +31,21 @@ class IncomeActivity : BaseActivity() {
             startActivity(intent)
         }
 
-        val tableLayout = findViewById<TableLayout>(R.id.tableLayout)
+        tableLayout = findViewById(R.id.tableLayout)
+        viewModel = ViewModelProvider(this)[IncomeViewModel::class.java]
 
+        viewModel.incomes.observe(this) { incomes ->
+            populateTable(incomes)
+        }
+    }
+
+    private fun populateTable(incomes: List<Income>) {
         // Clear all data rows except the header
         if (tableLayout.childCount > 1) {
             tableLayout.removeViews(1, tableLayout.childCount - 1)
         }
 
-        // Temporary mock data (replace with database retrieval later)
-        val incomes = listOf(
-            Income(android.R.drawable.ic_menu_info_details, "Salary", "$2000", "25 Mar 2025"),
-            Income(android.R.drawable.ic_menu_myplaces, "Freelance", "$500", "20 Mar 2025"),
-            Income(android.R.drawable.ic_menu_gallery, "Investments", "$300", "18 Mar 2025"),
-            Income(android.R.drawable.ic_menu_camera, "Side Hustle", "$150", "15 Mar 2025"),
-            Income(android.R.drawable.ic_menu_agenda, "Rental Income", "$800", "10 Mar 2025"),
-            Income(android.R.drawable.ic_menu_mapmode, "Bonus", "$1000", "5 Mar 2025")
-        )
+        val formatter = SimpleDateFormat("dd MMM yyyy", Locale.getDefault())
 
         for (income in incomes) {
             val row = TableRow(this).apply {
@@ -59,7 +58,14 @@ class IncomeActivity : BaseActivity() {
             }
 
             val icon = ImageView(this).apply {
-                setImageResource(income.iconResId)
+                val iconResource = when (income.source) {
+                    "Salary" -> R.drawable.profit
+                    "Freelance" -> R.drawable.id_card
+                    "Investment" -> R.drawable.profit
+                    "Gift" -> R.drawable.profit
+                    else -> android.R.drawable.ic_menu_info_details // Default icon
+                }
+                setImageResource(iconResource)
                 layoutParams = TableRow.LayoutParams(100, 100)
             }
 
@@ -70,13 +76,13 @@ class IncomeActivity : BaseActivity() {
             }
 
             val amount = TextView(this).apply {
-                text = income.amount
+                text = getString(R.string.amount_format, income.amount)
                 setPadding(15, 10, 15, 10)
                 setTextColor(getColor(R.color.textPrimary))
             }
 
             val date = TextView(this).apply {
-                text = income.date
+                text = income.date?.toDate()?.let { formatter.format(it) } ?: ""
                 setPadding(15, 10, 15, 10)
                 setTextColor(getColor(R.color.textPrimary))
             }

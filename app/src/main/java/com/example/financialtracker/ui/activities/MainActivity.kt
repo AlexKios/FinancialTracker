@@ -83,9 +83,16 @@ class MainActivity : BaseActivity() {
         transactions.forEach { (category, amount, date) ->
             val row = LayoutInflater.from(this).inflate(R.layout.table_row_layout, tableLayout, false) as TableRow
 
+            val iconTextView = row.findViewById<TextView>(R.id.column_icon)
             val typeTextView = row.findViewById<TextView>(R.id.column_type)
             val amountTextView = row.findViewById<TextView>(R.id.column_amount)
             val dateTextView = row.findViewById<TextView>(R.id.column_date)
+
+            if (category.startsWith("Income")) {
+                iconTextView.text = "💰"
+            } else {
+                iconTextView.text = "💸"
+            }
 
             typeTextView.text = category
             amountTextView.text = String.format(Locale.US, "$%.2f", amount)

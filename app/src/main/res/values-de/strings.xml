@@ -32,6 +32,10 @@
     <string name="subscription">Abonnement</string>
     <string name="education">Bildung</string>
     <string name="healthcare">Gesundheit</string>
+    <string name="rent">Miete</string>
+    <string name="mortgage">Hypothek</string>
+    <string name="car_payment">Autozahlung</string>
+    <string name="loan_payments">Kreditzahlungen</string>
     <string name="salary">Gehalt</string>
     <string name="freelance">Freiberuflich</string>
     <string name="investments">Investitionen</string>

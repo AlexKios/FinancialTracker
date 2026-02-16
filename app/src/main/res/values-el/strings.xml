@@ -32,6 +32,10 @@
     <string name="subscription">Συνδρομή</string>
     <string name="education">Εκπαίδευση</string>
     <string name="healthcare">Υγεία</string>
+    <string name="rent">Ενοίκιο</string>
+    <string name="mortgage">Υποθήκη</string>
+    <string name="car_payment">Πληρωμή αυτοκινήτου</string>
+    <string name="loan_payments">Πληρωμές δανείων</string>
     <string name="salary">Μισθός</string>
     <string name="freelance">Ελεύθερος επαγγελματίας</string>
     <string name="investments">Επενδύσεις</string>

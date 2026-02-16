@@ -11,16 +11,17 @@
         android:id="@+id/editTextNumber"
         android:layout_width="230dp"
         android:layout_height="55dp"
-        android:layout_marginTop="392dp"
+        android:layout_marginTop="348dp"
+        android:background="@drawable/border"
         android:ems="10"
+        android:hint="@string/enter_amount"
         android:inputType="number"
         android:textAlignment="center"
-        android:textSize="24sp"
         android:textColor="?attr/colorOnSurface"
-        android:background="@drawable/border"
-        android:hint="@string/enter_amount"
         android:textColorHint="?attr/colorOnSurface"
+        android:textSize="24sp"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.497"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         tools:text="145.56" />
@@ -35,8 +36,10 @@
         android:textSize="24sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.497"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/checkBox" />
+        app:layout_constraintTop_toBottomOf="@+id/checkBox"
+        app:layout_constraintVertical_bias="0.328" />
 
     <Spinner
         android:id="@+id/spinner"

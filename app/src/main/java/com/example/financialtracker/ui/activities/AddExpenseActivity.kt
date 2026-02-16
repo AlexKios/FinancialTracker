@@ -1,12 +1,18 @@
 package com.example.financialtracker.ui.activities
 
+import android.app.DatePickerDialog
 import android.os.Bundle
+import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.CheckBox
 import android.widget.EditText
 import android.widget.Spinner
 import android.widget.Toast
 import com.example.financialtracker.R
+import com.example.financialtracker.data.model.Expense
+import com.example.financialtracker.data.repositories.ExpenseRepository
+import com.google.firebase.Timestamp
+import java.util.Calendar
 
 class AddExpenseActivity : BaseActivity() {
 
@@ -16,6 +22,8 @@ class AddExpenseActivity : BaseActivity() {
     private lateinit var categorySpinner: Spinner
     private lateinit var recurringCheckBox: CheckBox
     private lateinit var addExpenseButton: Button
+    private val expenseRepository = ExpenseRepository()
+    private var selectedDate: Calendar = Calendar.getInstance()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -27,10 +35,40 @@ class AddExpenseActivity : BaseActivity() {
         recurringCheckBox = findViewById(R.id.checkBox)
         addExpenseButton = findViewById(R.id.button2)
 
+        // Create an ArrayAdapter using the string array and a default spinner layout
+        ArrayAdapter.createFromResource(
+            this,
+            R.array.expense_categories,
+            android.R.layout.simple_spinner_item
+        ).also { adapter ->
+            // Specify the layout to use when the list of choices appears
+            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+            // Apply the adapter to the spinner
+            categorySpinner.adapter = adapter
+        }
+
+        recurringCheckBox.setOnCheckedChangeListener { _, isChecked ->
+            if (isChecked) {
+                showDatePickerDialog()
+            }
+        }
+
         // Set click listener for the Add Expense button
         addExpenseButton.setOnClickListener {
             onAddExpenseClicked()
         }
+    }
+
+    private fun showDatePickerDialog() {
+        val calendar = Calendar.getInstance()
+        val year = calendar.get(Calendar.YEAR)
+        val month = calendar.get(Calendar.MONTH)
+        val day = calendar.get(Calendar.DAY_OF_MONTH)
+
+        val datePickerDialog = DatePickerDialog(this, { _, selectedYear, selectedMonth, selectedDay ->
+            selectedDate.set(selectedYear, selectedMonth, selectedDay)
+        }, year, month, day)
+        datePickerDialog.show()
     }
 
     // Handle the Add Expense button click
@@ -60,13 +98,13 @@ class AddExpenseActivity : BaseActivity() {
 
     // Save the expense (you can replace this with your actual saving logic, like database or API)
     private fun saveExpense(amount: Double, category: String, isRecurring: Boolean) {
-        // For now, just show a Toast message with the details
-        val recurringStatus = if (isRecurring) "Recurring" else "One-time"
-        Toast.makeText(this, "Expense Added: Amount = $amount, Category = $category, $recurringStatus", Toast.LENGTH_LONG).show()
-
-        // Optionally, clear fields after adding the expense
-        amountEditText.text.clear()
-        categorySpinner.setSelection(0)
-        recurringCheckBox.isChecked = false
+        val recurringTimestamp = if (isRecurring) Timestamp(selectedDate.time) else null
+        val expense = Expense(amount = amount, category = category, isRecurring = isRecurring, date = Timestamp.now(), recurringDate = recurringTimestamp)
+        expenseRepository.addExpense(expense, {
+            Toast.makeText(this, "Expense added successfully", Toast.LENGTH_SHORT).show()
+            finish()
+        }, {
+            Toast.makeText(this, "Failed to add expense: ${it.message}", Toast.LENGTH_LONG).show()
+        })
     }
 }

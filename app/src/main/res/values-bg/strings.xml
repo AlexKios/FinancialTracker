@@ -32,6 +32,10 @@
     <string name="subscription">Абонамент</string>
     <string name="education">Образование</string>
     <string name="healthcare">Здраве</string>
+    <string name="rent">Наем</string>
+    <string name="mortgage">Ипотека</string>
+    <string name="car_payment">Плащане за кола</string>
+    <string name="loan_payments">Плащания по заем</string>
     <string name="salary">Заплата</string>
     <string name="freelance">Работа по задание</string>
     <string name="investments">Инвистиции</string>

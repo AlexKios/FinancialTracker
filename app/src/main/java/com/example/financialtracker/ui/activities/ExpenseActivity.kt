@@ -8,18 +8,18 @@ import android.widget.ImageView
 import android.widget.TableLayout
 import android.widget.TableRow
 import android.widget.TextView
+import androidx.lifecycle.ViewModelProvider
 import com.example.financialtracker.R
+import com.example.financialtracker.data.model.Expense
+import com.example.financialtracker.ui.viewmodels.ExpenseViewModel
+import java.text.SimpleDateFormat
+import java.util.Locale
 
 class ExpenseActivity : BaseActivity() {
 
-    data class Expense(
-        val iconResId: Int,
-        val name: String,
-        val amount: String,
-        val date: String
-    )
-
     override val navMenuItemId = R.id.nav_expense
+    private lateinit var viewModel: ExpenseViewModel
+    private lateinit var tableLayout: TableLayout
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -31,26 +31,21 @@ class ExpenseActivity : BaseActivity() {
             startActivity(intent)
         }
 
-        val tableLayout = findViewById<TableLayout>(R.id.tableLayout)
+        tableLayout = findViewById(R.id.tableLayout)
+        viewModel = ViewModelProvider(this)[ExpenseViewModel::class.java]
 
-        // Clear the sample rows if needed (keep header only)
+        viewModel.expenses.observe(this) { expenses ->
+            populateTable(expenses)
+        }
+    }
+
+    private fun populateTable(expenses: List<Expense>) {
+        // Clear all data rows except the header
         if (tableLayout.childCount > 1) {
             tableLayout.removeViews(1, tableLayout.childCount - 1)
         }
 
-        // Temporary sample data (replace with DB fetch later)
-        val expenses = listOf(
-            Expense(android.R.drawable.ic_menu_gallery, "Groceries", "$50", "18 Mar 2025"),
-            Expense(android.R.drawable.ic_menu_camera, "Transport", "$15", "17 Mar 2025"),
-            Expense(android.R.drawable.ic_menu_compass, "Entertainment", "$30", "16 Mar 2025"),
-            Expense(android.R.drawable.ic_menu_call, "Dining", "$25", "15 Mar 2025"),
-            Expense(android.R.drawable.ic_menu_crop, "Shopping", "$100", "14 Mar 2025"),
-            Expense(android.R.drawable.ic_menu_agenda, "Gym Membership", "$40", "13 Mar 2025"),
-            Expense(android.R.drawable.ic_menu_mapmode, "Travel", "$200", "12 Mar 2025"),
-            Expense(android.R.drawable.ic_menu_manage, "Subscription", "$10", "11 Mar 2025"),
-            Expense(android.R.drawable.ic_menu_edit, "Education", "$60", "10 Mar 2025"),
-            Expense(android.R.drawable.ic_menu_help, "Healthcare", "$75", "9 Mar 2025")
-        )
+        val formatter = SimpleDateFormat("dd MMM yyyy", Locale.getDefault())
 
         for (expense in expenses) {
             val row = TableRow(this).apply {
@@ -63,30 +58,43 @@ class ExpenseActivity : BaseActivity() {
             }
 
             val icon = ImageView(this).apply {
-                setImageResource(expense.iconResId)
+                val iconResource = when (expense.category) {
+                    "Groceries" -> R.drawable.expenses
+                    "Transport" -> R.drawable.expenses
+                    "Entertainment" -> R.drawable.expenses
+                    "Dining" -> R.drawable.expenses
+                    "Shopping" -> R.drawable.expenses
+                    "Gym Membership" -> R.drawable.expenses
+                    "Travel" -> R.drawable.expenses
+                    "Subscription" -> R.drawable.expenses
+                    "Education" -> R.drawable.expenses
+                    "Healthcare" -> R.drawable.expenses
+                    else -> android.R.drawable.ic_menu_info_details // Default icon
+                }
+                setImageResource(iconResource)
                 layoutParams = TableRow.LayoutParams(100, 100)
             }
 
-            val name = TextView(this).apply {
-                text = expense.name
+            val category = TextView(this).apply {
+                text = expense.category
                 setPadding(15, 10, 15, 10)
                 setTextColor(getColor(R.color.textPrimary))
             }
 
             val amount = TextView(this).apply {
-                text = expense.amount
+                text = getString(R.string.amount_format, expense.amount)
                 setPadding(15, 10, 15, 10)
                 setTextColor(getColor(R.color.textPrimary))
             }
 
             val date = TextView(this).apply {
-                text = expense.date
+                text = expense.date?.toDate()?.let { formatter.format(it) } ?: ""
                 setPadding(15, 10, 15, 10)
                 setTextColor(getColor(R.color.textPrimary))
             }
 
             row.addView(icon)
-            row.addView(name)
+            row.addView(category)
             row.addView(amount)
             row.addView(date)
 

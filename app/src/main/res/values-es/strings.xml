@@ -32,6 +32,10 @@
     <string name="subscription">Suscripción</string>
     <string name="education">Educación</string>
     <string name="healthcare">Salud</string>
+    <string name="rent">Alquiler</string>
+    <string name="mortgage">Hipoteca</string>
+    <string name="car_payment">Pago del coche</string>
+    <string name="loan_payments">Pagos de préstamos</string>
     <string name="salary">Salario</string>
     <string name="freelance">Trabajo freelance</string>
     <string name="investments">Inversiones</string>

@@ -31,6 +31,10 @@
     <string name="subscription">Subscription</string>
     <string name="education">Education</string>
     <string name="healthcare">Healthcare</string>
+    <string name="rent">Rent</string>
+    <string name="mortgage">Mortgage</string>
+    <string name="car_payment">Car Payment</string>
+    <string name="loan_payments">Loan Payments</string>
     <string name="salary">Salary</string>
     <string name="freelance">Freelance</string>
     <string name="investments">Investments</string>
@@ -59,13 +63,38 @@
     <string name="scan">Scan</string>
     <string name="change_name">Change Name</string>
     <string name="new_name">New Name</string>
-    <string name="show_qr_code">Show QR Code</string>"
-    <string name="qr_code">QR Code</string>"
-    <string name="hide_qr_code">Hide QR Code</string>"
+    <string name="show_qr_code">Show QR Code</string>
+    <string name="qr_code">QR Code</string>
+    <string name="hide_qr_code">Hide QR Code</string>
     <string name="remove">Remove</string>
     <string name="send">Send</string>
     <string name="type_message">Type a message</string>
     <string name="stop_scan">Stop Scan</string>
     <string name="change_language">Change Language</string>
     <string name="amount_format">$%1$.2f</string>
+
+    <string-array name="expense_categories">
+        <item>@string/groceries</item>
+        <item>@string/transport</item>
+        <item>@string/entertainment</item>
+        <item>@string/dining</item>
+        <item>@string/shopping</item>
+        <item>@string/gym_membership</item>
+        <item>@string/travel</item>
+        <item>@string/subscription</item>
+        <item>@string/education</item>
+        <item>@string/healthcare</item>
+        <item>@string/rent</item>
+        <item>@string/mortgage</item>
+        <item>@string/car_payment</item>
+        <item>@string/loan_payments</item>
+    </string-array>
+
+    <string-array name="income_categories">
+        <item>@string/salary</item>
+        <item>@string/freelance</item>
+        <item>@string/investments</item>
+        <item>@string/side_hustle</item>
+        <item>@string/bonus</item>
+    </string-array>
 </resources>

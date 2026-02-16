@@ -65,4 +65,5 @@ dependencies {
     implementation(libs.androidx.camera.view.v130)
     implementation(libs.barcode.scanning.v1720)
     implementation(libs.guava)
+    implementation("androidx.core:core-splashscreen:1.2.0")
 }

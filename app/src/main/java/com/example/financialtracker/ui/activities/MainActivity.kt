@@ -1,5 +1,8 @@
 package com.example.financialtracker.ui.activities
 
+import android.graphics.Color
+import android.graphics.PorterDuff
+import android.graphics.drawable.LayerDrawable
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.widget.TableRow
@@ -9,6 +12,7 @@ import android.widget.ProgressBar
 import androidx.appcompat.app.AlertDialog
 import android.widget.Button
 import android.widget.EditText
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
 import com.example.financialtracker.R
 import com.example.financialtracker.ui.viewmodels.MainViewModel
@@ -33,8 +37,6 @@ class MainActivity : BaseActivity() {
         setBudgetButton = findViewById(R.id.setBudgetButton)
 
         textViewAmount.text = ""
-
-        progressBar.progress = 50
 
         viewModel = ViewModelProvider(this)[MainViewModel::class.java]
         observeViewModel()
@@ -67,11 +69,27 @@ class MainActivity : BaseActivity() {
     private fun observeViewModel() {
         viewModel.budget.observe(this) { remaining ->
             textViewAmount.text = String.format(Locale.US, "$%.2f", remaining)
-            progressBar.progress = viewModel.calculateBudgetPercentage(remaining)
+            val percentage = viewModel.calculateBudgetPercentage(remaining)
+            updateProgressBar(remaining, percentage)
         }
 
         viewModel.allTransactions.observe(this) { transactions ->
             populateTable(transactions)
+        }
+    }
+
+    private fun updateProgressBar(remaining: Double, percentage: Int) {
+        val progressDrawable = progressBar.progressDrawable.mutate() as LayerDrawable
+        val progressLayer = progressDrawable.findDrawableByLayerId(android.R.id.progress)
+
+        if (remaining < 0) {
+            progressBar.progress = progressBar.max
+            progressLayer.setColorFilter(ContextCompat.getColor(this, android.R.color.holo_red_dark), PorterDuff.Mode.SRC_IN)
+        } else {
+            progressBar.progress = percentage
+            val green = (2.55 * percentage).toInt()
+            val red = 255 - green
+            progressLayer.setColorFilter(Color.rgb(red, green, 0), PorterDuff.Mode.SRC_IN)
         }
     }
 

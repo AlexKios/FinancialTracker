@@ -2,6 +2,7 @@ package com.example.financialtracker.ui.activities
 
 import android.graphics.Color
 import android.graphics.PorterDuff
+import android.graphics.PorterDuffColorFilter
 import android.graphics.drawable.LayerDrawable
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -84,12 +85,12 @@ class MainActivity : BaseActivity() {
 
         if (remaining < 0) {
             progressBar.progress = progressBar.max
-            progressLayer.setColorFilter(ContextCompat.getColor(this, android.R.color.holo_red_dark), PorterDuff.Mode.SRC_IN)
+            progressLayer.colorFilter = PorterDuffColorFilter(ContextCompat.getColor(this, android.R.color.holo_red_dark), PorterDuff.Mode.SRC_IN)
         } else {
             progressBar.progress = percentage
             val green = (2.55 * percentage).toInt()
             val red = 255 - green
-            progressLayer.setColorFilter(Color.rgb(red, green, 0), PorterDuff.Mode.SRC_IN)
+            progressLayer.colorFilter = PorterDuffColorFilter(Color.rgb(red, green, 0), PorterDuff.Mode.SRC_IN)
         }
     }
 

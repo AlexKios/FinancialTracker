@@ -7,8 +7,9 @@
     <string name="name">Όνομα</string>
     <string name="email">Ηλεκτρονικό ταχυδρομείο</string>
     <string name="login">Σύνδεση</string>
+    <string name="set_budget">Ορισμός προϋπολογισμού</string>
+    <string name="category">Kατηγορία</string>
     <string name="remaining">Υπόλοιπο</string>
-    <string name="lv">лв</string> <!-- Currency remains unchanged -->
     <string name="graph">Γράφημα</string>
     <string name="update">Ενημέρωση</string>
     <string name="add_expense">Προσθήκη εξόδου</string>

@@ -8,7 +8,8 @@
     <string name="email">Correo electrónico</string>
     <string name="login">Iniciar sesión</string>
     <string name="remaining">Restante</string>
-    <string name="lv">лв</string> <!-- Currency remains unchanged -->
+    <string name="category">Categoría</string>
+    <string name="set_budget">Establecer presupuesto</string>
     <string name="graph">Gráfico</string>
     <string name="update">Actualizar</string>
     <string name="add_expense">Añadir gasto</string>

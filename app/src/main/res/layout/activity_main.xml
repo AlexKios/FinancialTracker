@@ -60,15 +60,26 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
+            <Button
+                android:id="@+id/setBudgetButton"
+                android:layout_width="180dp"
+                android:layout_height="50dp"
+                android:layout_marginTop="20dp"
+                android:textSize="17sp"
+                android:text="@string/set_budget"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/progressBudget" />
+
             <ImageView
                 android:id="@+id/imageView"
                 android:layout_width="331dp"
                 android:layout_height="252dp"
-                android:layout_marginTop="40dp"
+                android:layout_marginTop="20dp"
                 android:contentDescription="@string/graph"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/progressBudget"
+                app:layout_constraintTop_toBottomOf="@+id/setBudgetButton"
                 app:srcCompat="@drawable/tlvme" />
 
             <TableLayout
@@ -88,6 +99,14 @@
                         android:layout_height="wrap_content"
                         android:padding="10dp"
                         android:text="@string/icon"
+                        android:textStyle="bold"
+                        android:textColor="?attr/colorOnSecondary"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:padding="10dp"
+                        android:text="@string/category"
                         android:textStyle="bold"
                         android:textColor="?attr/colorOnSecondary"/>
 

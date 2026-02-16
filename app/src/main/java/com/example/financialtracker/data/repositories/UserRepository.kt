@@ -325,4 +325,16 @@ class UserRepository {
     fun getUsername(userId: String): Task<DocumentSnapshot> {
         return db.collection("users").document(userId).get()
     }
+
+    fun updateBudget(budget: Double, onSuccess: () -> Unit, onFailure: (Exception) -> Unit) {
+        val userId = auth.currentUser?.uid
+        if (userId != null) {
+            db.collection("users").document(userId)
+                .update("budget", budget)
+                .addOnSuccessListener { onSuccess() }
+                .addOnFailureListener { onFailure(it) }
+        } else {
+            onFailure(Exception("User not authenticated"))
+        }
+    }
 }

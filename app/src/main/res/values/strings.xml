@@ -7,7 +7,7 @@
     <string name="email">Email</string>
     <string name="login">Login</string>
     <string name="remaining">Remaining</string>
-    <string name="lv">лв</string>
+    <string name="set_budget">Set Budget</string>
     <string name="graph">Graph</string>
     <string name="update">Update</string>
     <string name="add_expense">Add Expense</string>
@@ -32,6 +32,7 @@
     <string name="education">Education</string>
     <string name="healthcare">Healthcare</string>
     <string name="rent">Rent</string>
+    <string name="category">Category</string>
     <string name="mortgage">Mortgage</string>
     <string name="car_payment">Car Payment</string>
     <string name="loan_payments">Loan Payments</string>

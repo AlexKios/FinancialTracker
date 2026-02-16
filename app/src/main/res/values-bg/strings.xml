@@ -8,7 +8,7 @@
     <string name="email">Имейл</string>
     <string name="login">Вход</string>
     <string name="remaining">Оставащо</string>
-    <string name="lv">лв</string>
+    <string name="set_budget">Задаване на бюджет</string>
     <string name="graph">Графика</string>
     <string name="update">Актуализиране</string>
     <string name="add_expense">Добави Разход</string>
@@ -27,6 +27,7 @@
     <string name="entertainment">Развлечение</string>
     <string name="dining">Хранене</string>
     <string name="shopping">Пазаруване</string>
+    <string name="category">Kатегория</string>
     <string name="gym_membership">Членство в зала</string>
     <string name="travel">Пътуване</string>
     <string name="subscription">Абонамент</string>

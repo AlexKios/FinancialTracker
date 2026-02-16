@@ -6,9 +6,13 @@ import android.widget.TableRow
 import android.widget.TextView
 import android.widget.TableLayout
 import android.widget.ProgressBar
+import androidx.appcompat.app.AlertDialog
+import android.widget.Button
+import android.widget.EditText
 import androidx.lifecycle.ViewModelProvider
 import com.example.financialtracker.R
 import com.example.financialtracker.ui.viewmodels.MainViewModel
+import java.util.Locale
 
 class MainActivity : BaseActivity() {
 
@@ -17,6 +21,7 @@ class MainActivity : BaseActivity() {
     private lateinit var progressBar: ProgressBar
     private lateinit var textViewAmount: TextView
     private lateinit var viewModel: MainViewModel
+    private lateinit var setBudgetButton: Button
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -25,6 +30,7 @@ class MainActivity : BaseActivity() {
         tableLayout = findViewById(R.id.tableLayout)
         progressBar = findViewById(R.id.progressBudget)
         textViewAmount = findViewById(R.id.remainingBudget)
+        setBudgetButton = findViewById(R.id.setBudgetButton)
 
         textViewAmount.text = ""
 
@@ -34,11 +40,33 @@ class MainActivity : BaseActivity() {
         observeViewModel()
         viewModel.loadUserData()
 
+        setBudgetButton.setOnClickListener {
+            showSetBudgetDialog()
+        }
+    }
+
+    private fun showSetBudgetDialog() {
+        val builder = AlertDialog.Builder(this)
+        val inflater = layoutInflater
+        val dialogLayout = inflater.inflate(R.layout.dialog_set_budget, null)
+        val editText = dialogLayout.findViewById<EditText>(R.id.editTextBudget)
+
+        builder.setView(dialogLayout)
+        builder.setPositiveButton("OK") { _, _ ->
+            val budgetString = editText.text.toString()
+            if (budgetString.isNotEmpty()) {
+                val budget = budgetString.toDouble()
+                viewModel.setBudget(budget)
+            }
+        }
+        builder.setNegativeButton("Cancel") { _, _ ->
+        }
+        builder.show()
     }
 
     private fun observeViewModel() {
         viewModel.budget.observe(this) { remaining ->
-            textViewAmount.text = "".format(remaining)
+            textViewAmount.text = String.format(Locale.US, "$%.2f", remaining)
             progressBar.progress = viewModel.calculateBudgetPercentage(remaining)
         }
 
@@ -48,17 +76,19 @@ class MainActivity : BaseActivity() {
     }
 
     private fun populateTable(transactions: List<Triple<String, Double, String>>) {
+        val header = tableLayout.getChildAt(0)
         tableLayout.removeAllViews()
+        tableLayout.addView(header)
 
         transactions.forEach { (category, amount, date) ->
-            val row = LayoutInflater.from(this).inflate(R.layout.table_row_layout, null) as TableRow
+            val row = LayoutInflater.from(this).inflate(R.layout.table_row_layout, tableLayout, false) as TableRow
 
-            val categoryTextView = row.findViewById<TextView>(R.id.column_icon)
+            val typeTextView = row.findViewById<TextView>(R.id.column_type)
             val amountTextView = row.findViewById<TextView>(R.id.column_amount)
             val dateTextView = row.findViewById<TextView>(R.id.column_date)
 
-            categoryTextView.text = category
-            amountTextView.text = "".format(amount)
+            typeTextView.text = category
+            amountTextView.text = String.format(Locale.US, "$%.2f", amount)
             dateTextView.text = date
 
             tableLayout.addView(row)

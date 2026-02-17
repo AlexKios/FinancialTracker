@@ -14,6 +14,14 @@ class UserRepository {
     private val auth = FirebaseAuth.getInstance()
     private val friendListeners = mutableMapOf<String, ListenerRegistration>()
 
+    fun updateUserProfilePicture(imageUrl: String, onSuccess: () -> Unit, onFailure: (Exception) -> Unit) {
+        val userId = auth.currentUser?.uid ?: return onFailure(Exception("User not authenticated"))
+        db.collection("users").document(userId)
+            .update("profilePictureUrl", imageUrl)
+            .addOnSuccessListener { onSuccess() }
+            .addOnFailureListener { onFailure(it) }
+    }
+
     fun getCurrentUser(onSuccess: (User) -> Unit, onFailure: (Exception) -> Unit) {
         val userId = auth.currentUser?.uid
         if (userId != null) {

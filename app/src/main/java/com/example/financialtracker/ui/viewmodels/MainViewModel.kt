@@ -100,10 +100,12 @@ class MainViewModel : ViewModel() {
     }
 
     fun loadFriendsData() {
+        expenseRepo.unregisterUserListeners()
+        val friendsList = mutableListOf<Pair<String, Int>>()
         currentUser?.friends?.forEach { friendId ->
             userRepo.getUserById(friendId,
                 onSuccess = { friend ->
-                    expenseRepo.getExpensesForUser(friend.uid,
+                    expenseRepo.listenForExpensesForUser(friend.uid,
                         onSuccess = { expenses ->
                             val totalExpenses = expenses.sumOf { it.amount }
                             val budgetPercentage = if (friend.budget > 0) {
@@ -111,9 +113,14 @@ class MainViewModel : ViewModel() {
                             } else {
                                 0
                             }
-                            val currentFriendsData = _friendsData.value?.toMutableList() ?: mutableListOf()
-                            currentFriendsData.add(Pair(friend.name, budgetPercentage))
-                            _friendsData.postValue(currentFriendsData)
+
+                            val friendIndex = friendsList.indexOfFirst { it.first == friend.name }
+                            if (friendIndex != -1) {
+                                friendsList[friendIndex] = Pair(friend.name, budgetPercentage)
+                            } else {
+                                friendsList.add(Pair(friend.name, budgetPercentage))
+                            }
+                            _friendsData.postValue(friendsList)
                         },
                         onFailure = { /* Handle failure */ }
                     )

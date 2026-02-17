@@ -1,5 +1,6 @@
 package com.example.financialtracker.ui.viewmodels
 
+import android.net.Uri
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -14,6 +15,9 @@ class AccountViewModel: ViewModel() {
 
     private val _updateResult = MutableLiveData<Result<Unit>>()
     val updateResult: LiveData<Result<Unit>> = _updateResult
+
+    private val _uploadResult = MutableLiveData<Result<String>>()
+    val uploadResult: LiveData<Result<String>> = _uploadResult
 
     fun loadCurrentUser() {
         userRepo.getCurrentUser(
@@ -44,6 +48,18 @@ class AccountViewModel: ViewModel() {
             },
             onFailure = { exception ->
                 _updateResult.postValue(Result.failure(exception))
+            }
+        )
+    }
+
+    fun uploadProfilePicture(uri: Uri) {
+        userRepo.updateUserProfilePicture(uri.toString(),
+            onSuccess = {
+                loadCurrentUser()
+                _uploadResult.postValue(Result.success(uri.toString()))
+            },
+            onFailure = { exception ->
+                _uploadResult.postValue(Result.failure(exception))
             }
         )
     }

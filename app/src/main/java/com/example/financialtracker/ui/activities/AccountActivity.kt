@@ -1,6 +1,10 @@
 package com.example.financialtracker.ui.activities
 
+import android.Manifest
+import android.content.Intent
+import android.content.pm.PackageManager
 import android.graphics.Bitmap
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.View
@@ -9,15 +13,20 @@ import android.widget.EditText
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
-import androidx.activity.viewModels
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
+import com.bumptech.glide.Glide
 import com.example.financialtracker.R
 import com.example.financialtracker.ui.viewmodels.AccountViewModel
-import com.google.rpc.Code
 import com.google.zxing.BarcodeFormat
 import com.google.zxing.common.BitMatrix
 import com.google.zxing.qrcode.QRCodeWriter
+import androidx.core.net.toUri
+import androidx.core.view.isVisible
+import androidx.core.graphics.createBitmap
+import androidx.core.graphics.set
 
 class AccountActivity : AppCompatActivity() {
 
@@ -34,6 +43,23 @@ class AccountActivity : AppCompatActivity() {
     private lateinit var showQrCode: Button
     private lateinit var qrCodeImageView: ImageView
     private lateinit var toggleQrCodeButton: Button
+
+    private val pickImageLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+        if (it.resultCode == RESULT_OK) {
+            it.data?.data?.let {
+                uri -> viewModel.uploadProfilePicture(uri)
+            }
+        }
+    }
+
+    private val requestPermissionLauncher =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted: Boolean ->
+            if (isGranted) {
+                launchImagePicker()
+            } else {
+                Toast.makeText(this, "Permission denied to read photos.", Toast.LENGTH_SHORT).show()
+            }
+        }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -52,7 +78,7 @@ class AccountActivity : AppCompatActivity() {
         toggleQrCodeButton = findViewById(R.id.toggle_qr_code_button)
 
         changeProfilePictureButton.setOnClickListener {
-            // Open a gallery or camera to change the profile picture (implement this logic)
+            requestStoragePermission()
         }
 
         viewModel = ViewModelProvider(
@@ -66,6 +92,17 @@ class AccountActivity : AppCompatActivity() {
             emailEditText.setText(user.email)
             nameEditText.setText(user.name)
             passwordEditText.setText("") // Do not display passwords
+            if (user.profileImageUrl.isNotEmpty()) {
+                Glide.with(this).load(user.profileImageUrl.toUri()).into(profilePicture)
+            }
+        }
+
+        viewModel.uploadResult.observe(this) { result ->
+            result.onSuccess {
+                Toast.makeText(this, "Profile picture updated", Toast.LENGTH_SHORT).show()
+            }.onFailure {
+                Toast.makeText(this, "Error: ${it.message}", Toast.LENGTH_LONG).show()
+            }
         }
 
         // Observe update results
@@ -107,35 +144,70 @@ class AccountActivity : AppCompatActivity() {
 
         toggleQrCodeButton.setOnClickListener(object : View.OnClickListener {
             override fun onClick(v: View?) {
-                if (qrCodeImageView.visibility == View.VISIBLE) {
+                if (qrCodeImageView.isVisible) {
                     qrCodeImageView.visibility = View.GONE
                     toggleQrCodeButton.visibility = View.GONE
                 }
             }
         })
     }
-        private fun generateQrCode(userId: String) {
-            val qrCodeWriter = QRCodeWriter()
-            try {
-                // Create a BitMatrix based on user ID
-                val bitMatrix: BitMatrix = qrCodeWriter.encode(userId, BarcodeFormat.QR_CODE, 512, 512)
 
-                // Convert BitMatrix to Bitmap
-                val width = bitMatrix.width
-                val height = bitMatrix.height
-                val bmp = Bitmap.createBitmap(width, height, Bitmap.Config.RGB_565)
+    private fun requestStoragePermission() {
+        val permission = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            Manifest.permission.READ_MEDIA_IMAGES
+        } else {
+            Manifest.permission.READ_EXTERNAL_STORAGE
+        }
 
-                for (x in 0 until width) {
-                    for (y in 0 until height) {
-                        bmp.setPixel(x, y, if (bitMatrix.get(x, y)) android.graphics.Color.BLACK else android.graphics.Color.WHITE)
-                    }
-                }
-
-                toggleQrCodeButton.visibility = View.VISIBLE
-
-                qrCodeImageView.setImageBitmap(bmp)
-            } catch (e: Exception) {
-                Toast.makeText(this, "Error generating QR Code", Toast.LENGTH_SHORT).show()
+        when {
+            ContextCompat.checkSelfPermission(
+                this,
+                permission
+            ) == PackageManager.PERMISSION_GRANTED -> {
+                launchImagePicker()
+            }
+            shouldShowRequestPermissionRationale(permission) -> {
+                Toast.makeText(this, "Permission needed to select a profile picture.", Toast.LENGTH_LONG).show()
+                requestPermissionLauncher.launch(permission)
+            }
+            else -> {
+                requestPermissionLauncher.launch(permission)
             }
         }
+    }
+
+    private fun launchImagePicker() {
+        val intent = Intent(Intent.ACTION_PICK)
+        intent.type = "image/*"
+        pickImageLauncher.launch(intent)
+    }
+
+    private fun generateQrCode(userId: String) {
+        val qrCodeWriter = QRCodeWriter()
+        try {
+            // Create a BitMatrix based on user ID
+            val bitMatrix: BitMatrix = qrCodeWriter.encode(userId, BarcodeFormat.QR_CODE, 512, 512)
+
+            // Convert BitMatrix to Bitmap
+            val width = bitMatrix.width
+            val height = bitMatrix.height
+            val bmp = createBitmap(width, height, Bitmap.Config.RGB_565)
+
+            for (x in 0 until width) {
+                for (y in 0 until height) {
+                    bmp[x, y] = if (bitMatrix.get(
+                            x,
+                            y
+                        )
+                    ) android.graphics.Color.BLACK else android.graphics.Color.WHITE
+                }
+            }
+
+            toggleQrCodeButton.visibility = View.VISIBLE
+
+            qrCodeImageView.setImageBitmap(bmp)
+        } catch (e: Exception) {
+            Toast.makeText(this, "Error generating QR Code", Toast.LENGTH_SHORT).show()
+        }
+    }
 }

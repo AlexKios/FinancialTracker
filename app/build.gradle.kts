@@ -48,6 +48,7 @@ dependencies {
     implementation(libs.firebase.database)
     implementation(libs.firebase.firestore)
     implementation(libs.firebase.auth.ktx)
+    implementation(libs.firebase.storage.ktx)
     implementation(libs.androidx.lifecycle.process)
     implementation(libs.androidx.work.runtime.ktx)
     implementation(libs.kotlinx.coroutines.play.services)
@@ -67,4 +68,6 @@ dependencies {
     implementation(libs.barcode.scanning.v1720)
     implementation(libs.guava)
     implementation(libs.androidx.core.splashscreen)
+    implementation(libs.glide)
+    annotationProcessor(libs.compiler)
 }

@@ -9,13 +9,14 @@ class ExpenseRepository {
     private val db = FirebaseFirestore.getInstance()
     private val auth = FirebaseAuth.getInstance()
     private var expenseListener: ListenerRegistration? = null
+    private val userExpenseListeners = mutableMapOf<String, ListenerRegistration>()
 
     fun addExpense(expense: Expense, onSuccess: () -> Unit, onFailure: (Exception) -> Unit) {
         val userId = auth.currentUser?.uid
         if (userId != null) {
             db.collection("users").document(userId).collection("expenses")
                 .add(expense)
-                .addOnSuccessListener { 
+                .addOnSuccessListener {
                     onSuccess()
                 }
                 .addOnFailureListener { e ->
@@ -43,6 +44,19 @@ class ExpenseRepository {
         }
     }
 
+    fun listenForExpensesForUser(userId: String, onSuccess: (List<Expense>) -> Unit, onFailure: (Exception) -> Unit) {
+        val listener = db.collection("users").document(userId).collection("expenses")
+            .addSnapshotListener { snapshot, e ->
+                if (e != null) {
+                    onFailure(e)
+                    return@addSnapshotListener
+                }
+                val expenses = snapshot?.toObjects(Expense::class.java) ?: emptyList()
+                onSuccess(expenses)
+            }
+        userExpenseListeners[userId] = listener
+    }
+
     fun getExpensesForUser(userId: String, onSuccess: (List<Expense>) -> Unit, onFailure: (Exception) -> Unit) {
         db.collection("users").document(userId).collection("expenses")
             .get()
@@ -55,8 +69,21 @@ class ExpenseRepository {
             }
     }
 
-    fun unregisterListener() {
+    fun unregisterCurrentUserListener() {
         expenseListener?.remove()
+        expenseListener = null
+    }
+
+    fun unregisterUserListeners() {
+        userExpenseListeners.forEach { (_, listener) ->
+            listener.remove()
+        }
+        userExpenseListeners.clear()
+    }
+
+    fun unregisterListener() {
+        unregisterCurrentUserListener()
+        unregisterUserListeners()
     }
 
     fun getExpenseById(

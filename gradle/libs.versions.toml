@@ -7,6 +7,7 @@ cameraxVersion = "1.5.3"
 coreSplashscreen = "1.2.0"
 firebaseBom = "34.9.0"
 fragmentKtx = "1.8.9"
+glide = "5.0.5"
 guava = "33.5.0-android"
 kotlin = "2.3.10"
 coreKtx = "1.17.0"
@@ -27,6 +28,7 @@ firebaseDatabase = "22.0.1"
 firebaseFirestore = "26.1.0"
 firebaseAuthKtx = "23.2.1"
 lifecycleProcess = "2.10.0"
+firebaseStorageKtx = "21.0.2"
 
 [libraries]
 androidx-camera-camera2 = { module = "androidx.camera:camera-camera2", version.ref = "cameraxVersion" }
@@ -41,7 +43,9 @@ androidx-fragment-ktx = { module = "androidx.fragment:fragment-ktx", version.ref
 androidx-work-runtime-ktx = { module = "androidx.work:work-runtime-ktx", version.ref = "workRuntimeKtx" }
 barcode-scanning = { module = "com.google.mlkit:barcode-scanning", version.ref = "barcodeScanning" }
 barcode-scanning-v1720 = { module = "com.google.mlkit:barcode-scanning", version.ref = "barcodeScanningVersion" }
+compiler = { module = "com.github.bumptech.glide:compiler", version.ref = "glide" }
 firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebaseBom" }
+glide = { module = "com.github.bumptech.glide:glide", version.ref = "glide" }
 guava = { module = "com.google.guava:guava", version.ref = "guava" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
@@ -58,9 +62,9 @@ firebase-database-ktx = { group = "com.google.firebase", name = "firebase-databa
 firebase-database = { group = "com.google.firebase", name = "firebase-database", version.ref = "firebaseDatabase" }
 firebase-firestore = { group = "com.google.firebase", name = "firebase-firestore", version.ref = "firebaseFirestore" }
 firebase-auth-ktx = { group = "com.google.firebase", name = "firebase-auth-ktx", version.ref = "firebaseAuthKtx" }
+firebase-storage-ktx = { group = "com.google.firebase", name = "firebase-storage-ktx", version.ref = "firebaseStorageKtx" }
 androidx-lifecycle-process = { group = "androidx.lifecycle", name = "lifecycle-process", version.ref = "lifecycleProcess" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
-

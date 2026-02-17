@@ -12,31 +12,32 @@ class PresenceManager(
     private val auth: FirebaseAuth
 ) : DefaultLifecycleObserver {
 
-    private val userRef: DocumentReference
+    private val userRef: DocumentReference?
         get() {
             val uid = auth.currentUser?.uid
             return if (uid != null) {
                 db.collection("users").document(uid)
             } else {
-                throw IllegalStateException("User is not authenticated")
+                null
             }
         }
 
     private var listenerRegistration: ListenerRegistration? = null
 
     override fun onStart(owner: LifecycleOwner) {
+        userRef?.let { userRef ->
+            userRef.update("online", true)
 
-        userRef.update("online", true)
-
-        listenerRegistration = userRef.addSnapshotListener { _, error ->
-            if (error != null) {
-                return@addSnapshotListener
+            listenerRegistration = userRef.addSnapshotListener { _, error ->
+                if (error != null) {
+                    return@addSnapshotListener
+                }
             }
         }
     }
 
     override fun onStop(owner: LifecycleOwner) {
-        userRef.update("online", false)
+        userRef?.update("online", false)
         listenerRegistration?.remove()
     }
 }

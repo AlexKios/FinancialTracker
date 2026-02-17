@@ -43,6 +43,18 @@ class ExpenseRepository {
         }
     }
 
+    fun getExpensesForUser(userId: String, onSuccess: (List<Expense>) -> Unit, onFailure: (Exception) -> Unit) {
+        db.collection("users").document(userId).collection("expenses")
+            .get()
+            .addOnSuccessListener { snapshot ->
+                val expenses = snapshot?.toObjects(Expense::class.java) ?: emptyList()
+                onSuccess(expenses)
+            }
+            .addOnFailureListener { e ->
+                onFailure(e)
+            }
+    }
+
     fun unregisterListener() {
         expenseListener?.remove()
     }

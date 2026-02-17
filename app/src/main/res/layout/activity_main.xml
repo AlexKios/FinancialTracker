@@ -64,14 +64,32 @@
 
             <Button
                 android:id="@+id/setBudgetButton"
-                android:layout_width="180dp"
+                android:layout_width="103dp"
                 android:layout_height="50dp"
-                android:layout_marginTop="20dp"
-                android:textSize="17sp"
+                android:layout_marginTop="10dp"
                 android:text="@string/set_budget"
+                android:textSize="12sp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/progressBudget" />
+                app:layout_constraintTop_toBottomOf="@+id/remaining" />
+
+            <HorizontalScrollView
+                android:id="@+id/friendsScrollView"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:contentDescription="@string/friends_list"
+                app:layout_constraintTop_toBottomOf="@id/progressBudget"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent">
+
+                <LinearLayout
+                    android:id="@+id/friendsLinearLayout"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:padding="10dp" />
+            </HorizontalScrollView>
 
             <com.github.mikephil.charting.charts.LineChart
                 android:id="@+id/lineChart"
@@ -80,7 +98,7 @@
                 android:layout_marginTop="20dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/setBudgetButton" />
+                app:layout_constraintTop_toBottomOf="@+id/friendsScrollView" />
 
             <TableLayout
                 android:id="@+id/tableLayout"

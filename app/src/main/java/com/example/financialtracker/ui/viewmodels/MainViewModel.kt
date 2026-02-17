@@ -30,12 +30,16 @@ class MainViewModel : ViewModel() {
     private val _chartData = MutableLiveData<List<Entry>>()
     val chartData: LiveData<List<Entry>> = _chartData
 
+    private val _friendsData = MutableLiveData<List<Pair<String, Int>>>()
+    val friendsData: LiveData<List<Pair<String, Int>>> = _friendsData
+
 
     fun loadUserData() {
         userRepo.getCurrentUser(
             onSuccess = { user ->
                 currentUser = user
                 listenForTransactions()
+                loadFriendsData()
             },
             onFailure = {
             }
@@ -93,6 +97,30 @@ class MainViewModel : ViewModel() {
             onFailure = { 
             }
         )
+    }
+
+    fun loadFriendsData() {
+        currentUser?.friends?.forEach { friendId ->
+            userRepo.getUserById(friendId,
+                onSuccess = { friend ->
+                    expenseRepo.getExpensesForUser(friend.uid,
+                        onSuccess = { expenses ->
+                            val totalExpenses = expenses.sumOf { it.amount }
+                            val budgetPercentage = if (friend.budget > 0) {
+                                ((friend.budget - totalExpenses) / friend.budget * 100).toInt().coerceIn(0, 100)
+                            } else {
+                                0
+                            }
+                            val currentFriendsData = _friendsData.value?.toMutableList() ?: mutableListOf()
+                            currentFriendsData.add(Pair(friend.name, budgetPercentage))
+                            _friendsData.postValue(currentFriendsData)
+                        },
+                        onFailure = { /* Handle failure */ }
+                    )
+                },
+                onFailure = { /* Handle failure */ }
+            )
+        }
     }
 
     fun updateChartData(month: Int, year: Int) {

@@ -73,6 +73,7 @@
     <string name="stop_scan">Stop Scan</string>
     <string name="change_language">Change Language</string>
     <string name="amount_format">$%1$.2f</string>
+    <string name="friends_list">friends_list</string>
 
     <string-array name="expense_categories">
         <item>@string/groceries</item>

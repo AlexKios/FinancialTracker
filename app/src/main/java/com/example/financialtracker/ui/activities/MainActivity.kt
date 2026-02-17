@@ -9,6 +9,7 @@ import android.view.LayoutInflater
 import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.EditText
+import android.widget.LinearLayout
 import android.widget.ListView
 import android.widget.ProgressBar
 import android.widget.TableLayout
@@ -36,6 +37,7 @@ class MainActivity : BaseActivity() {
     private lateinit var viewModel: MainViewModel
     private lateinit var setBudgetButton: Button
     private lateinit var lineChart: LineChart
+    private lateinit var friendsLinearLayout: LinearLayout
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -46,6 +48,7 @@ class MainActivity : BaseActivity() {
         textViewAmount = findViewById(R.id.remainingBudget)
         setBudgetButton = findViewById(R.id.setBudgetButton)
         lineChart = findViewById(R.id.lineChart)
+        friendsLinearLayout = findViewById(R.id.friendsLinearLayout)
 
         textViewAmount.text = ""
 
@@ -132,6 +135,25 @@ class MainActivity : BaseActivity() {
                 lineChart.data = lineData
                 lineChart.invalidate() // refresh
             }
+        }
+
+        viewModel.friendsData.observe(this) { friends ->
+            populateFriends(friends)
+        }
+    }
+
+    private fun populateFriends(friends: List<Pair<String, Int>>) {
+        friendsLinearLayout.removeAllViews()
+        val inflater = LayoutInflater.from(this)
+        for ((name, progress) in friends) {
+            val friendView = inflater.inflate(R.layout.item_friend_progress, friendsLinearLayout, false)
+            val friendProgressBar = friendView.findViewById<ProgressBar>(R.id.friendProgressBar)
+            val friendNameTextView = friendView.findViewById<TextView>(R.id.friendNameTextView)
+
+            friendProgressBar.progress = progress
+            friendNameTextView.text = name
+
+            friendsLinearLayout.addView(friendView)
         }
     }
 

@@ -36,6 +36,23 @@ class UserRepository {
         }
     }
 
+    fun getUserById(userId: String, onSuccess: (User) -> Unit, onFailure: (Exception) -> Unit) {
+        db.collection("users")
+            .document(userId)
+            .get()
+            .addOnSuccessListener { document ->
+                val user = document.toObject(User::class.java)
+                if (user != null) {
+                    onSuccess(user)
+                } else {
+                    onFailure(Exception("User not found"))
+                }
+            }
+            .addOnFailureListener { exception ->
+                onFailure(exception)
+            }
+    }
+
     fun getUserIdByUsername(username: String, onSuccess: (String) -> Unit, onFailure: (Exception) -> Unit) {
         db.collection("users")
             .whereEqualTo("username", username)

@@ -11,7 +11,7 @@
         android:id="@+id/editTextNumber"
         android:layout_width="230dp"
         android:layout_height="55dp"
-        android:layout_marginTop="348dp"
+        android:layout_marginTop="312dp"
         android:background="@drawable/border"
         android:ems="10"
         android:hint="@string/enter_amount"

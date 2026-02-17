@@ -7,6 +7,7 @@ import com.example.financialtracker.data.model.User
 import com.example.financialtracker.data.repositories.ExpenseRepository
 import com.example.financialtracker.data.repositories.IncomeRepository
 import com.example.financialtracker.data.repositories.UserRepository
+import com.github.mikephil.charting.data.Entry
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
@@ -25,6 +26,10 @@ class MainViewModel : ViewModel() {
 
     private val _allTransactions = MutableLiveData<List<Triple<String, Double, String>>>()
     val allTransactions: LiveData<List<Triple<String, Double, String>>> get() = _allTransactions
+
+    private val _chartData = MutableLiveData<List<Entry>>()
+    val chartData: LiveData<List<Entry>> = _chartData
+
 
     fun loadUserData() {
         userRepo.getCurrentUser(
@@ -78,6 +83,8 @@ class MainViewModel : ViewModel() {
 
                         val totalBudget = currentUser?.budget ?: 0.0
                         _budget.value = totalBudget - totalMonthlyExpenses
+
+                        updateChartData(currentMonth, currentYear)
                     },
                     onFailure = { 
                     }
@@ -87,6 +94,43 @@ class MainViewModel : ViewModel() {
             }
         )
     }
+
+    fun updateChartData(month: Int, year: Int) {
+        expenseRepo.listenForExpenses(
+            onSuccess = { expenses ->
+                val dailySpending = mutableMapOf<Int, Double>()
+                val calendar = Calendar.getInstance()
+                calendar.set(year, month, 1)
+                val daysInMonth = calendar.getActualMaximum(Calendar.DAY_OF_MONTH)
+
+                for (i in 1..daysInMonth) {
+                    dailySpending[i] = 0.0
+                }
+
+                expenses.forEach { expense ->
+                    val expenseCalendar = Calendar.getInstance()
+                    expense.date?.let { timestamp ->
+                        expenseCalendar.time = timestamp.toDate()
+                        if (expenseCalendar.get(Calendar.MONTH) == month && expenseCalendar.get(Calendar.YEAR) == year) {
+                            val dayOfMonth = expenseCalendar.get(Calendar.DAY_OF_MONTH)
+                            dailySpending[dayOfMonth] = (dailySpending[dayOfMonth] ?: 0.0) + expense.amount
+                        }
+                    }
+                }
+
+                val entries = mutableListOf<Entry>()
+                dailySpending.toSortedMap().forEach { (day, total) ->
+                    entries.add(Entry(day.toFloat(), total.toFloat()))
+                }
+
+                _chartData.value = entries
+            },
+            onFailure = { 
+                // Handle failure
+            }
+        )
+    }
+
 
     fun calculateBudgetPercentage(remaining: Double): Int {
         val totalBudget = currentUser?.budget ?: 1.0

@@ -3,7 +3,7 @@
 
     <!-- Base application theme: light and dark at runtime -->
     <style name="Theme.FinancialTracker"
-        parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        parent="Theme.Material3.DayNight.NoActionBar">
 
         <!-- your shared theme attributes -->
         <item name="colorPrimary">@color/primary</item>
@@ -15,10 +15,15 @@
         <!-- background & surface -->
         <item name="android:colorBackground">@color/background</item>
         <item name="colorSurface">@color/surface</item>
+        <item name="colorSurfaceVariant">@color/surface_variant</item>
+        <item name="colorOnSurfaceVariant">@color/on_surface_variant</item>
+
 
         <!-- text colors -->
         <item name="android:textColorPrimary">@color/textPrimary</item>
         <item name="android:textColorSecondary">@color/textSecondary</item>
+        <item name="colorOnSurface">@color/on_surface</item>
+
 
         <!-- toolbar icons, etc. -->
         <item name="colorControlNormal">@color/toolbar_icon_color</item>

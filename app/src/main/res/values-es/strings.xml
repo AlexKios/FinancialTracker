@@ -79,4 +79,5 @@
     <string name="profilePic" />
     <string name="update_expense">Actualizar Gasto</string>
     <string name="update_income">Actualizar Ingreso</string>
+    <string name="_16p">16p</string>
 </resources>

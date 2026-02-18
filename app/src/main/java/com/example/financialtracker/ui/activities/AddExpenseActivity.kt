@@ -24,6 +24,7 @@ class AddExpenseActivity : BaseActivity() {
     private lateinit var addExpenseButton: Button
     private val expenseRepository = ExpenseRepository()
     private var selectedDate: Calendar = Calendar.getInstance()
+    private var expenseId: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -47,6 +48,13 @@ class AddExpenseActivity : BaseActivity() {
             categorySpinner.adapter = adapter
         }
 
+        expenseId = intent.getStringExtra("expenseId")
+        if (expenseId != null) {
+            addExpenseButton.text = getString(R.string.update_expense)
+            loadExpenseData(expenseId!!)
+        }
+
+
         recurringCheckBox.setOnCheckedChangeListener { _, isChecked ->
             if (isChecked) {
                 showDatePickerDialog()
@@ -58,6 +66,28 @@ class AddExpenseActivity : BaseActivity() {
             onAddExpenseClicked()
         }
     }
+
+    private fun loadExpenseData(id: String) {
+        expenseRepository.getExpenseById(id,
+            onSuccess = { expense ->
+                amountEditText.setText(expense.amount.toString())
+                val categories = resources.getStringArray(R.array.expense_categories)
+                val categoryPosition = categories.indexOf(expense.category)
+                if (categoryPosition >= 0) {
+                    categorySpinner.setSelection(categoryPosition)
+                }
+                recurringCheckBox.isChecked = expense.isRecurring
+                if (expense.isRecurring && expense.recurringDate != null) {
+                    selectedDate.time = expense.recurringDate.toDate()
+                }
+            },
+            onFailure = { exception ->
+                Toast.makeText(this, "Failed to load expense: ${exception.message}", Toast.LENGTH_LONG).show()
+                finish()
+            }
+        )
+    }
+
 
     private fun showDatePickerDialog() {
         val calendar = Calendar.getInstance()
@@ -88,12 +118,27 @@ class AddExpenseActivity : BaseActivity() {
                     Toast.makeText(this, "Amount must be greater than zero", Toast.LENGTH_SHORT).show()
                 } else {
                     // Logic for adding the expense (e.g., save to database or API)
-                    saveExpense(amountValue, category, isRecurring)
+                    if (expenseId == null) {
+                        saveExpense(amountValue, category, isRecurring)
+                    } else {
+                        updateExpense(expenseId!!, amountValue, category, isRecurring)
+                    }
                 }
             } catch (e: NumberFormatException) {
                 Toast.makeText(this, "Invalid amount entered", Toast.LENGTH_SHORT).show()
             }
         }
+    }
+
+    private fun updateExpense(id: String, amount: Double, category: String, isRecurring: Boolean) {
+        val recurringTimestamp = if (isRecurring) Timestamp(selectedDate.time) else null
+        val expense = Expense(id = id, amount = amount, category = category, isRecurring = isRecurring, date = Timestamp.now(), recurringDate = recurringTimestamp)
+        expenseRepository.updateExpense(expense, {
+            Toast.makeText(this, "Expense updated successfully", Toast.LENGTH_SHORT).show()
+            finish()
+        }, {
+            Toast.makeText(this, "Failed to update expense: ${it.message}", Toast.LENGTH_LONG).show()
+        })
     }
 
     // Save the expense (you can replace this with your actual saving logic, like database or API)

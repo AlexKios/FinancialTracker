@@ -77,4 +77,6 @@
     <string name="friends_list">friends_list</string>
     <string name="friendProfilePic" />
     <string name="profilePic" />
+    <string name="update_expense">Актуализиране на разхода</string>
+    <string name="update_income">Актуализиране на дохода</string>
 </resources>

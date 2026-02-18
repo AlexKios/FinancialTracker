@@ -76,6 +76,8 @@
     <string name="friends_list">friends_list</string>
     <string name="friendProfilePic" />
     <string name="profilePic" />
+    <string name="update_expense">Update Expense</string>
+    <string name="update_income">Update Income</string>
 
     <string-array name="expense_categories">
         <item>@string/groceries</item>

@@ -8,6 +8,7 @@ import android.widget.ImageView
 import android.widget.TableLayout
 import android.widget.TableRow
 import android.widget.TextView
+import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.ViewModelProvider
 import com.example.financialtracker.R
 import com.example.financialtracker.data.model.Income
@@ -55,6 +56,9 @@ class IncomeActivity : BaseActivity() {
                 )
                 minimumHeight = 80
                 gravity = Gravity.CENTER_VERTICAL
+                setOnClickListener {
+                    showEditDeleteDialog(income)
+                }
             }
 
             val icon = ImageView(this).apply {
@@ -94,5 +98,25 @@ class IncomeActivity : BaseActivity() {
 
             tableLayout.addView(row)
         }
+    }
+
+    private fun showEditDeleteDialog(income: Income) {
+        val options = arrayOf("Edit", "Delete")
+
+        AlertDialog.Builder(this)
+            .setTitle("Choose an option")
+            .setItems(options) { _, which ->
+                when (which) {
+                    0 -> {
+                        val intent = Intent(this, AddIncomeActivity::class.java)
+                        intent.putExtra("incomeId", income.id)
+                        startActivity(intent)
+                    }
+                    1 -> {
+                        viewModel.deleteIncome(income.id)
+                    }
+                }
+            }
+            .show()
     }
 }

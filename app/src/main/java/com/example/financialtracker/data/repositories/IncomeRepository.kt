@@ -27,6 +27,38 @@ class IncomeRepository {
         }
     }
 
+    fun updateIncome(income: Income, onSuccess: () -> Unit, onFailure: (Exception) -> Unit) {
+        val userId = auth.currentUser?.uid
+        if (userId != null) {
+            db.collection("users").document(userId).collection("incomes").document(income.id)
+                .set(income)
+                .addOnSuccessListener {
+                    onSuccess()
+                }
+                .addOnFailureListener { e ->
+                    onFailure(e)
+                }
+        } else {
+            onFailure(Exception("User not logged in"))
+        }
+    }
+
+    fun deleteIncome(incomeId: String, onSuccess: () -> Unit, onFailure: (Exception) -> Unit) {
+        val userId = auth.currentUser?.uid
+        if (userId != null) {
+            db.collection("users").document(userId).collection("incomes").document(incomeId)
+                .delete()
+                .addOnSuccessListener {
+                    onSuccess()
+                }
+                .addOnFailureListener { e ->
+                    onFailure(e)
+                }
+        } else {
+            onFailure(Exception("User not logged in"))
+        }
+    }
+
     suspend fun addIncome(income: Income) {
         val userId = auth.currentUser?.uid
         if (userId != null) {
@@ -42,7 +74,9 @@ class IncomeRepository {
             .whereEqualTo("isRecurring", true)
             .get()
             .await()
-        return snapshot.toObjects(Income::class.java)
+        return snapshot.documents.mapNotNull {
+            it.toObject(Income::class.java)?.copy(id = it.id)
+        }
     }
 
     suspend fun updateIncome(incomeId: String, updates: Map<String, Any>) {
@@ -61,7 +95,9 @@ class IncomeRepository {
                         onFailure(e)
                         return@addSnapshotListener
                     }
-                    val incomes = snapshot?.toObjects(Income::class.java) ?: emptyList()
+                    val incomes = snapshot?.documents?.mapNotNull {
+                        it.toObject(Income::class.java)?.copy(id = it.id)
+                    } ?: emptyList()
                     onSuccess(incomes)
                 }
         } else {
@@ -83,7 +119,7 @@ class IncomeRepository {
             db.collection("users").document(userId).collection("incomes").document(id)
                 .get()
                 .addOnSuccessListener { document ->
-                    val income = document.toObject(Income::class.java)
+                    val income = document.toObject(Income::class.java)?.copy(id = document.id)
                     if (income != null) {
                         onSuccess(income)
                     } else {

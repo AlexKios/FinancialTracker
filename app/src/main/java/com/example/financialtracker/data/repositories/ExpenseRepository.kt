@@ -27,6 +27,38 @@ class ExpenseRepository {
         }
     }
 
+    fun updateExpense(expense: Expense, onSuccess: () -> Unit, onFailure: (Exception) -> Unit) {
+        val userId = auth.currentUser?.uid
+        if (userId != null) {
+            db.collection("users").document(userId).collection("expenses").document(expense.id)
+                .set(expense)
+                .addOnSuccessListener {
+                    onSuccess()
+                }
+                .addOnFailureListener { e ->
+                    onFailure(e)
+                }
+        } else {
+            onFailure(Exception("User not logged in"))
+        }
+    }
+
+    fun deleteExpense(expenseId: String, onSuccess: () -> Unit, onFailure: (Exception) -> Unit) {
+        val userId = auth.currentUser?.uid
+        if (userId != null) {
+            db.collection("users").document(userId).collection("expenses").document(expenseId)
+                .delete()
+                .addOnSuccessListener {
+                    onSuccess()
+                }
+                .addOnFailureListener { e ->
+                    onFailure(e)
+                }
+        } else {
+            onFailure(Exception("User not logged in"))
+        }
+    }
+
     fun listenForExpenses(onSuccess: (List<Expense>) -> Unit, onFailure: (Exception) -> Unit) {
         val userId = auth.currentUser?.uid
         if (userId != null) {
@@ -36,7 +68,9 @@ class ExpenseRepository {
                         onFailure(e)
                         return@addSnapshotListener
                     }
-                    val expenses = snapshot?.toObjects(Expense::class.java) ?: emptyList()
+                    val expenses = snapshot?.documents?.mapNotNull {
+                        it.toObject(Expense::class.java)?.copy(id = it.id)
+                    } ?: emptyList()
                     onSuccess(expenses)
                 }
         } else {
@@ -51,22 +85,12 @@ class ExpenseRepository {
                     onFailure(e)
                     return@addSnapshotListener
                 }
-                val expenses = snapshot?.toObjects(Expense::class.java) ?: emptyList()
+                val expenses = snapshot?.documents?.mapNotNull {
+                    it.toObject(Expense::class.java)?.copy(id = it.id)
+                } ?: emptyList()
                 onSuccess(expenses)
             }
         userExpenseListeners[userId] = listener
-    }
-
-    fun getExpensesForUser(userId: String, onSuccess: (List<Expense>) -> Unit, onFailure: (Exception) -> Unit) {
-        db.collection("users").document(userId).collection("expenses")
-            .get()
-            .addOnSuccessListener { snapshot ->
-                val expenses = snapshot?.toObjects(Expense::class.java) ?: emptyList()
-                onSuccess(expenses)
-            }
-            .addOnFailureListener { e ->
-                onFailure(e)
-            }
     }
 
     fun unregisterCurrentUserListener() {
@@ -96,7 +120,7 @@ class ExpenseRepository {
             db.collection("users").document(userId).collection("expenses").document(id)
                 .get()
                 .addOnSuccessListener { document ->
-                    val expense = document.toObject(Expense::class.java)
+                    val expense = document.toObject(Expense::class.java)?.copy(id = document.id)
                     if (expense != null) {
                         onSuccess(expense)
                     } else {

@@ -12,6 +12,7 @@
         android:layout_width="230dp"
         android:layout_height="55dp"
         android:layout_marginTop="312dp"
+        android:autofillHints="123.32"
         android:background="@drawable/border"
         android:ems="10"
         android:hint="@string/enter_amount"
@@ -29,7 +30,7 @@
     <Button
         android:id="@+id/button2"
         android:layout_width="230dp"
-        android:layout_height="64dp"
+        android:layout_height="75dp"
         android:backgroundTint="?attr/colorPrimary"
         android:text="@string/add_expense"
         android:textColor="?attr/colorOnPrimary"

@@ -77,4 +77,6 @@
     <string name="friends_list">friends_list</string>
     <string name="friendProfilePic" />
     <string name="profilePic" />
+    <string name="update_expense">Ενημέρωση εξόδου</string>
+    <string name="update_income">Ενημέρωση εισοδήματος</string>
 </resources>

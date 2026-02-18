@@ -28,6 +28,17 @@ class IncomeViewModel : ViewModel() {
         )
     }
 
+    fun deleteIncome(incomeId: String) {
+        incomeRepository.deleteIncome(incomeId,
+            onSuccess = {
+                // Income deleted successfully, the listener will update the list
+            },
+            onFailure = {
+                // Handle error
+            }
+        )
+    }
+
     override fun onCleared() {
         super.onCleared()
         incomeRepository.unregisterListener()

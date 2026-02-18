@@ -28,6 +28,17 @@ class ExpenseViewModel : ViewModel() {
         )
     }
 
+    fun deleteExpense(expenseId: String) {
+        expenseRepository.deleteExpense(expenseId,
+            onSuccess = {
+                // Expense deleted successfully, the listener will update the list
+            },
+            onFailure = {
+                // Handle error
+            }
+        )
+    }
+
     override fun onCleared() {
         super.onCleared()
         expenseRepository.unregisterListener()

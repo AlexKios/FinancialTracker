@@ -24,6 +24,7 @@ class AddIncomeActivity : BaseActivity() {
     private lateinit var addIncomeButton: Button
     private val incomeRepository = IncomeRepository()
     private var selectedDate: Calendar = Calendar.getInstance()
+    private var incomeId: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -47,6 +48,12 @@ class AddIncomeActivity : BaseActivity() {
             categorySpinner.adapter = adapter
         }
 
+        incomeId = intent.getStringExtra("incomeId")
+        if (incomeId != null) {
+            addIncomeButton.text = getString(R.string.update_income)
+            loadIncomeData(incomeId!!)
+        }
+
         recurringCheckBox.setOnCheckedChangeListener { _, isChecked ->
             if (isChecked) {
                 showDatePickerDialog()
@@ -56,6 +63,27 @@ class AddIncomeActivity : BaseActivity() {
         addIncomeButton.setOnClickListener {
             onAddIncomeClicked()
         }
+    }
+
+    private fun loadIncomeData(id: String) {
+        incomeRepository.getIncomeById(id,
+            onSuccess = { income ->
+                amountEditText.setText(income.amount.toString())
+                val categories = resources.getStringArray(R.array.income_categories)
+                val categoryPosition = categories.indexOf(income.source)
+                if (categoryPosition >= 0) {
+                    categorySpinner.setSelection(categoryPosition)
+                }
+                recurringCheckBox.isChecked = income.isRecurring
+                if (income.isRecurring && income.recurringDate != null) {
+                    selectedDate.time = income.recurringDate.toDate()
+                }
+            },
+            onFailure = { exception ->
+                Toast.makeText(this, "Failed to load income: ${exception.message}", Toast.LENGTH_LONG).show()
+                finish()
+            }
+        )
     }
 
     private fun showDatePickerDialog() {
@@ -87,12 +115,27 @@ class AddIncomeActivity : BaseActivity() {
                     Toast.makeText(this, "Amount must be greater than zero", Toast.LENGTH_SHORT).show()
                 } else {
                     // Logic for adding the income (e.g., save to database or API)
-                    saveIncome(amountValue, source, isRecurring)
+                    if (incomeId == null) {
+                        saveIncome(amountValue, source, isRecurring)
+                    } else {
+                        updateIncome(incomeId!!, amountValue, source, isRecurring)
+                    }
                 }
             } catch (e: NumberFormatException) {
                 Toast.makeText(this, "Invalid amount entered", Toast.LENGTH_SHORT).show()
             }
         }
+    }
+
+    private fun updateIncome(id: String, amount: Double, source: String, isRecurring: Boolean) {
+        val recurringTimestamp = if (isRecurring) Timestamp(selectedDate.time) else null
+        val income = Income(id = id, amount = amount, source = source, isRecurring = isRecurring, date = Timestamp.now(), recurringDate = recurringTimestamp)
+        incomeRepository.updateIncome(income, {
+            Toast.makeText(this, "Income updated successfully", Toast.LENGTH_SHORT).show()
+            finish()
+        }, {
+            Toast.makeText(this, "Failed to update income: ${it.message}", Toast.LENGTH_LONG).show()
+        })
     }
 
     // Save the income (you can replace this with your actual saving logic, like database or API)

@@ -93,7 +93,13 @@ class AccountActivity : AppCompatActivity() {
             nameEditText.setText(user.name)
             passwordEditText.setText("") // Do not display passwords
             if (user.profileImageUrl.isNotEmpty()) {
-                Glide.with(this).load(user.profileImageUrl.toUri()).into(profilePicture)
+                Glide.with(this)
+                    .load(user.profileImageUrl.toUri())
+                    .placeholder(R.drawable.user)
+                    .error(R.drawable.user)
+                    .into(profilePicture)
+            } else {
+                profilePicture.setImageResource(R.drawable.user)
             }
         }
 

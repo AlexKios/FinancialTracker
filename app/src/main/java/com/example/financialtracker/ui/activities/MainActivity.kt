@@ -9,6 +9,7 @@ import android.view.LayoutInflater
 import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.EditText
+import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.ListView
 import android.widget.ProgressBar
@@ -18,6 +19,7 @@ import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
+import com.bumptech.glide.Glide
 import com.example.financialtracker.R
 import com.example.financialtracker.ui.viewmodels.MainViewModel
 import com.github.mikephil.charting.charts.LineChart
@@ -88,7 +90,6 @@ class MainActivity : BaseActivity() {
         dialog.show()
     }
 
-
     private fun showSetBudgetDialog() {
         val builder = AlertDialog.Builder(this)
         val inflater = layoutInflater
@@ -142,16 +143,27 @@ class MainActivity : BaseActivity() {
         }
     }
 
-    private fun populateFriends(friends: List<Pair<String, Int>>) {
+    private fun populateFriends(friends: List<Triple<String, String, Int>>) {
         friendsLinearLayout.removeAllViews()
         val inflater = LayoutInflater.from(this)
-        for ((name, progress) in friends) {
+        for ((name, profileImageUrl, progress) in friends) {
             val friendView = inflater.inflate(R.layout.item_friend_progress, friendsLinearLayout, false)
             val friendProgressBar = friendView.findViewById<ProgressBar>(R.id.friendProgressBar)
             val friendNameTextView = friendView.findViewById<TextView>(R.id.friendNameTextView)
+            val friendProfileImageView = friendView.findViewById<ImageView>(R.id.friendProfileImageView)
 
             friendProgressBar.progress = progress
             friendNameTextView.text = name
+
+            if (profileImageUrl.isNotEmpty()) {
+                Glide.with(this)
+                    .load(profileImageUrl)
+                    .placeholder(R.drawable.user)
+                    .error(R.drawable.user)
+                    .into(friendProfileImageView)
+            } else {
+                friendProfileImageView.setImageResource(R.drawable.user)
+            }
 
             friendsLinearLayout.addView(friendView)
         }

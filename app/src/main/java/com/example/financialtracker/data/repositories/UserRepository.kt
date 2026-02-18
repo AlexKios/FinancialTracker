@@ -1,7 +1,9 @@
 package com.example.financialtracker.data.repositories
 
 
+import android.net.Uri
 import android.util.Log
+import com.example.financialtracker.data.helper.CloudinaryClient
 import com.example.financialtracker.data.model.User
 import com.google.android.gms.tasks.Task
 import com.google.firebase.auth.FirebaseAuth
@@ -14,12 +16,30 @@ class UserRepository {
     private val auth = FirebaseAuth.getInstance()
     private val friendListeners = mutableMapOf<String, ListenerRegistration>()
 
-    fun updateUserProfilePicture(imageUrl: String, onSuccess: () -> Unit, onFailure: (Exception) -> Unit) {
-        val userId = auth.currentUser?.uid ?: return onFailure(Exception("User not authenticated"))
-        db.collection("users").document(userId)
-            .update("profilePictureUrl", imageUrl)
-            .addOnSuccessListener { onSuccess() }
-            .addOnFailureListener { onFailure(it) }
+    fun updateUserProfilePicture(
+        imageUri: Uri,
+        onSuccess: () -> Unit,
+        onFailure: (Exception) -> Unit
+    ) {
+        CloudinaryClient.uploadImage(
+            uri = imageUri,
+            uploadPreset = "DipProject",
+            onSuccess = { imageUrl ->
+                val sanitizedUrl = imageUrl.trim().removeSurrounding("\"")
+                val userId = auth.currentUser?.uid
+                if (userId != null) {
+                    db.collection("users").document(userId)
+                        .update("profileImageUrl", sanitizedUrl) // Corrected field name
+                        .addOnSuccessListener { onSuccess() }
+                        .addOnFailureListener { onFailure(it) }
+                } else {
+                    onFailure(Exception("User not authenticated"))
+                }
+            },
+            onError = { errorMessage ->
+                onFailure(Exception(errorMessage))
+            }
+        )
     }
 
     fun getCurrentUser(onSuccess: (User) -> Unit, onFailure: (Exception) -> Unit) {

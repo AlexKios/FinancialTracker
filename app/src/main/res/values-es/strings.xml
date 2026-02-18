@@ -75,4 +75,6 @@
     <string name="change_language">Cambiar idioma</string>
     <string name="amount_format">%1$.2f €</string>
     <string name="friends_list">friends_list</string>
+    <string name="friendProfilePic" />
+    <string name="profilePic" />
 </resources>

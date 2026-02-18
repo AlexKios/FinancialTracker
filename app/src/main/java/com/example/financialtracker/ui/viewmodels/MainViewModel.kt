@@ -12,7 +12,6 @@ import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
 
-
 class MainViewModel : ViewModel() {
 
     private val userRepo = UserRepository()
@@ -30,9 +29,8 @@ class MainViewModel : ViewModel() {
     private val _chartData = MutableLiveData<List<Entry>>()
     val chartData: LiveData<List<Entry>> = _chartData
 
-    private val _friendsData = MutableLiveData<List<Pair<String, Int>>>()
-    val friendsData: LiveData<List<Pair<String, Int>>> = _friendsData
-
+    private val _friendsData = MutableLiveData<List<Triple<String, String, Int>>>()
+    val friendsData: LiveData<List<Triple<String, String, Int>>> = _friendsData
 
     fun loadUserData() {
         userRepo.getCurrentUser(
@@ -101,7 +99,7 @@ class MainViewModel : ViewModel() {
 
     fun loadFriendsData() {
         expenseRepo.unregisterUserListeners()
-        val friendsList = mutableListOf<Pair<String, Int>>()
+        val friendsList = mutableListOf<Triple<String, String, Int>>()
         currentUser?.friends?.forEach { friendId ->
             userRepo.getUserById(friendId,
                 onSuccess = { friend ->
@@ -116,9 +114,9 @@ class MainViewModel : ViewModel() {
 
                             val friendIndex = friendsList.indexOfFirst { it.first == friend.name }
                             if (friendIndex != -1) {
-                                friendsList[friendIndex] = Pair(friend.name, budgetPercentage)
+                                friendsList[friendIndex] = Triple(friend.name, friend.profileImageUrl, budgetPercentage)
                             } else {
-                                friendsList.add(Pair(friend.name, budgetPercentage))
+                                friendsList.add(Triple(friend.name, friend.profileImageUrl, budgetPercentage))
                             }
                             _friendsData.postValue(friendsList)
                         },
@@ -165,7 +163,6 @@ class MainViewModel : ViewModel() {
             }
         )
     }
-
 
     fun calculateBudgetPercentage(remaining: Double): Int {
         val totalBudget = currentUser?.budget ?: 1.0

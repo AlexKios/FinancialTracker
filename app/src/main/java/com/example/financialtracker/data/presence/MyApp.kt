@@ -5,6 +5,7 @@ import androidx.lifecycle.ProcessLifecycleOwner
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
+import com.example.financialtracker.data.helper.CloudinaryClient
 import com.example.financialtracker.workers.RecurringIncomeWorker
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
@@ -14,6 +15,7 @@ class MyApp : Application() {
 
     override fun onCreate() {
         super.onCreate()
+        CloudinaryClient.init(this)
 
         val presenceManager = PresenceManager(
             FirebaseFirestore.getInstance(),

@@ -53,7 +53,8 @@ class AccountViewModel: ViewModel() {
     }
 
     fun uploadProfilePicture(uri: Uri) {
-        userRepo.updateUserProfilePicture(uri.toString(),
+        userRepo.updateUserProfilePicture(
+            imageUri = uri,
             onSuccess = {
                 loadCurrentUser()
                 _uploadResult.postValue(Result.success(uri.toString()))

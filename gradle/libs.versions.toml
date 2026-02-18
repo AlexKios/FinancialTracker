@@ -4,6 +4,7 @@ barcodeScanning = "17.3.0"
 barcodeScanningVersion = "17.3.0"
 cameraView = "1.5.3"
 cameraxVersion = "1.5.3"
+cloudinaryAndroid = "3.1.2"
 coreSplashscreen = "1.2.0"
 firebaseBom = "34.9.0"
 fragmentKtx = "1.8.9"
@@ -43,6 +44,7 @@ androidx-fragment-ktx = { module = "androidx.fragment:fragment-ktx", version.ref
 androidx-work-runtime-ktx = { module = "androidx.work:work-runtime-ktx", version.ref = "workRuntimeKtx" }
 barcode-scanning = { module = "com.google.mlkit:barcode-scanning", version.ref = "barcodeScanning" }
 barcode-scanning-v1720 = { module = "com.google.mlkit:barcode-scanning", version.ref = "barcodeScanningVersion" }
+cloudinary-android = { module = "com.cloudinary:cloudinary-android", version.ref = "cloudinaryAndroid" }
 compiler = { module = "com.github.bumptech.glide:compiler", version.ref = "glide" }
 firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebaseBom" }
 glide = { module = "com.github.bumptech.glide:glide", version.ref = "glide" }

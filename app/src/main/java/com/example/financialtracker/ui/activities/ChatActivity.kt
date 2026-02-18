@@ -39,15 +39,14 @@ class ChatActivity : AppCompatActivity() {
         messageInput = findViewById(R.id.messageInput)
         sendButton = findViewById(R.id.sendButton)
         messageAdapter = MessageAdapter(emptyList())
-        messagesRecyclerView.layoutManager = LinearLayoutManager(this)
+        val layoutManager = LinearLayoutManager(this)
+        layoutManager.stackFromEnd = true
+        messagesRecyclerView.layoutManager = layoutManager
         messagesRecyclerView.adapter = messageAdapter
         notificationHelper = NotificationHelper(this)
 
         val friendUid = intent.getStringExtra("friend_uid")!!
         currentUserId = FirebaseAuth.getInstance().currentUser?.uid ?: return
-
-        val messageInput = findViewById<EditText>(R.id.messageInput)
-        val sendButton = findViewById<Button>(R.id.sendButton)
 
         viewModel = ViewModelProvider(this, ViewModelProvider.NewInstanceFactory())[ChatViewModel::class.java]
 

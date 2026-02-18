@@ -46,8 +46,8 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".ui.activities.RegisterActivity" />
-        <activity android:name=".ui.activities.AccountActivity" />
+        <activity android:name=".ui.activities.RegisterActivity" android:windowSoftInputMode="adjustResize" />
+        <activity android:name=".ui.activities.AccountActivity" android:windowSoftInputMode="adjustResize" />
         <activity android:name=".ui.activities.SettingsActivity" />
         <activity android:name=".ui.activities.AddExpenseActivity" />
         <activity android:name=".ui.activities.AddIncomeActivity" />

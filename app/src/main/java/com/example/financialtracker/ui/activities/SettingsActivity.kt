@@ -1,5 +1,8 @@
 package com.example.financialtracker.ui.activities
 
+import android.Manifest
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import android.view.View
 import android.widget.AdapterView
@@ -8,8 +11,10 @@ import android.widget.Button
 import android.widget.Spinner
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.core.content.ContextCompat
 import com.example.financialtracker.R
 import com.example.financialtracker.data.helper.LocaleHelper
 import com.google.android.material.materialswitch.MaterialSwitch
@@ -24,6 +29,17 @@ class SettingsActivity : AppCompatActivity() {
     private lateinit var fontSizeValueText: TextView
     private lateinit var saveButton: Button
 
+    private val requestPermissionLauncher =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted: Boolean ->
+            if (isGranted) {
+                Toast.makeText(this, "Notifications permission granted", Toast.LENGTH_SHORT).show()
+                notificationsSwitch.isChecked = true
+            } else {
+                Toast.makeText(this, "Notifications permission denied", Toast.LENGTH_SHORT).show()
+                notificationsSwitch.isChecked = false
+            }
+        }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.settings)
@@ -34,10 +50,11 @@ class SettingsActivity : AppCompatActivity() {
         fontSizeValueText = findViewById(R.id.font_size_value)
         saveButton = findViewById(R.id.save_button)
 
-
-        darkModeSwitch.isChecked = false
-        notificationsSwitch.isChecked = true
-        fontSizeSeekBar.value = 16f
+        val sharedPreferences = getSharedPreferences("UserSettings", MODE_PRIVATE)
+        
+        darkModeSwitch.isChecked = sharedPreferences.getBoolean("isDarkMode", false)
+        notificationsSwitch.isChecked = sharedPreferences.getBoolean("isNotificationsEnabled", true)
+        fontSizeSeekBar.value = sharedPreferences.getInt("fontSize", 16).toFloat()
         fontSizeValueText.text = "${fontSizeSeekBar.value.toInt()}sp"
 
         darkModeSwitch.setOnCheckedChangeListener { _, isChecked ->
@@ -50,9 +67,20 @@ class SettingsActivity : AppCompatActivity() {
             }
         }
 
-        notificationsSwitch.setOnCheckedChangeListener { _, isChecked ->
+        notificationsSwitch.setOnCheckedChangeListener { buttonView, isChecked ->
+            if (!buttonView.isPressed) {
+                return@setOnCheckedChangeListener
+            }
             if (isChecked) {
-                Toast.makeText(this, "Notifications Enabled", Toast.LENGTH_SHORT).show()
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+                        requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                    } else {
+                        Toast.makeText(this, "Notifications Enabled", Toast.LENGTH_SHORT).show()
+                    }
+                } else {
+                    Toast.makeText(this, "Notifications Enabled", Toast.LENGTH_SHORT).show()
+                }
             } else {
                 Toast.makeText(this, "Notifications Disabled", Toast.LENGTH_SHORT).show()
             }
@@ -65,8 +93,7 @@ class SettingsActivity : AppCompatActivity() {
         saveButton.setOnClickListener {
             onSaveClicked()
         }
-
-        val sharedPreferences = getSharedPreferences("UserSettings", MODE_PRIVATE)
+        
         val currentLanguage = sharedPreferences.getString("app_language", "en") ?: "en"
 
         val languages = listOf("English", "Bulgarian", "German", "Greek", "Spanish")
@@ -74,8 +101,6 @@ class SettingsActivity : AppCompatActivity() {
         val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, languages)
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         languageSpinner.adapter = adapter
-
-        languageSpinner.setSelection(languages.indexOf("English"))
 
         languageSpinner.setSelection(
             languages.indexOfFirst {
@@ -98,10 +123,7 @@ class SettingsActivity : AppCompatActivity() {
                     4 -> "es"
                     else -> "en"
                 }
-
-                val sharedPreferences = getSharedPreferences("UserSettings", MODE_PRIVATE)
-                val currentLanguage = sharedPreferences.getString("app_language", "en") ?: "en"
-
+                
                 if (selectedLanguage != currentLanguage) {
                     sharedPreferences.edit().putString("app_language", selectedLanguage).apply()
 
@@ -118,8 +140,23 @@ class SettingsActivity : AppCompatActivity() {
                 }
             }
 
-
             override fun onNothingSelected(parent: AdapterView<*>) {}
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        // Sync notification switch state if permission was revoked from system settings
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            val sharedPreferences = getSharedPreferences("UserSettings", MODE_PRIVATE)
+            val notificationsEnabledInPrefs = sharedPreferences.getBoolean("isNotificationsEnabled", true)
+            val hasPermission = ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED
+            
+            if (notificationsEnabledInPrefs && !hasPermission) {
+                // If setting is ON but permission is OFF, sync them down
+                sharedPreferences.edit().putBoolean("isNotificationsEnabled", false).apply()
+                notificationsSwitch.isChecked = false
+            }
         }
     }
 

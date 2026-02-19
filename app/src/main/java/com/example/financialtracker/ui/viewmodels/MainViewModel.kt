@@ -12,6 +12,13 @@ import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
 
+data class FriendProgressData(
+    val id: String,
+    val name: String,
+    val profileImageUrl: String,
+    val progress: Int
+)
+
 class MainViewModel : ViewModel() {
 
     private val userRepo = UserRepository()
@@ -29,8 +36,8 @@ class MainViewModel : ViewModel() {
     private val _chartData = MutableLiveData<List<Entry>>()
     val chartData: LiveData<List<Entry>> = _chartData
 
-    private val _friendsData = MutableLiveData<List<Triple<String, String, Int>>>()
-    val friendsData: LiveData<List<Triple<String, String, Int>>> = _friendsData
+    private val _friendsData = MutableLiveData<List<FriendProgressData>>()
+    val friendsData: LiveData<List<FriendProgressData>> = _friendsData
 
     fun loadUserData() {
         userRepo.getCurrentUser(
@@ -88,18 +95,18 @@ class MainViewModel : ViewModel() {
 
                         updateChartData(currentMonth, currentYear)
                     },
-                    onFailure = { 
+                    onFailure = {
                     }
                 )
             },
-            onFailure = { 
+            onFailure = {
             }
         )
     }
 
     fun loadFriendsData() {
         expenseRepo.unregisterUserListeners()
-        val friendsList = mutableListOf<Triple<String, String, Int>>()
+        val friendsList = mutableListOf<FriendProgressData>()
         currentUser?.friends?.forEach { friendId ->
             userRepo.getUserById(friendId,
                 onSuccess = { friend ->
@@ -112,11 +119,11 @@ class MainViewModel : ViewModel() {
                                 0
                             }
 
-                            val friendIndex = friendsList.indexOfFirst { it.first == friend.name }
+                            val friendIndex = friendsList.indexOfFirst { it.id == friend.uid }
                             if (friendIndex != -1) {
-                                friendsList[friendIndex] = Triple(friend.name, friend.profileImageUrl, budgetPercentage)
+                                friendsList[friendIndex] = FriendProgressData(friend.uid, friend.name, friend.profileImageUrl, budgetPercentage)
                             } else {
-                                friendsList.add(Triple(friend.name, friend.profileImageUrl, budgetPercentage))
+                                friendsList.add(FriendProgressData(friend.uid, friend.name, friend.profileImageUrl, budgetPercentage))
                             }
                             _friendsData.postValue(friendsList)
                         },
@@ -158,7 +165,7 @@ class MainViewModel : ViewModel() {
 
                 _chartData.value = entries
             },
-            onFailure = { 
+            onFailure = {
                 // Handle failure
             }
         )
@@ -171,8 +178,8 @@ class MainViewModel : ViewModel() {
     }
 
     fun setBudget(budget: Double) {
-        userRepo.updateBudget(budget, 
-            onSuccess = { 
+        userRepo.updateBudget(budget,
+            onSuccess = {
                 currentUser?.budget = budget
                 listenForTransactions() // Recalculate
             },

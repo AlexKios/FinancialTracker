@@ -1,5 +1,6 @@
 package com.example.financialtracker.ui.activities
 
+import android.content.Intent
 import android.graphics.Color
 import android.graphics.PorterDuff
 import android.graphics.PorterDuffColorFilter
@@ -21,6 +22,7 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
 import com.bumptech.glide.Glide
 import com.example.financialtracker.R
+import com.example.financialtracker.ui.viewmodels.FriendProgressData
 import com.example.financialtracker.ui.viewmodels.MainViewModel
 import com.github.mikephil.charting.charts.LineChart
 import com.github.mikephil.charting.components.XAxis
@@ -143,26 +145,34 @@ class MainActivity : BaseActivity() {
         }
     }
 
-    private fun populateFriends(friends: List<Triple<String, String, Int>>) {
+    private fun populateFriends(friends: List<FriendProgressData>) {
         friendsLinearLayout.removeAllViews()
         val inflater = LayoutInflater.from(this)
-        for ((name, profileImageUrl, progress) in friends) {
+        for (friend in friends) {
             val friendView = inflater.inflate(R.layout.item_friend_progress, friendsLinearLayout, false)
             val friendProgressBar = friendView.findViewById<ProgressBar>(R.id.friendProgressBar)
             val friendNameTextView = friendView.findViewById<TextView>(R.id.friendNameTextView)
             val friendProfileImageView = friendView.findViewById<ImageView>(R.id.friendProfileImageView)
 
-            friendProgressBar.progress = progress
-            friendNameTextView.text = name
+            friendProgressBar.progress = friend.progress
+            friendNameTextView.text = friend.name
 
-            if (profileImageUrl.isNotEmpty()) {
+            if (friend.profileImageUrl.isNotEmpty()) {
                 Glide.with(this)
-                    .load(profileImageUrl)
+                    .load(friend.profileImageUrl)
                     .placeholder(R.drawable.user)
                     .error(R.drawable.user)
                     .into(friendProfileImageView)
             } else {
                 friendProfileImageView.setImageResource(R.drawable.user)
+            }
+
+            friendView.setOnClickListener {
+                val intent = Intent(this, ChatActivity::class.java).apply {
+                    putExtra("friend_uid", friend.id)
+                    putExtra("friend_name", friend.name)
+                }
+                startActivity(intent)
             }
 
             friendsLinearLayout.addView(friendView)

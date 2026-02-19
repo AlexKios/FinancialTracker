@@ -44,10 +44,13 @@ class MainActivity : BaseActivity() {
     private lateinit var setBudgetButton: Button
     private lateinit var lineChart: LineChart
     private lateinit var friendsLinearLayout: LinearLayout
+    private lateinit var settingsRepository: SettingsRepository
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        settingsRepository = SettingsRepository()
         applyTheme()
         super.onCreate(savedInstanceState)
+
         layoutInflater.inflate(R.layout.activity_main, findViewById(R.id.content_container), true)
 
         tableLayout = findViewById(R.id.tableLayout)
@@ -73,7 +76,6 @@ class MainActivity : BaseActivity() {
     }
 
     private fun applyTheme() {
-        val settingsRepository = SettingsRepository()
         settingsRepository.getUserSettings(
             onSuccess = { settings ->
                 val mode = if (settings.darkMode) {
@@ -148,37 +150,47 @@ class MainActivity : BaseActivity() {
 
         viewModel.chartData.observe(this) { entries ->
             if (entries.isNotEmpty()) {
-                val sharedPreferences = getSharedPreferences("UserSettings", MODE_PRIVATE)
-                val graphSize = sharedPreferences.getInt("graphSize", 16).toFloat()
-                setupChart(lineChart, graphSize)
-                val dataSet = LineDataSet(entries, "Daily Spending")
-                dataSet.color = ContextCompat.getColor(this, R.color.primary)
-                dataSet.valueTextColor = ContextCompat.getColor(this, R.color.textPrimary)
-                dataSet.valueTextSize = graphSize
-                dataSet.setCircleColor(ContextCompat.getColor(this, R.color.primary))
-                dataSet.circleHoleColor = ContextCompat.getColor(this, R.color.primary)
-                dataSet.setDrawFilled(true)
-                dataSet.fillColor = ContextCompat.getColor(this, R.color.primary)
-                dataSet.fillAlpha = 100
-
-                dataSet.valueFormatter = object : ValueFormatter() {
-                    override fun getFormattedValue(value: Float): String {
-                        if (value == 0f) {
-                            return ""
-                        }
-                        return String.format(Locale.US, "%.0f", value)
+                settingsRepository.getUserSettings(
+                    onSuccess = { settings ->
+                        setupChartWithData(entries, settings.graphSize.toFloat())
+                    },
+                    onFailure = {
+                        // Fallback to a default value
+                        setupChartWithData(entries, 16f)
                     }
-                }
-
-                val lineData = LineData(dataSet)
-                lineChart.data = lineData
-                lineChart.invalidate() // refresh
+                )
             }
         }
 
         viewModel.friendsData.observe(this) { friends ->
             populateFriends(friends)
         }
+    }
+
+    private fun setupChartWithData(entries: List<com.github.mikephil.charting.data.Entry>, graphSize: Float) {
+        setupChart(lineChart, graphSize)
+        val dataSet = LineDataSet(entries, "Daily Spending")
+        dataSet.color = ContextCompat.getColor(this, R.color.primary)
+        dataSet.valueTextColor = ContextCompat.getColor(this, R.color.textPrimary)
+        dataSet.valueTextSize = graphSize
+        dataSet.setCircleColor(ContextCompat.getColor(this, R.color.primary))
+        dataSet.circleHoleColor = ContextCompat.getColor(this, R.color.primary)
+        dataSet.setDrawFilled(true)
+        dataSet.fillColor = ContextCompat.getColor(this, R.color.primary)
+        dataSet.fillAlpha = 100
+
+        dataSet.valueFormatter = object : ValueFormatter() {
+            override fun getFormattedValue(value: Float): String {
+                if (value == 0f) {
+                    return ""
+                }
+                return String.format(Locale.US, "%.0f", value)
+            }
+        }
+
+        val lineData = LineData(dataSet)
+        lineChart.data = lineData
+        lineChart.invalidate() // refresh
     }
 
     private fun populateFriends(friends: List<FriendProgressData>) {

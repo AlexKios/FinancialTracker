@@ -5,6 +5,7 @@ import android.net.Uri
 import android.util.Log
 import com.example.financialtracker.data.helper.CloudinaryClient
 import com.example.financialtracker.data.model.User
+import com.example.financialtracker.data.model.UserSettings
 import com.google.android.gms.tasks.Task
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.DocumentSnapshot
@@ -25,11 +26,11 @@ class UserRepository {
             uri = imageUri,
             uploadPreset = "DipProject",
             onSuccess = { imageUrl ->
-                val sanitizedUrl = imageUrl.trim().removeSurrounding("\"")
+                val sanitizedUrl = imageUrl.trim()
                 val userId = auth.currentUser?.uid
                 if (userId != null) {
                     db.collection("users").document(userId)
-                        .update("profileImageUrl", sanitizedUrl) // Corrected field name
+                        .update("profileImageUrl", sanitizedUrl)
                         .addOnSuccessListener { onSuccess() }
                         .addOnFailureListener { onFailure(it) }
                 } else {
@@ -377,6 +378,39 @@ class UserRepository {
             db.collection("users").document(userId)
                 .update("budget", budget)
                 .addOnSuccessListener { onSuccess() }
+                .addOnFailureListener { onFailure(it) }
+        } else {
+            onFailure(Exception("User not authenticated"))
+        }
+    }
+
+    fun saveUserSettings(settings: UserSettings, onSuccess: () -> Unit, onFailure: (Exception) -> Unit) {
+        val userId = auth.currentUser?.uid
+        if (userId != null) {
+            db.collection("users").document(userId)
+                .collection("settings").document("user_settings")
+                .set(settings)
+                .addOnSuccessListener { onSuccess() }
+                .addOnFailureListener { onFailure(it) }
+        } else {
+            onFailure(Exception("User not authenticated"))
+        }
+    }
+
+    fun getUserSettings(onSuccess: (UserSettings) -> Unit, onFailure: (Exception) -> Unit) {
+        val userId = auth.currentUser?.uid
+        if (userId != null) {
+            db.collection("users").document(userId)
+                .collection("settings").document("user_settings")
+                .get()
+                .addOnSuccessListener { document ->
+                    val settings = document.toObject(UserSettings::class.java)
+                    if (settings != null) {
+                        onSuccess(settings)
+                    } else {
+                        onSuccess(UserSettings()) // Return default settings if not found
+                    }
+                }
                 .addOnFailureListener { onFailure(it) }
         } else {
             onFailure(Exception("User not authenticated"))

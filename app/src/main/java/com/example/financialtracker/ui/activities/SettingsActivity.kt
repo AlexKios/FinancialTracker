@@ -3,10 +3,9 @@ package com.example.financialtracker.ui.activities
 import android.Manifest
 import android.annotation.SuppressLint
 import android.content.pm.PackageManager
+import android.content.res.Configuration
 import android.os.Build
 import android.os.Bundle
-import android.view.View
-import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.Spinner
@@ -18,10 +17,11 @@ import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.content.ContextCompat
 import com.example.financialtracker.R
 import com.example.financialtracker.data.helper.LocaleHelper
+import com.example.financialtracker.data.model.UserSettings
+import com.example.financialtracker.data.repositories.UserRepository
 import com.google.android.material.materialswitch.MaterialSwitch
 import com.google.android.material.slider.Slider
 import java.util.Locale
-import androidx.core.content.edit
 
 class SettingsActivity : AppCompatActivity() {
 
@@ -30,62 +30,63 @@ class SettingsActivity : AppCompatActivity() {
     private lateinit var graphSizeSeekBar: Slider
     private lateinit var graphSizeValueText: TextView
     private lateinit var saveButton: Button
+    private lateinit var languageSpinner: Spinner
 
-    private val requestPermissionLauncher =
-        registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted: Boolean ->
-            if (isGranted) {
-                Toast.makeText(this, "Notifications permission granted", Toast.LENGTH_SHORT).show()
-                notificationsSwitch.isChecked = true
-            } else {
-                Toast.makeText(this, "Notifications permission denied", Toast.LENGTH_SHORT).show()
-                notificationsSwitch.isChecked = false
-            }
+    private val userRepository = UserRepository()
+
+    private val requestPermissionLauncher = registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted: Boolean ->
+        if (!isGranted) {
+            notificationsSwitch.isChecked = false
+            Toast.makeText(this, "Notifications permission denied", Toast.LENGTH_SHORT).show()
         }
+    }
 
     @SuppressLint("SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // Load and apply the saved theme before displaying the content
+        loadAndApplyTheme()
+
         setContentView(R.layout.settings)
 
+        // Initialize views
         darkModeSwitch = findViewById(R.id.switch_dark_mode)
         notificationsSwitch = findViewById(R.id.switch_notifications)
         graphSizeSeekBar = findViewById(R.id.graph_size_seekbar)
         graphSizeValueText = findViewById(R.id.graph_size_value)
         saveButton = findViewById(R.id.save_button)
+        languageSpinner = findViewById(R.id.language_spinner)
 
-        val sharedPreferences = getSharedPreferences("UserSettings", MODE_PRIVATE)
-        
-        darkModeSwitch.isChecked = sharedPreferences.getBoolean("isDarkMode", false)
-        notificationsSwitch.isChecked = sharedPreferences.getBoolean("isNotificationsEnabled", true)
-        graphSizeSeekBar.value = sharedPreferences.getInt("graphSize", 16).toFloat()
-        graphSizeValueText.text = "${graphSizeSeekBar.value.toInt()}sp"
+        graphSizeSeekBar.valueFrom = 10f
+        graphSizeSeekBar.valueTo = 30f
+        graphSizeSeekBar.stepSize = 1f
 
+        // Load all user settings and update the UI controls
+        loadUserSettings()
+
+        // Set up listeners
+        setupListeners()
+        setupLanguageSpinner()
+    }
+
+    private fun setupListeners() {
         darkModeSwitch.setOnCheckedChangeListener { _, isChecked ->
-            if (isChecked) {
-                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
-                Toast.makeText(this, "Dark Mode Enabled", Toast.LENGTH_SHORT).show()
-            } else {
-                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
-                Toast.makeText(this, "Dark Mode Disabled", Toast.LENGTH_SHORT).show()
-            }
+            // Instantly apply the theme for preview
+            AppCompatDelegate.setDefaultNightMode(
+                if (isChecked) AppCompatDelegate.MODE_NIGHT_YES else AppCompatDelegate.MODE_NIGHT_NO
+            )
         }
 
         notificationsSwitch.setOnCheckedChangeListener { buttonView, isChecked ->
-            if (!buttonView.isPressed) {
-                return@setOnCheckedChangeListener
-            }
+            if (!buttonView.isPressed) return@setOnCheckedChangeListener
+
             if (isChecked) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                    if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+                    if (!hasNotificationPermission()) {
                         requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
-                    } else {
-                        Toast.makeText(this, "Notifications Enabled", Toast.LENGTH_SHORT).show()
                     }
-                } else {
-                    Toast.makeText(this, "Notifications Enabled", Toast.LENGTH_SHORT).show()
                 }
-            } else {
-                Toast.makeText(this, "Notifications Disabled", Toast.LENGTH_SHORT).show()
             }
         }
 
@@ -96,91 +97,92 @@ class SettingsActivity : AppCompatActivity() {
         saveButton.setOnClickListener {
             onSaveClicked()
         }
-        
-        val currentLanguage = sharedPreferences.getString("app_language", "en") ?: "en"
+    }
 
+    private fun setupLanguageSpinner() {
         val languages = listOf("English", "Bulgarian", "German", "Greek", "Spanish")
-        val languageSpinner: Spinner = findViewById(R.id.language_spinner)
         val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, languages)
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         languageSpinner.adapter = adapter
-
-        languageSpinner.setSelection(
-            languages.indexOfFirst {
-                when (it) {
-                    "Bulgarian" -> "bg"
-                    "German" -> "de"
-                    "Greek" -> "el"
-                    "Spanish" -> "es"
-                    else -> "en"
-                } == currentLanguage
-            }
-        )
-
-        languageSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
-                val selectedLanguage = when (position) {
-                    1 -> "bg"
-                    2 -> "de"
-                    3 -> "el"
-                    4 -> "es"
-                    else -> "en"
-                }
-                
-                if (selectedLanguage != currentLanguage) {
-                    sharedPreferences.edit { putString("app_language", selectedLanguage) }
-
-                    LocaleHelper.setLocale(this@SettingsActivity, selectedLanguage)
-
-                    val configuration = resources.configuration
-                    Locale.setDefault(Locale(selectedLanguage))
-                    configuration.setLocale(Locale(selectedLanguage))
-                    resources.updateConfiguration(configuration, resources.displayMetrics)
-
-                    languageSpinner.postDelayed({
-                        recreate()
-                    }, 200)
-                }
-            }
-
-            override fun onNothingSelected(parent: AdapterView<*>) {}
-        }
     }
 
-    override fun onResume() {
-        super.onResume()
-        // Sync notification switch state if permission was revoked from system settings
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            val sharedPreferences = getSharedPreferences("UserSettings", MODE_PRIVATE)
-            val notificationsEnabledInPrefs = sharedPreferences.getBoolean("isNotificationsEnabled", true)
-            val hasPermission = ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED
-            
-            if (notificationsEnabledInPrefs && !hasPermission) {
-                // If setting is ON but permission is OFF, sync them down
-                sharedPreferences.edit { putBoolean("isNotificationsEnabled", false) }
-                notificationsSwitch.isChecked = false
+    private fun loadAndApplyTheme() {
+        // Blocking read for theme to prevent UI flicker on start
+        userRepository.getUserSettings(onSuccess = { settings ->
+            if (settings.isDarkMode) {
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+            } else {
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
             }
-        }
+        }, onFailure = {
+            // Default to light mode on failure
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+        })
+    }
+
+    private fun loadUserSettings() {
+        userRepository.getUserSettings(
+            onSuccess = { settings ->
+                // Set dark mode switch based on saved state
+                darkModeSwitch.isChecked = settings.isDarkMode
+
+                // Set notification switch based on saved state
+                notificationsSwitch.isChecked = settings.isNotificationsEnabled
+
+                graphSizeSeekBar.value = settings.graphSize.toFloat()
+                graphSizeValueText.text = "${settings.graphSize}sp"
+
+                val languages = mapOf("en" to 0, "bg" to 1, "de" to 2, "el" to 3, "es" to 4)
+                val langIndex = languages[settings.language] ?: 0
+                languageSpinner.setSelection(langIndex, false)
+            },
+            onFailure = { e ->
+                Toast.makeText(this, "Failed to load settings: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
+        )
     }
 
     private fun onSaveClicked() {
         val isDarkMode = darkModeSwitch.isChecked
         val isNotificationsEnabled = notificationsSwitch.isChecked
         val graphSize = graphSizeSeekBar.value.toInt()
+        val selectedLanguage = when (languageSpinner.selectedItem.toString()) {
+            "Bulgarian" -> "bg"
+            "German" -> "de"
+            "Greek" -> "el"
+            "Spanish" -> "es"
+            else -> "en"
+        }
 
-        Toast.makeText(this, "Settings saved", Toast.LENGTH_SHORT).show()
+        val settings = UserSettings(isDarkMode, isNotificationsEnabled, graphSize, selectedLanguage)
 
-        saveSettings(isDarkMode, isNotificationsEnabled, graphSize)
+        userRepository.saveUserSettings(settings,
+            onSuccess = {
+                Toast.makeText(this, "Settings saved", Toast.LENGTH_SHORT).show()
 
-        finish()
+                // Check if a recreate is needed for theme or language changes
+                val currentNightMode = resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK
+                val themeChanged = (isDarkMode && currentNightMode != Configuration.UI_MODE_NIGHT_YES) ||
+                                   (!isDarkMode && currentNightMode != Configuration.UI_MODE_NIGHT_NO)
+                val languageChanged = Locale.getDefault().language != selectedLanguage
+
+                if (themeChanged || languageChanged) {
+                    recreate()
+                } else {
+                    finish()
+                }
+            },
+            onFailure = { e ->
+                Toast.makeText(this, "Failed to save settings: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
+        )
     }
 
-    private fun saveSettings(isDarkMode: Boolean, isNotificationsEnabled: Boolean, graphSize: Int) {
-        val sharedPreferences = getSharedPreferences("UserSettings", MODE_PRIVATE)
-        sharedPreferences.edit {
-            putBoolean("isDarkMode", isDarkMode)
-            putBoolean("isNotificationsEnabled", isNotificationsEnabled)
-            putInt("graphSize", graphSize)
+    private fun hasNotificationPermission(): Boolean {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED
+        } else {
+            true // No special permission needed for older Android versions
         }
     }
 }

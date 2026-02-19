@@ -1,6 +1,7 @@
 package com.example.financialtracker.ui.activities
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
@@ -20,13 +21,14 @@ import com.example.financialtracker.data.helper.LocaleHelper
 import com.google.android.material.materialswitch.MaterialSwitch
 import com.google.android.material.slider.Slider
 import java.util.Locale
+import androidx.core.content.edit
 
 class SettingsActivity : AppCompatActivity() {
 
     private lateinit var darkModeSwitch: MaterialSwitch
     private lateinit var notificationsSwitch: MaterialSwitch
-    private lateinit var fontSizeSeekBar: Slider
-    private lateinit var fontSizeValueText: TextView
+    private lateinit var graphSizeSeekBar: Slider
+    private lateinit var graphSizeValueText: TextView
     private lateinit var saveButton: Button
 
     private val requestPermissionLauncher =
@@ -40,22 +42,23 @@ class SettingsActivity : AppCompatActivity() {
             }
         }
 
+    @SuppressLint("SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.settings)
 
         darkModeSwitch = findViewById(R.id.switch_dark_mode)
         notificationsSwitch = findViewById(R.id.switch_notifications)
-        fontSizeSeekBar = findViewById(R.id.font_size_seekbar)
-        fontSizeValueText = findViewById(R.id.font_size_value)
+        graphSizeSeekBar = findViewById(R.id.graph_size_seekbar)
+        graphSizeValueText = findViewById(R.id.graph_size_value)
         saveButton = findViewById(R.id.save_button)
 
         val sharedPreferences = getSharedPreferences("UserSettings", MODE_PRIVATE)
         
         darkModeSwitch.isChecked = sharedPreferences.getBoolean("isDarkMode", false)
         notificationsSwitch.isChecked = sharedPreferences.getBoolean("isNotificationsEnabled", true)
-        fontSizeSeekBar.value = sharedPreferences.getInt("fontSize", 16).toFloat()
-        fontSizeValueText.text = "${fontSizeSeekBar.value.toInt()}sp"
+        graphSizeSeekBar.value = sharedPreferences.getInt("graphSize", 16).toFloat()
+        graphSizeValueText.text = "${graphSizeSeekBar.value.toInt()}sp"
 
         darkModeSwitch.setOnCheckedChangeListener { _, isChecked ->
             if (isChecked) {
@@ -86,8 +89,8 @@ class SettingsActivity : AppCompatActivity() {
             }
         }
 
-        fontSizeSeekBar.addOnChangeListener { _, value, _ ->
-            fontSizeValueText.text = "${value.toInt()}sp"
+        graphSizeSeekBar.addOnChangeListener { _, value, _ ->
+            graphSizeValueText.text = "${value.toInt()}sp"
         }
 
         saveButton.setOnClickListener {
@@ -125,7 +128,7 @@ class SettingsActivity : AppCompatActivity() {
                 }
                 
                 if (selectedLanguage != currentLanguage) {
-                    sharedPreferences.edit().putString("app_language", selectedLanguage).apply()
+                    sharedPreferences.edit { putString("app_language", selectedLanguage) }
 
                     LocaleHelper.setLocale(this@SettingsActivity, selectedLanguage)
 
@@ -154,7 +157,7 @@ class SettingsActivity : AppCompatActivity() {
             
             if (notificationsEnabledInPrefs && !hasPermission) {
                 // If setting is ON but permission is OFF, sync them down
-                sharedPreferences.edit().putBoolean("isNotificationsEnabled", false).apply()
+                sharedPreferences.edit { putBoolean("isNotificationsEnabled", false) }
                 notificationsSwitch.isChecked = false
             }
         }
@@ -163,21 +166,21 @@ class SettingsActivity : AppCompatActivity() {
     private fun onSaveClicked() {
         val isDarkMode = darkModeSwitch.isChecked
         val isNotificationsEnabled = notificationsSwitch.isChecked
-        val fontSize = fontSizeSeekBar.value.toInt()
+        val graphSize = graphSizeSeekBar.value.toInt()
 
         Toast.makeText(this, "Settings saved", Toast.LENGTH_SHORT).show()
 
-        saveSettings(isDarkMode, isNotificationsEnabled, fontSize)
+        saveSettings(isDarkMode, isNotificationsEnabled, graphSize)
 
         finish()
     }
 
-    private fun saveSettings(isDarkMode: Boolean, isNotificationsEnabled: Boolean, fontSize: Int) {
+    private fun saveSettings(isDarkMode: Boolean, isNotificationsEnabled: Boolean, graphSize: Int) {
         val sharedPreferences = getSharedPreferences("UserSettings", MODE_PRIVATE)
-        val editor = sharedPreferences.edit()
-        editor.putBoolean("isDarkMode", isDarkMode)
-        editor.putBoolean("isNotificationsEnabled", isNotificationsEnabled)
-        editor.putInt("fontSize", fontSize)
-        editor.apply()
+        sharedPreferences.edit {
+            putBoolean("isDarkMode", isDarkMode)
+            putBoolean("isNotificationsEnabled", isNotificationsEnabled)
+            putInt("graphSize", graphSize)
+        }
     }
 }

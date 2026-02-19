@@ -49,7 +49,7 @@
     <string name="app_theme">Tema de la aplicación</string>
     <string name="enable_notifications">Habilitar notificaciones</string>
     <string name="dark_mode">Modo oscuro</string>
-    <string name="font_size">Tamaño de fuente</string>
+    <string name="graph_size">Tamaño del gráfico</string>
     <string name="change_profile_picture">Cambiar foto de perfil</string>
     <string name="change_username">Cambiar nombre de usuario</string>
     <string name="change_password">Cambiar contraseña</string>

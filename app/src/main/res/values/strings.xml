@@ -48,7 +48,7 @@
     <string name="app_theme">App Theme</string>
     <string name="enable_notifications">Enable Notifications</string>
     <string name="dark_mode">Dark Mode</string>
-    <string name="font_size">Font Size</string>
+    <string name="graph_size">Graph Size</string>
     <string name="change_profile_picture">Change Profile Picture</string>
     <string name="change_username">Change Username</string>
     <string name="change_password">Change Password</string>

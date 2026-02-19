@@ -85,10 +85,10 @@
                 android:layout_marginTop="24dp" />
 
             <TextView
-                android:id="@+id/font_size_label"
+                android:id="@+id/graph_size_label"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/font_size"
+                android:text="@string/graph_size"
                 android:textColor="?attr/colorOnSurface"
                 android:textSize="22sp"
                 app:layout_constraintStart_toStartOf="parent"
@@ -96,7 +96,7 @@
                 android:layout_marginTop="32dp"/>
 
             <com.google.android.material.slider.Slider
-                android:id="@+id/font_size_seekbar"
+                android:id="@+id/graph_size_seekbar"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:value="16"
@@ -106,26 +106,26 @@
                 app:trackHeight="12dp"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/font_size_label"
+                app:layout_constraintTop_toBottomOf="@id/graph_size_label"
                 android:layout_marginTop="12dp"
-                android:contentDescription="@string/font_size"/>
+                android:contentDescription="@string/graph_size"/>
 
             <TextView
-                android:id="@+id/font_size_value"
+                android:id="@+id/graph_size_value"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/_16p"
                 android:textColor="?attr/colorOnSurface"
                 android:textSize="20sp"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="@id/font_size_label"
+                app:layout_constraintTop_toTopOf="@id/graph_size_label"
                 android:layout_marginEnd="16dp"/>
 
             <View
                 android:layout_width="match_parent"
                 android:layout_height="2dp"
                 android:background="?attr/colorOutline"
-                app:layout_constraintTop_toBottomOf="@id/font_size_seekbar"
+                app:layout_constraintTop_toBottomOf="@id/graph_size_seekbar"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 android:layout_marginTop="24dp" />
@@ -138,7 +138,7 @@
                 android:textColor="?attr/colorOnSurface"
                 android:textSize="22sp"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/font_size_seekbar"
+                app:layout_constraintTop_toBottomOf="@id/graph_size_seekbar"
                 android:layout_marginTop="32dp"/>
 
             <com.google.android.material.materialswitch.MaterialSwitch

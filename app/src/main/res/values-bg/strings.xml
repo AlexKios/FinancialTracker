@@ -49,7 +49,7 @@
     <string name="app_theme">Тема на приложението</string>
     <string name="enable_notifications">Активиране на известия</string>
     <string name="dark_mode">Тъмен режим</string>
-    <string name="font_size">Размер на шрифта</string>
+    <string name="graph_size">Размер на графата</string>
     <string name="change_profile_picture">Смяна на профилната снимка</string>
     <string name="change_username">Смяна на потребителското име</string>
     <string name="change_password">Смяна на паролата</string>

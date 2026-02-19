@@ -49,7 +49,7 @@
     <string name="app_theme">Θέμα εφαρμογής</string>
     <string name="enable_notifications">Ενεργοποίηση ειδοποιήσεων</string>
     <string name="dark_mode">Σκοτεινή λειτουργία</string>
-    <string name="font_size">Μέγεθος γραμματοσειράς</string>
+    <string name="graph_size">Μέγεθος γραφήματος</string>
     <string name="change_profile_picture">Αλλαγή εικόνας προφίλ</string>
     <string name="change_username">Αλλαγή ονόματος χρήστη</string>
     <string name="change_password">Αλλαγή κωδικού πρόσβασης</string>

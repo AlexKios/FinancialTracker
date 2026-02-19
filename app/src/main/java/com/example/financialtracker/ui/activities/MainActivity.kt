@@ -124,15 +124,27 @@ class MainActivity : BaseActivity() {
 
         viewModel.chartData.observe(this) { entries ->
             if (entries.isNotEmpty()) {
-                setupChart(lineChart)
+                val sharedPreferences = getSharedPreferences("UserSettings", MODE_PRIVATE)
+                val graphSize = sharedPreferences.getInt("graphSize", 16).toFloat()
+                setupChart(lineChart, graphSize)
                 val dataSet = LineDataSet(entries, "Daily Spending")
                 dataSet.color = ContextCompat.getColor(this, R.color.primary)
-                dataSet.valueTextColor = ContextCompat.getColor(this, R.color.on_primary)
+                dataSet.valueTextColor = ContextCompat.getColor(this, R.color.textPrimary)
+                dataSet.valueTextSize = graphSize
                 dataSet.setCircleColor(ContextCompat.getColor(this, R.color.primary))
                 dataSet.circleHoleColor = ContextCompat.getColor(this, R.color.primary)
                 dataSet.setDrawFilled(true)
                 dataSet.fillColor = ContextCompat.getColor(this, R.color.primary)
                 dataSet.fillAlpha = 100
+
+                dataSet.valueFormatter = object : ValueFormatter() {
+                    override fun getFormattedValue(value: Float): String {
+                        if (value == 0f) {
+                            return ""
+                        }
+                        return String.format(Locale.US, "%.0f", value)
+                    }
+                }
 
                 val lineData = LineData(dataSet)
                 lineChart.data = lineData
@@ -179,7 +191,7 @@ class MainActivity : BaseActivity() {
         }
     }
 
-    private fun setupChart(chart: LineChart) {
+    private fun setupChart(chart: LineChart, textSize: Float) {
         chart.description.isEnabled = false
         chart.setDrawGridBackground(false)
 
@@ -187,6 +199,7 @@ class MainActivity : BaseActivity() {
         xAxis.position = XAxis.XAxisPosition.BOTTOM
         xAxis.setDrawGridLines(false)
         xAxis.textColor = ContextCompat.getColor(this, R.color.textPrimary)
+        xAxis.textSize = textSize
         xAxis.granularity = 1f
         xAxis.valueFormatter = object : ValueFormatter() {
             override fun getFormattedValue(value: Float): String {
@@ -197,6 +210,7 @@ class MainActivity : BaseActivity() {
         val leftAxis = chart.axisLeft
         leftAxis.setDrawGridLines(true)
         leftAxis.textColor = ContextCompat.getColor(this, R.color.textPrimary)
+        leftAxis.textSize = textSize
         leftAxis.axisMinimum = 0f
 
         chart.axisRight.isEnabled = false

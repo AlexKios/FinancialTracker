@@ -18,10 +18,12 @@ import android.widget.TableLayout
 import android.widget.TableRow
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
 import com.bumptech.glide.Glide
 import com.example.financialtracker.R
+import com.example.financialtracker.data.repositories.SettingsRepository
 import com.example.financialtracker.ui.viewmodels.FriendProgressData
 import com.example.financialtracker.ui.viewmodels.MainViewModel
 import com.github.mikephil.charting.charts.LineChart
@@ -44,6 +46,7 @@ class MainActivity : BaseActivity() {
     private lateinit var friendsLinearLayout: LinearLayout
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        applyTheme()
         super.onCreate(savedInstanceState)
         layoutInflater.inflate(R.layout.activity_main, findViewById(R.id.content_container), true)
 
@@ -67,6 +70,27 @@ class MainActivity : BaseActivity() {
         lineChart.setOnClickListener {
             showMonthPicker()
         }
+    }
+
+    private fun applyTheme() {
+        val settingsRepository = SettingsRepository()
+        settingsRepository.getUserSettings(
+            onSuccess = { settings ->
+                val mode = if (settings.darkMode) {
+                    AppCompatDelegate.MODE_NIGHT_YES
+                } else {
+                    AppCompatDelegate.MODE_NIGHT_NO
+                }
+                if (AppCompatDelegate.getDefaultNightMode() != mode) {
+                    AppCompatDelegate.setDefaultNightMode(mode)
+                }
+            },
+            onFailure = {
+                if (AppCompatDelegate.getDefaultNightMode() != AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM) {
+                    AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
+                }
+            }
+        )
     }
 
     private fun showMonthPicker() {

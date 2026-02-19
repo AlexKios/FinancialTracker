@@ -8,7 +8,5 @@ data class User (
     val isOnline : Boolean = false,
     val name : String = "",
     var budget : Double = 0.0,
-    val incomeIds: List<String> = emptyList(),
-    val expenseIds: List<String> = emptyList(),
     val friends: List<String> = emptyList()
 )

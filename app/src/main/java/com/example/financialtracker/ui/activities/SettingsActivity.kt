@@ -12,15 +12,18 @@ import android.widget.Spinner
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.content.ContextCompat
+import androidx.core.os.LocaleListCompat
+import androidx.lifecycle.lifecycleScope
 import com.example.financialtracker.R
-import com.example.financialtracker.data.helper.LocaleHelper
 import com.example.financialtracker.data.model.UserSettings
-import com.example.financialtracker.data.repositories.UserRepository
+import com.example.financialtracker.ui.viewmodels.SettingsViewModel
 import com.google.android.material.materialswitch.MaterialSwitch
 import com.google.android.material.slider.Slider
+import kotlinx.coroutines.launch
 import java.util.Locale
 
 class SettingsActivity : AppCompatActivity() {
@@ -32,7 +35,7 @@ class SettingsActivity : AppCompatActivity() {
     private lateinit var saveButton: Button
     private lateinit var languageSpinner: Spinner
 
-    private val userRepository = UserRepository()
+    private val viewModel: SettingsViewModel by viewModels()
 
     private val requestPermissionLauncher = registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted: Boolean ->
         if (!isGranted) {
@@ -43,14 +46,10 @@ class SettingsActivity : AppCompatActivity() {
 
     @SuppressLint("SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
+
         super.onCreate(savedInstanceState)
-
-        // Load and apply the saved theme before displaying the content
-        loadAndApplyTheme()
-
         setContentView(R.layout.settings)
 
-        // Initialize views
         darkModeSwitch = findViewById(R.id.switch_dark_mode)
         notificationsSwitch = findViewById(R.id.switch_notifications)
         graphSizeSeekBar = findViewById(R.id.graph_size_seekbar)
@@ -62,20 +61,39 @@ class SettingsActivity : AppCompatActivity() {
         graphSizeSeekBar.valueTo = 30f
         graphSizeSeekBar.stepSize = 1f
 
-        // Load all user settings and update the UI controls
-        loadUserSettings()
-
-        // Set up listeners
-        setupListeners()
         setupLanguageSpinner()
+        setupListeners()
+        observeUserSettings()
+
+        viewModel.loadUserSettings()
     }
 
+    @SuppressLint("SetTextI18n")
+    private fun observeUserSettings() {
+        lifecycleScope.launch {
+            viewModel.userSettings.collect { settings ->
+                settings?.let {
+                    darkModeSwitch.isChecked = it.darkMode
+                    notificationsSwitch.isChecked = it.notificationsEnabled
+                    graphSizeSeekBar.value = it.graphSize.toFloat()
+                    graphSizeValueText.text = "${it.graphSize}sp"
+
+                    val languages = mapOf("en" to 0, "bg" to 1, "de" to 2, "el" to 3, "es" to 4)
+                    val langIndex = languages[it.language] ?: 0
+                    languageSpinner.setSelection(langIndex, false)
+                }
+            }
+        }
+    }
+
+    @SuppressLint("SetTextI18n")
     private fun setupListeners() {
-        darkModeSwitch.setOnCheckedChangeListener { _, isChecked ->
-            // Instantly apply the theme for preview
-            AppCompatDelegate.setDefaultNightMode(
-                if (isChecked) AppCompatDelegate.MODE_NIGHT_YES else AppCompatDelegate.MODE_NIGHT_NO
-            )
+        darkModeSwitch.setOnCheckedChangeListener { buttonView, isChecked ->
+            if (buttonView.isPressed) {
+                AppCompatDelegate.setDefaultNightMode(
+                    if (isChecked) AppCompatDelegate.MODE_NIGHT_YES else AppCompatDelegate.MODE_NIGHT_NO
+                )
+            }
         }
 
         notificationsSwitch.setOnCheckedChangeListener { buttonView, isChecked ->
@@ -106,42 +124,6 @@ class SettingsActivity : AppCompatActivity() {
         languageSpinner.adapter = adapter
     }
 
-    private fun loadAndApplyTheme() {
-        // Blocking read for theme to prevent UI flicker on start
-        userRepository.getUserSettings(onSuccess = { settings ->
-            if (settings.isDarkMode) {
-                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
-            } else {
-                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
-            }
-        }, onFailure = {
-            // Default to light mode on failure
-            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
-        })
-    }
-
-    private fun loadUserSettings() {
-        userRepository.getUserSettings(
-            onSuccess = { settings ->
-                // Set dark mode switch based on saved state
-                darkModeSwitch.isChecked = settings.isDarkMode
-
-                // Set notification switch based on saved state
-                notificationsSwitch.isChecked = settings.isNotificationsEnabled
-
-                graphSizeSeekBar.value = settings.graphSize.toFloat()
-                graphSizeValueText.text = "${settings.graphSize}sp"
-
-                val languages = mapOf("en" to 0, "bg" to 1, "de" to 2, "el" to 3, "es" to 4)
-                val langIndex = languages[settings.language] ?: 0
-                languageSpinner.setSelection(langIndex, false)
-            },
-            onFailure = { e ->
-                Toast.makeText(this, "Failed to load settings: ${e.message}", Toast.LENGTH_SHORT).show()
-            }
-        )
-    }
-
     private fun onSaveClicked() {
         val isDarkMode = darkModeSwitch.isChecked
         val isNotificationsEnabled = notificationsSwitch.isChecked
@@ -156,21 +138,26 @@ class SettingsActivity : AppCompatActivity() {
 
         val settings = UserSettings(isDarkMode, isNotificationsEnabled, graphSize, selectedLanguage)
 
-        userRepository.saveUserSettings(settings,
+        viewModel.saveUserSettings(settings,
             onSuccess = {
                 Toast.makeText(this, "Settings saved", Toast.LENGTH_SHORT).show()
 
-                // Check if a recreate is needed for theme or language changes
+                val currentLang = AppCompatDelegate.getApplicationLocales().get(0)?.language ?: Locale.getDefault().language
+                val languageChanged = currentLang != selectedLanguage
+
+                if (languageChanged) {
+                    val appLocale = LocaleListCompat.forLanguageTags(selectedLanguage)
+                    AppCompatDelegate.setApplicationLocales(appLocale)
+                }
+
                 val currentNightMode = resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK
                 val themeChanged = (isDarkMode && currentNightMode != Configuration.UI_MODE_NIGHT_YES) ||
-                                   (!isDarkMode && currentNightMode != Configuration.UI_MODE_NIGHT_NO)
-                val languageChanged = Locale.getDefault().language != selectedLanguage
+                        (!isDarkMode && currentNightMode != Configuration.UI_MODE_NIGHT_NO)
 
                 if (themeChanged || languageChanged) {
-                    recreate()
-                } else {
-                    finish()
+                    setResult(RESULT_OK)
                 }
+                finish()
             },
             onFailure = { e ->
                 Toast.makeText(this, "Failed to save settings: ${e.message}", Toast.LENGTH_SHORT).show()
@@ -182,7 +169,7 @@ class SettingsActivity : AppCompatActivity() {
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED
         } else {
-            true // No special permission needed for older Android versions
+            true
         }
     }
 }

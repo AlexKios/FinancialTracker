@@ -80,4 +80,5 @@
     <string name="update_expense">Ενημέρωση εξόδου</string>
     <string name="update_income">Ενημέρωση εισοδήματος</string>
     <string name="_16p">16p</string>
+    <string name="edit_date">Επεξεργασία ημερομηνίας</string>
 </resources>

@@ -80,4 +80,5 @@
     <string name="update_expense">Ausgabe aktualisieren</string>
     <string name="update_income">Einkommen aktualisieren</string>
     <string name="_16p">16p</string>
+    <string name="edit_date">Datum bearbeiten</string>
 </resources>

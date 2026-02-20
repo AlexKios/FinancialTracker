@@ -108,7 +108,7 @@ class IncomeActivity : BaseActivity() {
             .setItems(options) { _, which ->
                 when (which) {
                     0 -> {
-                        val intent = Intent(this, AddIncomeActivity::class.java)
+                        val intent = Intent(this, EditIncomeActivity::class.java)
                         intent.putExtra("incomeId", income.id)
                         startActivity(intent)
                     }

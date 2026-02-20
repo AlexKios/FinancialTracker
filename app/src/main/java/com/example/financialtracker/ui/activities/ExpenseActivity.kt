@@ -114,7 +114,7 @@ class ExpenseActivity : BaseActivity() {
             .setItems(options) { _, which ->
                 when (which) {
                     0 -> {
-                        val intent = Intent(this, AddExpenseActivity::class.java)
+                        val intent = Intent(this, EditExpenseActivity::class.java)
                         intent.putExtra("expenseId", expense.id)
                         startActivity(intent)
                     }

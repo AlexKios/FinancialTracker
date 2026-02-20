@@ -50,7 +50,9 @@
         <activity android:name=".ui.activities.AccountActivity" android:windowSoftInputMode="adjustResize" />
         <activity android:name=".ui.activities.SettingsActivity" />
         <activity android:name=".ui.activities.AddExpenseActivity" />
+        <activity android:name=".ui.activities.EditExpenseActivity" />
         <activity android:name=".ui.activities.AddIncomeActivity" />
+        <activity android:name=".ui.activities.EditIncomeActivity" />
         <activity android:name=".ui.activities.MainActivity" />
     </application>
 </manifest>

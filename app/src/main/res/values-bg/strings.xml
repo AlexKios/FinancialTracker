@@ -80,4 +80,5 @@
     <string name="update_expense">Актуализиране на разхода</string>
     <string name="update_income">Актуализиране на дохода</string>
     <string name="_16p">16p</string>
+    <string name="edit_date">Актуализирай датата</string>
 </resources>

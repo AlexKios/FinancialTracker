@@ -10,11 +10,33 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
+import kotlinx.coroutines.tasks.await
 
 class UserRepository {
     private val db = FirebaseFirestore.getInstance()
     private val auth = FirebaseAuth.getInstance()
     private val friendListeners = mutableMapOf<String, ListenerRegistration>()
+
+    suspend fun getFriends(): List<com.example.financialtracker.data.model.Friend> {
+        val currentUserId = auth.currentUser?.uid ?: throw Exception("User not authenticated")
+        val userDoc = db.collection("users").document(currentUserId).get().await()
+        val friendUids = userDoc.get("friends") as? List<String> ?: emptyList()
+
+        val friends = mutableListOf<com.example.financialtracker.data.model.Friend>()
+        for (friendUid in friendUids) {
+            try {
+                val friendDoc = db.collection("users").document(friendUid).get().await()
+                val username = friendDoc.getString("username")
+                val id = friendDoc.id
+                if (username != null) {
+                    friends.add(com.example.financialtracker.data.model.Friend(userId = id, username = username))
+                }
+            } catch (e: Exception) {
+                Log.e("UserRepository", "Error fetching friend details for UID: $friendUid", e)
+            }
+        }
+        return friends
+    }
 
     fun updateUserProfilePicture(
         imageUri: Uri,

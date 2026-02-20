@@ -80,6 +80,7 @@
     <string name="update_income">Update Income</string>
     <string name="_16p">16p</string>
     <string name="edit_date">Edit Date</string>
+    <string name="search">Search</string>
 
     <string-array name="expense_categories">
         <item>@string/groceries</item>

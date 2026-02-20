@@ -4,12 +4,22 @@ import com.example.financialtracker.data.model.Expense
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
+import kotlinx.coroutines.tasks.await
 
 class ExpenseRepository {
     private val db = FirebaseFirestore.getInstance()
     private val auth = FirebaseAuth.getInstance()
     private var expenseListener: ListenerRegistration? = null
     private val userExpenseListeners = mutableMapOf<String, ListenerRegistration>()
+
+    suspend fun getExpenses(userId: String): List<Expense> {
+        val snapshot = db.collection("users").document(userId).collection("expenses")
+            .get()
+            .await()
+        return snapshot.documents.mapNotNull {
+            it.toObject(Expense::class.java)?.copy(id = it.id)
+        }
+    }
 
     fun addExpense(expense: Expense, onSuccess: () -> Unit, onFailure: (Exception) -> Unit) {
         val userId = auth.currentUser?.uid

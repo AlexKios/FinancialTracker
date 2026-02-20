@@ -5,14 +5,28 @@ import android.os.Build
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.SearchView
 import androidx.appcompat.widget.Toolbar
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.example.financialtracker.R
 import com.example.financialtracker.data.helper.ChatSessionTracker
 import com.example.financialtracker.data.helper.NotificationHelper
+import com.example.financialtracker.data.model.SearchResult
+import com.example.financialtracker.data.model.SearchResultType
 import com.example.financialtracker.data.repositories.ChatRepository
+import com.example.financialtracker.data.repositories.ExpenseRepository
+import com.example.financialtracker.data.repositories.IncomeRepository
+import com.example.financialtracker.data.repositories.UserRepository
+import com.example.financialtracker.data.adapter.SearchAdapter
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.firebase.auth.FirebaseAuth
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 abstract class BaseActivity : AppCompatActivity() {
 
@@ -20,6 +34,12 @@ abstract class BaseActivity : AppCompatActivity() {
     private val chatRepository = ChatRepository()
     private lateinit var notificationHelper: NotificationHelper
     private var notificationSentForMessage = mutableSetOf<String>()
+    private lateinit var searchView: SearchView
+    private lateinit var searchResultsRecyclerView: RecyclerView
+    private lateinit var searchAdapter: SearchAdapter
+    private val userRepository = UserRepository()
+    private val incomeRepository = IncomeRepository()
+    private val expenseRepository = ExpenseRepository()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -72,6 +92,10 @@ abstract class BaseActivity : AppCompatActivity() {
             }
         }
 
+        searchView = findViewById(toolbar.findViewById<SearchView>(R.id.search_view).id)
+        setupSearchView()
+        setupSearchRecyclerView()
+
         notificationHelper = NotificationHelper(this)
         val currentUserId = FirebaseAuth.getInstance().currentUser?.uid
         if (currentUserId != null) {
@@ -92,15 +116,111 @@ abstract class BaseActivity : AppCompatActivity() {
         }
     }
 
+    private fun setupSearchRecyclerView() {
+        searchResultsRecyclerView = findViewById(R.id.search_results_recycler_view)
+        searchResultsRecyclerView.layoutManager = LinearLayoutManager(this)
+        searchAdapter = SearchAdapter(emptyList()) { searchResult ->
+            // Handle search result click
+            when (searchResult.type) {
+                SearchResultType.FRIEND -> {
+                    val intent = Intent(this, ChatActivity::class.java)
+                    intent.putExtra("friend_uid", searchResult.id)
+                    startActivity(intent)
+                }
+                SearchResultType.INCOME -> {
+                    val intent = Intent(this, EditIncomeActivity::class.java)
+                    intent.putExtra("incomeId", searchResult.id)
+                    startActivity(intent)
+                }
+                SearchResultType.EXPENSE -> {
+                    val intent = Intent(this, EditExpenseActivity::class.java)
+                    intent.putExtra("expenseId", searchResult.id)
+                    startActivity(intent)
+                }
+            }
+        }
+        searchResultsRecyclerView.adapter = searchAdapter
+    }
+
+    private fun setupSearchView() {
+        searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+            override fun onQueryTextSubmit(query: String?): Boolean {
+                return true
+            }
+
+            override fun onQueryTextChange(newText: String?): Boolean {
+                if (newText.isNullOrBlank()) {
+                    searchResultsRecyclerView.visibility = View.GONE
+                } else {
+                    searchResultsRecyclerView.visibility = View.VISIBLE
+                    performSearch(newText)
+                }
+                return true
+            }
+        })
+    }
+
+    private fun performSearch(query: String) {
+        CoroutineScope(Dispatchers.IO).launch {
+            val userId = FirebaseAuth.getInstance().currentUser?.uid ?: return@launch
+            val searchResults = mutableListOf<SearchResult>()
+
+            val friends = userRepository.getFriends()
+            friends.forEach { friend ->
+                if (friend.username.contains(query, ignoreCase = true)) {
+                    searchResults.add(
+                        SearchResult(
+                            id = friend.userId,
+                            title = friend.username,
+                            subtitle = "Friend",
+                            type = SearchResultType.FRIEND
+                        )
+                    )
+                }
+            }
+
+            val incomes = incomeRepository.getIncomes(userId)
+            incomes.forEach { income ->
+                if (income.source.contains(query, ignoreCase = true)) {
+                    searchResults.add(
+                        SearchResult(
+                            id = income.id,
+                            title = income.source,
+                            subtitle = "Income",
+                            type = SearchResultType.INCOME
+                        )
+                    )
+                }
+            }
+
+            val expenses = expenseRepository.getExpenses(userId)
+            expenses.forEach { expense ->
+                if (expense.category.contains(query, ignoreCase = true)) {
+                    searchResults.add(
+                        SearchResult(
+                            id = expense.id,
+                            title = expense.category,
+                            subtitle = "Expense",
+                            type = SearchResultType.EXPENSE
+                        )
+                    )
+                }
+            }
+
+            withContext(Dispatchers.Main) {
+                searchAdapter.updateData(searchResults)
+            }
+        }
+    }
+
     private fun attachGlobalChatListener(currentUserId: String) {
         chatRepository.listenToAllIncomingMessages(currentUserId) { message, senderId, chatId ->
-            if (message.timestamp != null && !notificationSentForMessage.contains(message.timestamp.toString())) {
+            if (!notificationSentForMessage.contains(message.timestamp.toString())) {
                 if (!isInActiveChat(currentUserId, senderId)) {
                     notificationHelper.sendNotification(message.senderId, message.messageContent, chatId)
                     notificationSentForMessage.add(message.timestamp.toString())
                     chatRepository.updateMessageStatus(chatId, message, "received")
-                }
-            }
+                }            }
         }
     }
 

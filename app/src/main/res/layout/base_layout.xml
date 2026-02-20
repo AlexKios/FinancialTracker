@@ -29,11 +29,10 @@
         app:title="">
         <androidx.appcompat.widget.SearchView
             android:id="@+id/search_view"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:queryHint="@string/search_hint"
-            app:iconifiedByDefault="false"
-            />
+            android:layout_gravity="start"
+            android:queryHint="Search..." />
     </androidx.appcompat.widget.Toolbar>
 
     <FrameLayout
@@ -44,6 +43,16 @@
         app:layout_constraintBottom_toTopOf="@id/bottomNavigationView2"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/search_results_recycler_view"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toTopOf="@+id/bottomNavigationView2"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/toolbar" />
 
     <com.google.android.material.bottomnavigation.BottomNavigationView
     android:id="@+id/bottomNavigationView2"

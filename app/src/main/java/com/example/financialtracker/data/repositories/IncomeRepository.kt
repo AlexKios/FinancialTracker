@@ -11,6 +11,15 @@ class IncomeRepository {
     private val auth = FirebaseAuth.getInstance()
     private var incomeListener: ListenerRegistration? = null
 
+    suspend fun getIncomes(userId: String): List<Income> {
+        val snapshot = db.collection("users").document(userId).collection("incomes")
+            .get()
+            .await()
+        return snapshot.documents.mapNotNull {
+            it.toObject(Income::class.java)?.copy(id = it.id)
+        }
+    }
+
     fun addIncome(income: Income, onSuccess: () -> Unit, onFailure: (Exception) -> Unit) {
         val userId = auth.currentUser?.uid
         if (userId != null) {

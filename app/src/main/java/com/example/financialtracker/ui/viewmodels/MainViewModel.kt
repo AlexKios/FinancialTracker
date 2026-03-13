@@ -107,14 +107,27 @@ class MainViewModel : ViewModel() {
     fun loadFriendsData() {
         expenseRepo.unregisterUserListeners()
         val friendsList = mutableListOf<FriendProgressData>()
+        val calendar = Calendar.getInstance()
+        val currentMonth = calendar.get(Calendar.MONTH)
+        val currentYear = calendar.get(Calendar.YEAR)
+
         currentUser?.friends?.forEach { friendId ->
             userRepo.getUserById(friendId,
                 onSuccess = { friend ->
                     expenseRepo.listenForExpensesForUser(friend.uid,
                         onSuccess = { expenses ->
-                            val totalExpenses = expenses.sumOf { it.amount }
+                            val monthlyExpenses = expenses.filter { expense ->
+                                val expenseCalendar = Calendar.getInstance()
+                                expense.date?.let { timestamp ->
+                                    expenseCalendar.time = timestamp.toDate()
+                                    expenseCalendar.get(Calendar.MONTH) == currentMonth &&
+                                    expenseCalendar.get(Calendar.YEAR) == currentYear
+                                } ?: false
+                            }
+                            val totalMonthlyExpenses = monthlyExpenses.sumOf { it.amount }
+
                             val budgetPercentage = if (friend.budget > 0) {
-                                ((friend.budget - totalExpenses) / friend.budget * 100).toInt().coerceIn(0, 100)
+                                ((friend.budget - totalMonthlyExpenses) / friend.budget * 100).toInt().coerceIn(0, 100)
                             } else {
                                 0
                             }

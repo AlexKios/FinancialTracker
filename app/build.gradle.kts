@@ -16,6 +16,14 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        val googleApiKey: String = project.properties["GOOGLE_API_KEY"] as? String ?: ""
+        buildConfigField("String", "GOOGLE_API_KEY", "\"$googleApiKey\"")
+    }
+
+
+    buildFeatures {
+        buildConfig = true
     }
 
     buildTypes {
@@ -35,6 +43,8 @@ android {
         jvmTarget = "11"
     }
 }
+
+
 
 dependencies {
     implementation(libs.mpandroidchart)

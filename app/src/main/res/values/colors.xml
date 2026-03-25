@@ -3,12 +3,12 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
 
-    <color name="primary">#6200EE</color>
-    <color name="primary_variant">#3700B3</color>
-    <color name="secondary">#03DAC5</color>
-    <color name="secondary_variant">#018786</color>
+    <color name="primary">#008B99</color> <!-- Teal/Cyan -->
+    <color name="primary_variant">#006064</color>
+    <color name="secondary">#2ECC71</color> <!-- Green for Income -->
+    <color name="secondary_variant">#27AE60</color>
 
-    <color name="background">#F5F5F5</color>
+    <color name="background">#F5FBFB</color>
     <color name="surface">#FFFFFF</color>
     <color name="surface_variant">#E7E0EC</color>
     <color name="on_surface_variant">#49454F</color>
@@ -23,6 +23,18 @@
     <color name="on_surface">#212121</color>
     <color name="error">#B00020</color>
 
+    <color name="remove_button_bg">#FFF0F3</color>
+    <color name="remove_button_text">#FF4D6D</color>
+    <color name="online_status">#2ECC71</color>
+    <color name="income_green">#2ECC71</color>
+    <color name="income_icon_bg">#2ECC71</color>
+
     <color name="message_sent_color">#2196F3</color>
     <color name="message_received_color">#E0E0E0</color>
+
+    <!-- New colors for the UI update -->
+    <color name="expense_accent">#FF5722</color> <!-- Orange/Red -->
+    <color name="expense_accent_end">#FF1744</color>
+    <color name="expense_amount">#FF5252</color>
+    <color name="header_text">#1A1A1A</color>
 </resources>

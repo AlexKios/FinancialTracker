@@ -3,7 +3,7 @@ package com.example.financialtracker.ui.activities
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import android.widget.EditText
-import android.widget.Button
+import android.widget.TextView
 import android.widget.Toast
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -15,12 +15,13 @@ import com.example.financialtracker.data.helper.NotificationHelper
 import com.example.financialtracker.data.model.Message
 import com.example.financialtracker.data.repositories.ChatRepository
 import com.example.financialtracker.ui.viewmodels.ChatViewModel
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.firebase.auth.FirebaseAuth
 
 class ChatActivity : AppCompatActivity() {
 
     private lateinit var messageInput: EditText
-    private lateinit var sendButton: Button
+    private lateinit var sendButton: FloatingActionButton
     private lateinit var friendName: String
     private lateinit var viewModel: ChatViewModel
     private lateinit var messagesRecyclerView: RecyclerView
@@ -34,6 +35,12 @@ class ChatActivity : AppCompatActivity() {
         setContentView(R.layout.activity_chat)
 
         friendName = intent.getStringExtra("friend_name") ?: "Unknown Friend"
+        
+        // Setup Toolbar
+        val toolbarTitle = findViewById<TextView>(R.id.toolbarTitle)
+        val toolbarAvatar = findViewById<TextView>(R.id.toolbarAvatar)
+        toolbarTitle.text = friendName
+        toolbarAvatar.text = getInitials(friendName)
 
         messagesRecyclerView = findViewById(R.id.messageList)
         messageInput = findViewById(R.id.messageInput)
@@ -65,7 +72,9 @@ class ChatActivity : AppCompatActivity() {
                 viewModel.markMessageAsSeen(chatId, it)
             }
 
-            messagesRecyclerView.scrollToPosition(messages.size - 1)
+            if (messages.isNotEmpty()) {
+                messagesRecyclerView.scrollToPosition(messages.size - 1)
+            }
         }
 
         viewModel.setOnNewMessageListener {}
@@ -79,6 +88,15 @@ class ChatActivity : AppCompatActivity() {
                 viewModel.sendMessage(chatId, msg)
                 messageInput.text.clear()
             }
+        }
+    }
+
+    private fun getInitials(name: String): String {
+        val parts = name.split(" ")
+        return if (parts.size >= 2) {
+            (parts[0].take(1) + parts[1].take(1)).uppercase()
+        } else {
+            name.take(2).uppercase()
         }
     }
 

@@ -15,19 +15,23 @@
         android:layout_height="wrap_content"
         android:padding="16dp">
 
-        <TextView
-            android:id="@+id/friendAvatar"
+        <FrameLayout
+            android:id="@+id/iconContainer"
             android:layout_width="48dp"
             android:layout_height="48dp"
-            android:background="@drawable/circle_avatar_bg"
-            android:gravity="center"
-            android:text="AL"
-            android:textColor="@color/white"
-            android:textSize="18sp"
-            android:textStyle="bold"
+            android:background="@drawable/circle_icon_bg_green"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent">
+
+            <ImageView
+                android:id="@+id/incomeIcon"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_gravity="center"
+                android:src="@drawable/profit"
+                app:tint="@color/white" />
+        </FrameLayout>
 
         <LinearLayout
             android:layout_width="0dp"
@@ -35,51 +39,36 @@
             android:layout_marginStart="16dp"
             android:orientation="vertical"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/removeFriendButton"
-            app:layout_constraintStart_toEndOf="@+id/friendAvatar"
+            app:layout_constraintEnd_toStartOf="@+id/incomeAmount"
+            app:layout_constraintStart_toEndOf="@+id/iconContainer"
             app:layout_constraintTop_toTopOf="parent">
 
             <TextView
-                android:id="@+id/friendNameTextView"
+                android:id="@+id/incomeSource"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Alex 2"
+                android:text="Salary"
                 android:textColor="@color/textPrimary"
                 android:textSize="18sp"
                 android:textStyle="bold" />
 
-            <LinearLayout
+            <TextView
+                android:id="@+id/incomeDate"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:gravity="center_vertical"
-                android:orientation="horizontal">
-
-                <View
-                    android:id="@+id/statusDot"
-                    android:layout_width="8dp"
-                    android:layout_height="8dp"
-                    android:background="@drawable/status_dot_online" />
-
-                <TextView
-                    android:id="@+id/friendStatusTextView"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="6dp"
-                    android:text="Online"
-                    android:textColor="@color/online_status"
-                    android:textSize="14sp" />
-            </LinearLayout>
+                android:text="13 Feb 2026"
+                android:textColor="@color/textSecondary"
+                android:textSize="14sp" />
         </LinearLayout>
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/removeFriendButton"
-            style="@style/Widget.Material3.Button.TonalButton"
+        <TextView
+            android:id="@+id/incomeAmount"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:backgroundTint="@color/remove_button_bg"
-            android:text="@string/remove"
-            android:textColor="@color/remove_button_text"
-            app:cornerRadius="20dp"
+            android:text="$3000.00"
+            android:textColor="@color/income_green"
+            android:textSize="18sp"
+            android:textStyle="bold"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />

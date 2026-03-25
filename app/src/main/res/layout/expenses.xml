@@ -1,151 +1,57 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="?android:colorBackground"
-    android:fitsSystemWindows="true">
+    android:background="@color/background"
+    android:padding="20dp">
 
-    <Button
-        android:id="@+id/button5"
+    <TextView
+        android:id="@+id/tvExpensesTitle"
         android:layout_width="wrap_content"
-        android:layout_height="67dp"
-        android:layout_marginBottom="28dp"
-        android:text="@string/update"
-        android:textAlignment="center"
-        android:textSize="22sp"
-        android:textColor="?attr/colorOnPrimary"
-        android:backgroundTint="?attr/colorPrimary"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.497"
-        app:layout_constraintStart_toStartOf="parent"/>
-
-    <ScrollView
-        android:layout_width="match_parent"
-        android:layout_height="571dp"
-        android:layout_marginTop="48dp"
-        app:layout_constraintBottom_toTopOf="@+id/button5"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="1.0"
+        android:layout_height="wrap_content"
+        android:text="Expenses"
+        android:textColor="@color/header_text"
+        android:textSize="28sp"
+        android:textStyle="bold"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toTopOf="parent" />
 
-        <TableLayout
-            android:id="@+id/tableLayout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:stretchColumns="*"
-            android:layout_marginTop="10dp"
-            android:layout_marginBottom="40dp">
+    <TextView
+        android:id="@+id/tvExpensesSubtitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:text="Monitor your spending"
+        android:textColor="@color/textSecondary"
+        android:textSize="14sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tvExpensesTitle" />
 
-            <!-- Header Row -->
-            <TableRow android:background="?attr/colorSecondary">
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:padding="10dp"
-                    android:text="@string/icon"
-                    android:textStyle="bold"
-                    android:textColor="?attr/colorOnSecondary"/>
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvExpenses"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginTop="20dp"
+        android:layout_marginBottom="16dp"
+        app:layout_constraintBottom_toTopOf="@id/buttonAddExpense"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tvExpensesSubtitle"
+        tools:listitem="@layout/item_expense" />
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:padding="10dp"
-                    android:text="@string/expense"
-                    android:textStyle="bold"
-                    android:textColor="?attr/colorOnSecondary"/>
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:padding="10dp"
-                    android:text="@string/amount"
-                    android:textStyle="bold"
-                    android:textColor="?attr/colorOnSecondary"/>
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:padding="10dp"
-                    android:text="@string/date"
-                    android:textStyle="bold"
-                    android:textColor="?attr/colorOnSecondary"/>
-            </TableRow>
-
-            <!-- Sample Data Rows -->
-            <TableRow android:layout_height="80dp" android:gravity="center_vertical">
-                <ImageView android:layout_width="50dp" android:layout_height="50dp" android:src="@android:drawable/ic_menu_gallery"/>
-                <TextView android:padding="15dp" android:textColor="@color/textPrimary" android:text="@string/groceries"/>
-                <TextView android:padding="15dp" android:textColor="@color/textPrimary" android:text="$50"/>
-                <TextView android:padding="15dp" android:textColor="@color/textPrimary" android:text="18 Mar 2025"/>
-            </TableRow>
-
-            <TableRow android:layout_height="80dp" android:gravity="center_vertical">
-                <ImageView android:layout_width="50dp" android:layout_height="50dp" android:src="@android:drawable/ic_menu_camera"/>
-                <TextView android:padding="15dp" android:textColor="@color/textPrimary" android:text="@string/transport"/>
-                <TextView android:padding="15dp" android:textColor="@color/textPrimary" android:text="$15"/>
-                <TextView android:padding="15dp" android:textColor="@color/textPrimary" android:text="17 Mar 2025"/>
-            </TableRow>
-
-            <TableRow android:layout_height="80dp" android:gravity="center_vertical">
-                <ImageView android:layout_width="50dp" android:layout_height="50dp" android:src="@android:drawable/ic_menu_compass"/>
-                <TextView android:padding="15dp" android:textColor="@color/textPrimary" android:text="@string/entertainment"/>
-                <TextView android:padding="15dp" android:textColor="@color/textPrimary" android:text="$30"/>
-                <TextView android:padding="15dp" android:textColor="@color/textPrimary" android:text="16 Mar 2025"/>
-            </TableRow>
-
-            <TableRow android:layout_height="80dp" android:gravity="center_vertical">
-                <ImageView android:layout_width="50dp" android:layout_height="50dp" android:src="@android:drawable/ic_menu_call"/>
-                <TextView android:padding="15dp" android:textColor="@color/textPrimary" android:text="@string/dining"/>
-                <TextView android:padding="15dp" android:textColor="@color/textPrimary" android:text="$25"/>
-                <TextView android:padding="15dp" android:textColor="@color/textPrimary" android:text="15 Mar 2025"/>
-            </TableRow>
-
-            <TableRow android:layout_height="80dp" android:gravity="center_vertical">
-                <ImageView android:layout_width="50dp" android:layout_height="50dp" android:src="@android:drawable/ic_menu_crop"/>
-                <TextView android:padding="15dp" android:textColor="@color/textPrimary" android:text="@string/shopping"/>
-                <TextView android:padding="15dp" android:textColor="@color/textPrimary" android:text="$100"/>
-                <TextView android:padding="15dp" android:textColor="@color/textPrimary" android:text="14 Mar 2025"/>
-            </TableRow>
-
-            <TableRow android:layout_height="80dp" android:gravity="center_vertical">
-                <ImageView android:layout_width="50dp" android:layout_height="50dp" android:src="@android:drawable/ic_menu_agenda"/>
-                <TextView android:padding="15dp" android:textColor="@color/textPrimary" android:text="@string/gym_membership"/>
-                <TextView android:padding="15dp" android:textColor="@color/textPrimary" android:text="$40"/>
-                <TextView android:padding="15dp" android:textColor="@color/textPrimary" android:text="13 Mar 2025"/>
-            </TableRow>
-
-            <TableRow android:layout_height="80dp" android:gravity="center_vertical">
-                <ImageView android:layout_width="50dp" android:layout_height="50dp" android:src="@android:drawable/ic_menu_mapmode"/>
-                <TextView android:padding="15dp" android:textColor="@color/textPrimary" android:text="@string/travel"/>
-                <TextView android:padding="15dp" android:textColor="@color/textPrimary" android:text="$200"/>
-                <TextView android:padding="15dp" android:textColor="@color/textPrimary" android:text="12 Mar 2025"/>
-            </TableRow>
-
-            <TableRow android:layout_height="80dp" android:gravity="center_vertical">
-                <ImageView android:layout_width="50dp" android:layout_height="50dp" android:src="@android:drawable/ic_menu_manage"/>
-                <TextView android:padding="15dp" android:textColor="@color/textPrimary" android:text="@string/subscription"/>
-                <TextView android:padding="15dp" android:textColor="@color/textPrimary" android:text="$10"/>
-                <TextView android:padding="15dp" android:textColor="@color/textPrimary" android:text="11 Mar 2025"/>
-            </TableRow>
-
-            <TableRow android:layout_height="80dp" android:gravity="center_vertical">
-                <ImageView android:layout_width="50dp" android:layout_height="50dp" android:src="@android:drawable/ic_menu_edit"/>
-                <TextView android:padding="15dp" android:textColor="@color/textPrimary" android:text="@string/education"/>
-                <TextView android:padding="15dp" android:textColor="@color/textPrimary" android:text="$60"/>
-                <TextView android:padding="15dp" android:textColor="@color/textPrimary" android:text="10 Mar 2025"/>
-            </TableRow>
-
-            <TableRow android:layout_height="80dp" android:gravity="center_vertical">
-                <ImageView android:layout_width="50dp" android:layout_height="50dp" android:src="@android:drawable/ic_menu_help"/>
-                <TextView android:padding="15dp" android:textColor="@color/textPrimary" android:text="@string/healthcare"/>
-                <TextView android:padding="15dp" android:textColor="@color/textPrimary" android:text="$75"/>
-                <TextView android:padding="15dp" android:textColor="@color/textPrimary" android:text="9 Mar 2025"/>
-            </TableRow>
-
-        </TableLayout>
-    </ScrollView>
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/buttonAddExpense"
+        android:layout_width="match_parent"
+        android:layout_height="64dp"
+        android:layout_margin="24dp"
+        android:text="Add Expense"
+        android:textAllCaps="false"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:backgroundTint="@color/expense_amount"
+        app:cornerRadius="16dp"
+        app:layout_constraintBottom_toBottomOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

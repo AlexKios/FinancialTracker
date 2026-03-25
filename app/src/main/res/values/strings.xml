@@ -15,6 +15,8 @@
     <string name="recurring_payment">Recurring payment</string>
     <string name="recurring_income">Recurring income</string>
     <string name="expense">Expense</string>
+    <string name="expenses_title">Expenses</string>
+    <string name="expenses_subtitle">Monitor your spending</string>
     <string name="income">Income</string>
     <string name="home">Home</string>
     <string name="settings">Settings</string>
@@ -81,6 +83,7 @@
     <string name="_16p">16p</string>
     <string name="edit_date">Edit Date</string>
     <string name="search">Search</string>
+    <string name="add">Add</string>
 
     <string-array name="expense_categories">
         <item>@string/groceries</item>

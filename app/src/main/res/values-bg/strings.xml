@@ -16,6 +16,8 @@
     <string name="recurring_payment">Повтарящо се плащане</string>
     <string name="recurring_income">Повтарящи се приходи</string>
     <string name="expense">Разход</string>
+    <string name="expenses_title">Разходи</string>
+    <string name="expenses_subtitle">Проследявайте разходите си</string>
     <string name="income">Приход</string>
     <string name="home">Начло</string>
     <string name="settings">Настройки</string>
@@ -46,6 +48,9 @@
     <string name="enter_income">Въведи Приход</string>
     <string name="log_out">Изход</string>
     <string name="account">Профил</string>
+    <string name="account_subtitle">Управлявайте профила си</string>
+    <string name="full_name">Пълно име</string>
+    <string name="enter_full_name">Въведете трите си имена</string>
     <string name="app_theme">Тема на приложението</string>
     <string name="enable_notifications">Активиране на известия</string>
     <string name="dark_mode">Тъмен режим</string>
@@ -83,4 +88,13 @@
     <string name="edit_date">Актуализирай датата</string>
     <string name="search">Търсене</string>
     <string name="add">Добавете</string>
+    <string name="friends_progress">Прогрес на приятели</string>
+    <string name="monthly_spending">Месечни разходи</string>
+    <string name="transaction_history">История на транзакциите</string>
+    <string name="manage_your_profile">Управлявайте вашия профил</string>
+    <string name="friends">Приятели</string>
+    <string name="manage_your_connections">Управлявайте вашите връзки</string>
+    <string name="monitor_your_spending">Наблюдавайте разходите си</string>
+    <string name="track_your_earnings">Проследявайте приходите си</string>
+    <string name="customize_your_experience">Персонализирайте вашето изживяване</string>
 </resources>

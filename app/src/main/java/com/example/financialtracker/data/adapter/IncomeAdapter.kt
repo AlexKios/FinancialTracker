@@ -30,7 +30,7 @@ class IncomeAdapter(
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): IncomeViewHolder {
-        val view = LayoutInflater.from(parent.context).inflate(R.layout.income_list_item, parent, false)
+        val view = LayoutInflater.from(parent.context).inflate(R.layout.item_income, parent, false)
         return IncomeViewHolder(view)
     }
 

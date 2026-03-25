@@ -47,7 +47,7 @@
                 android:id="@+id/incomeSource"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Salary"
+                android:text=""
                 android:textColor="@color/textPrimary"
                 android:textSize="18sp"
                 android:textStyle="bold" />
@@ -56,7 +56,7 @@
                 android:id="@+id/incomeDate"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="13 Feb 2026"
+                android:text=""
                 android:textColor="@color/textSecondary"
                 android:textSize="14sp" />
         </LinearLayout>
@@ -65,7 +65,7 @@
             android:id="@+id/incomeAmount"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="$3000.00"
+            android:text=""
             android:textColor="@color/income_green"
             android:textSize="18sp"
             android:textStyle="bold"

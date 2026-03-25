@@ -15,6 +15,8 @@
     <string name="recurring_payment">Wiederkehrende Zahlung</string>
     <string name="recurring_income">Wiederkehrendes Einkommen</string>
     <string name="expense">Ausgabe</string>
+    <string name="expenses_title">Ausgaben</string>
+    <string name="expenses_subtitle">Überwachen Sie Ihre Ausgaben</string>
     <string name="income">Einnahme</string>
     <string name="home">Startseite</string>
     <string name="settings">Einstellungen</string>
@@ -46,6 +48,9 @@
     <string name="enter_income">Einnahme eingeben</string>
     <string name="log_out">Abmelden</string>
     <string name="account">Konto</string>
+    <string name="account_subtitle">Verwalten Sie Ihr Profil</string>
+    <string name="full_name">Vollständiger Name</string>
+    <string name="enter_full_name">Geben Sie Ihren vollständigen Namen ein</string>
     <string name="app_theme">App-Design</string>
     <string name="enable_notifications">Benachrichtigungen aktivieren</string>
     <string name="dark_mode">Dunkler Modus</string>
@@ -83,4 +88,13 @@
     <string name="edit_date">Datum bearbeiten</string>
     <string name="search">Suchen</string>
     <string name="add">Hinzufügen</string>
+    <string name="friends_progress">Fortschritt der Freunde</string>
+    <string name="monthly_spending">Monatliche Ausgaben</string>
+    <string name="transaction_history">Transaktionsverlauf</string>
+    <string name="manage_your_profile">Verwalten Sie Ihr Profil</string>
+    <string name="friends">Freunde</string>
+    <string name="manage_your_connections">Verwalten Sie Ihre Verbindungen</string>
+    <string name="monitor_your_spending">Überwachen Sie Ihre Ausgaben</string>
+    <string name="track_your_earnings">Verfolgen Sie Ihre Einnahmen</string>
+    <string name="customize_your_experience">Passen Sie Ihr Erlebnis an</string>
 </resources>

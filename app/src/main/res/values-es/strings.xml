@@ -17,6 +17,8 @@
     <string name="recurring_payment">Pago recurrente</string>
     <string name="recurring_income">Ingreso recurrente</string>
     <string name="expense">Gasto</string>
+    <string name="expenses_title">Gastos</string>
+    <string name="expenses_subtitle">Controle sus gastos</string>
     <string name="income">Ingreso</string>
     <string name="home">Inicio</string>
     <string name="settings">Configuración</string>
@@ -46,6 +48,9 @@
     <string name="enter_income">Ingresar ingreso</string>
     <string name="log_out">Cerrar sesión</string>
     <string name="account">Cuenta</string>
+    <string name="account_subtitle">Administre su perfil</string>
+    <string name="full_name">Nombre completo</string>
+    <string name="enter_full_name">Ingrese su nombre completo</string>
     <string name="app_theme">Tema de la aplicación</string>
     <string name="enable_notifications">Habilitar notificaciones</string>
     <string name="dark_mode">Modo oscuro</string>
@@ -83,4 +88,13 @@
     <string name="edit_date">Editar fecha</string>
     <string name="search">Buscar</string>
     <string name="add">Agregar</string>
+    <string name="friends_progress">Progreso de amigos</string>
+    <string name="monthly_spending">Gasto mensual</string>
+    <string name="transaction_history">Historial de transacciones</string>
+    <string name="manage_your_profile">Administre su perfil</string>
+    <string name="friends">Amigos</string>
+    <string name="manage_your_connections">Gestione sus conexiones</string>
+    <string name="monitor_your_spending">Controle sus gastos</string>
+    <string name="track_your_earnings">Siga sus ingresos</string>
+    <string name="customize_your_experience">Personalice su experiencia</string>
 </resources>

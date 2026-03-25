@@ -16,7 +16,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Income"
+            android:text="@string/income"
             android:textColor="@color/textPrimary"
             android:textSize="32sp"
             android:textStyle="bold" />
@@ -25,7 +25,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
-            android:text="Track your earnings"
+            android:text="@string/track_your_earnings"
             android:textColor="@color/textSecondary"
             android:textSize="16sp" />
     </LinearLayout>
@@ -44,7 +44,7 @@
         android:layout_width="match_parent"
         android:layout_height="64dp"
         android:layout_margin="24dp"
-        android:text="Add Income"
+        android:text="@string/add_income"
         android:textAllCaps="false"
         android:textSize="18sp"
         android:textStyle="bold"

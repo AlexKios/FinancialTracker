@@ -5,147 +5,166 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="?android:colorBackground"
-    android:fitsSystemWindows="true"
+    android:background="@color/background"
     tools:context=".ui.activities.MainActivity">
 
     <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:fillViewport="true"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="1.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent">
-
+        android:layout_height="match_parent"
+        android:fillViewport="true">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:paddingBottom="40dp">
 
+            <!-- Budget Circle Section -->
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/budgetSection"
+                android:layout_width="320dp"
+                android:layout_height="320dp"
+                android:layout_marginTop="32dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <ProgressBar
+                    android:id="@+id/progressBudget"
+                    style="?android:attr/progressBarStyleHorizontal"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:max="100"
+                    android:progressDrawable="@drawable/circular_progress_bar" />
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:orientation="vertical"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent">
+
+                    <TextView
+                        android:id="@+id/remainingBudget"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/amount_format"
+                        android:textColor="@color/primary"
+                        android:textSize="40sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/remaining"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/remaining"
+                        android:textColor="@color/textSecondary"
+                        android:textSize="18sp" />
+
+                    <Button
+                        android:id="@+id/setBudgetButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        android:backgroundTint="@color/primary"
+                        android:paddingHorizontal="24dp"
+                        android:text="@string/set_budget"
+                        android:textAllCaps="false"
+                        android:textColor="@color/white"
+                        android:textSize="14sp"
+                        android:textStyle="bold"
+                        app:cornerRadius="20dp" />
+                </LinearLayout>
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <!-- Friends Progress Section -->
             <TextView
-                android:id="@+id/remainingBudget"
-                android:layout_width="165dp"
-                android:layout_height="44dp"
-                android:layout_marginTop="116dp"
-                android:fontFamily="monospace"
-                android:text=""
-                android:textAlignment="center"
-                android:textColor="#28B463"
-                android:textSize="40sp"
-                app:layout_constraintEnd_toEndOf="parent"
+                android:id="@+id/tvFriendsTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="24dp"
+                android:layout_marginTop="32dp"
+                android:text="@string/friends_progress"
+                android:textColor="@color/header_text"
+                android:textSize="18sp"
+                android:textStyle="bold"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-
-            <TextView
-                android:id="@+id/remaining"
-                android:layout_width="201dp"
-                android:layout_height="55dp"
-                android:text="@string/remaining"
-                android:textAlignment="center"
-                android:textSize="38sp"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/remainingBudget" />
-
-            <ProgressBar
-                android:id="@+id/progressBudget"
-                style="?android:attr/progressBarStyleHorizontal"
-                android:layout_width="329dp"
-                android:layout_height="330dp"
-                android:layout_marginTop="16dp"
-                android:max="100"
-                android:progressDrawable="@drawable/circular_progress_bar"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.563"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-
-            <Button
-                android:id="@+id/setBudgetButton"
-                android:layout_width="103dp"
-                android:layout_height="50dp"
-                android:layout_marginTop="10dp"
-                android:text="@string/set_budget"
-                android:textSize="12sp"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/remaining" />
+                app:layout_constraintTop_toBottomOf="@id/budgetSection" />
 
             <HorizontalScrollView
                 android:id="@+id/friendsScrollView"
-                android:layout_width="0dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="20dp"
-                android:contentDescription="@string/friends_list"
-                app:layout_constraintTop_toBottomOf="@id/progressBudget"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent">
+                android:layout_marginTop="16dp"
+                android:scrollbars="none"
+                app:layout_constraintTop_toBottomOf="@id/tvFriendsTitle">
 
                 <LinearLayout
                     android:id="@+id/friendsLinearLayout"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
-                    android:padding="10dp" />
+                    android:paddingHorizontal="24dp" />
             </HorizontalScrollView>
 
-            <com.github.mikephil.charting.charts.LineChart
-                android:id="@+id/lineChart"
-                android:layout_width="331dp"
-                android:layout_height="252dp"
-                android:layout_marginTop="20dp"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/friendsScrollView" />
-
-            <TableLayout
-                android:id="@+id/tableLayout"
+            <!-- Weekly Spending Graph Card -->
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cardWeeklySpending"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:stretchColumns="*"
-                android:layout_marginTop="40dp"
-                android:layout_marginBottom="40dp"
-                app:layout_constraintTop_toBottomOf="@+id/lineChart"
+                android:layout_marginHorizontal="24dp"
+                android:layout_marginTop="24dp"
+                app:cardCornerRadius="24dp"
+                app:cardElevation="6dp"
+                app:layout_constraintTop_toBottomOf="@id/friendsScrollView">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="20dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/monthly_spending"
+                        android:textColor="@color/header_text"
+                        android:textSize="18sp"
+                        android:textStyle="bold" />
+
+                    <com.github.mikephil.charting.charts.LineChart
+                        android:id="@+id/lineChart"
+                        android:layout_width="match_parent"
+                        android:layout_height="220dp"
+                        android:layout_marginTop="16dp" />
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <!-- Transaction History Section -->
+            <TextView
+                android:id="@+id/tvTransactionsTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="24dp"
+                android:layout_marginTop="32dp"
+                android:text="@string/transaction_history"
+                android:textColor="@color/header_text"
+                android:textSize="18sp"
+                android:textStyle="bold"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent">
+                app:layout_constraintTop_toBottomOf="@id/cardWeeklySpending" />
 
-                <TableRow android:background="?attr/colorSecondary"
-                    tools:ignore="UselessParent">
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:padding="10dp"
-                        android:text="@string/icon"
-                        android:textStyle="bold"
-                        android:textColor="?attr/colorOnSecondary"/>
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:padding="10dp"
-                        android:text="@string/category"
-                        android:textStyle="bold"
-                        android:textColor="?attr/colorOnSecondary"/>
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:padding="10dp"
-                        android:text="@string/amount"
-                        android:textStyle="bold"
-                        android:textColor="?attr/colorOnSecondary"/>
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:padding="10dp"
-                        android:text="@string/date"
-                        android:textStyle="bold"
-                        android:textColor="?attr/colorOnSecondary"/>
-                </TableRow>
-            </TableLayout>
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvTransactions"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:nestedScrollingEnabled="false"
+                app:layout_constraintTop_toBottomOf="@id/tvTransactionsTitle"
+                tools:layout_editor_absoluteX="1dp"
+                tools:listitem="@layout/item_expense" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
     </ScrollView>

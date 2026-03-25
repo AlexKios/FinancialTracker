@@ -47,11 +47,14 @@
     <string name="enter_income">Enter Income</string>
     <string name="log_out">Log Out</string>
     <string name="account">Account</string>
+    <string name="account_subtitle">Manage your profile</string>
+    <string name="full_name">Full Name</string>
+    <string name="enter_full_name">Enter your full name</string>
     <string name="app_theme">App Theme</string>
     <string name="enable_notifications">Enable Notifications</string>
     <string name="dark_mode">Dark Mode</string>
     <string name="graph_size">Graph Size</string>
-    <string name="change_profile_picture">Change Profile Picture</string>
+    <string name="change_profile_picture">Change Photo</string>
     <string name="change_username">Change Username</string>
     <string name="change_password">Change Password</string>
     <string name="change_email">Change Email</string>
@@ -66,7 +69,7 @@
     <string name="scan">Scan</string>
     <string name="change_name">Change Name</string>
     <string name="new_name">New Name</string>
-    <string name="show_qr_code">Show QR Code</string>
+    <string name="show_qr_code">Show QR</string>
     <string name="qr_code">QR Code</string>
     <string name="hide_qr_code">Hide QR Code</string>
     <string name="remove">Remove</string>
@@ -84,6 +87,15 @@
     <string name="edit_date">Edit Date</string>
     <string name="search">Search</string>
     <string name="add">Add</string>
+    <string name="friends_progress">Friends Progress</string>
+    <string name="monthly_spending">Monthly Spending</string>
+    <string name="transaction_history">Transaction History</string>
+    <string name="manage_your_profile">Manage your profile</string>
+    <string name="friends">Friends</string>
+    <string name="manage_your_connections">Manage your connections</string>
+    <string name="monitor_your_spending">Monitor your spending</string>
+    <string name="track_your_earnings">Track your earnings</string>
+    <string name="customize_your_experience">Customize your experience</string>
 
     <string-array name="expense_categories">
         <item>@string/groceries</item>

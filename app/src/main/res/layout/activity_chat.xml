@@ -78,7 +78,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:background="@null"
-                android:hint="Type a message..."
+                android:hint="@string/type_message"
                 android:maxLines="4"
                 android:padding="12dp"
                 app:layout_constraintBottom_toBottomOf="parent"

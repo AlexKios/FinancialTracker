@@ -14,7 +14,6 @@ import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
 import com.bumptech.glide.Glide
@@ -28,11 +27,10 @@ import androidx.core.view.isVisible
 import androidx.core.graphics.createBitmap
 import androidx.core.graphics.set
 
-class AccountActivity : AppCompatActivity() {
+class AccountActivity : BaseActivity() {
 
     private lateinit var viewModel: AccountViewModel
 
-    private lateinit var accountTitle: TextView
     private lateinit var profilePicture: ImageView
     private lateinit var changeProfilePictureButton: Button
     private lateinit var usernameEditText: EditText
@@ -43,6 +41,7 @@ class AccountActivity : AppCompatActivity() {
     private lateinit var showQrCode: Button
     private lateinit var qrCodeImageView: ImageView
     private lateinit var toggleQrCodeButton: Button
+    private lateinit var qrContainer: View
 
     private val pickImageLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
         if (it.resultCode == RESULT_OK) {
@@ -63,9 +62,8 @@ class AccountActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.account)
+        layoutInflater.inflate(R.layout.account, findViewById(R.id.content_container), true)
 
-        accountTitle = findViewById(R.id.account_control_title)
         profilePicture = findViewById(R.id.profile_picture)
         changeProfilePictureButton = findViewById(R.id.change_profile_picture_button)
         usernameEditText = findViewById(R.id.username_input)
@@ -76,6 +74,7 @@ class AccountActivity : AppCompatActivity() {
         showQrCode = findViewById(R.id.show_qr_code_button)
         qrCodeImageView = findViewById(R.id.qr_code_image_view)
         toggleQrCodeButton = findViewById(R.id.toggle_qr_code_button)
+        qrContainer = findViewById(R.id.qr_container)
 
         changeProfilePictureButton.setOnClickListener {
             requestStoragePermission()
@@ -148,14 +147,9 @@ class AccountActivity : AppCompatActivity() {
             }
         }
 
-        toggleQrCodeButton.setOnClickListener(object : View.OnClickListener {
-            override fun onClick(v: View?) {
-                if (qrCodeImageView.isVisible) {
-                    qrCodeImageView.visibility = View.GONE
-                    toggleQrCodeButton.visibility = View.GONE
-                }
-            }
-        })
+        toggleQrCodeButton.setOnClickListener {
+            qrContainer.visibility = View.GONE
+        }
     }
 
     private fun requestStoragePermission() {
@@ -209,8 +203,7 @@ class AccountActivity : AppCompatActivity() {
                 }
             }
 
-            toggleQrCodeButton.visibility = View.VISIBLE
-
+            qrContainer.visibility = View.VISIBLE
             qrCodeImageView.setImageBitmap(bmp)
         } catch (e: Exception) {
             Toast.makeText(this, "Error generating QR Code", Toast.LENGTH_SHORT).show()

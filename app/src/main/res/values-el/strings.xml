@@ -17,6 +17,8 @@
     <string name="recurring_payment">Επαναλαμβανόμενη πληρωμή</string>
     <string name="recurring_income">Επαναλαμβανόμενο εισόδημα</string>
     <string name="expense">Έξοδο</string>
+    <string name="expenses_title">Έξοδα</string>
+    <string name="expenses_subtitle">Παρακολουθήστε τις δαπάνες σας</string>
     <string name="income">Εισόδημα</string>
     <string name="home">Αρχική</string>
     <string name="settings">Ρυθμίσεις</string>
@@ -46,6 +48,9 @@
     <string name="enter_income">Εισαγωγή εισοδήματος</string>
     <string name="log_out">Αποσύνδεση</string>
     <string name="account">Λογαριασμός</string>
+    <string name="account_subtitle">Διαχειριστείτε το προφίλ σας</string>
+    <string name="full_name">Ονοματεπώνυμο</string>
+    <string name="enter_full_name">Εισαγάγετε το ονοματεπώνυμό σας</string>
     <string name="app_theme">Θέμα εφαρμογής</string>
     <string name="enable_notifications">Ενεργοποίηση ειδοποιήσεων</string>
     <string name="dark_mode">Σκοτεινή λειτουργία</string>
@@ -83,4 +88,13 @@
     <string name="edit_date">Επεξεργασία ημερομηνίας</string>
     <string name="search">Ερευνα</string>
     <string name="add">Προσθέτω</string>
+    <string name="friends_progress">Πρόοδος Φίλων</string>
+    <string name="monthly_spending">Μηνιαία Έξοδα</string>
+    <string name="transaction_history">Ιστορικό Συναλλαγών</string>
+    <string name="manage_your_profile">Διαχειριστείτε το προφίλ σας</string>
+    <string name="friends">Φίλοι</string>
+    <string name="manage_your_connections">Διαχειριστείτε τις συνδέσεις σας</string>
+    <string name="monitor_your_spending">Παρακολουθήστε τις δαπάνες σας</string>
+    <string name="track_your_earnings">Παρακολουθήστε τα κέρδη σας</string>
+    <string name="customize_your_experience">Προσαρμόστε την εμπειρία σας</string>
 </resources>

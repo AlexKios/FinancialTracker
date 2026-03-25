@@ -14,16 +14,17 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.ListView
 import android.widget.ProgressBar
-import android.widget.TableLayout
-import android.widget.TableRow
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.financialtracker.R
 import com.example.financialtracker.data.repositories.SettingsRepository
+import com.example.financialtracker.ui.adapter.TransactionAdapter
 import com.example.financialtracker.ui.viewmodels.FriendProgressData
 import com.example.financialtracker.ui.viewmodels.MainViewModel
 import com.github.mikephil.charting.charts.LineChart
@@ -37,7 +38,6 @@ import java.util.Locale
 class MainActivity : BaseActivity() {
 
     override val navMenuItemId = R.id.nav_home
-    private lateinit var tableLayout: TableLayout
     private lateinit var progressBar: ProgressBar
     private lateinit var textViewAmount: TextView
     private lateinit var viewModel: MainViewModel
@@ -45,6 +45,7 @@ class MainActivity : BaseActivity() {
     private lateinit var lineChart: LineChart
     private lateinit var friendsLinearLayout: LinearLayout
     private lateinit var settingsRepository: SettingsRepository
+    private lateinit var transactionAdapter: TransactionAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         settingsRepository = SettingsRepository()
@@ -53,12 +54,16 @@ class MainActivity : BaseActivity() {
 
         layoutInflater.inflate(R.layout.activity_main, findViewById(R.id.content_container), true)
 
-        tableLayout = findViewById(R.id.tableLayout)
         progressBar = findViewById(R.id.progressBudget)
         textViewAmount = findViewById(R.id.remainingBudget)
         setBudgetButton = findViewById(R.id.setBudgetButton)
         lineChart = findViewById(R.id.lineChart)
         friendsLinearLayout = findViewById(R.id.friendsLinearLayout)
+
+        val rvTransactions = findViewById<RecyclerView>(R.id.rvTransactions)
+        rvTransactions.layoutManager = LinearLayoutManager(this)
+        transactionAdapter = TransactionAdapter(emptyList())
+        rvTransactions.adapter = transactionAdapter
 
         textViewAmount.text = ""
 
@@ -145,7 +150,7 @@ class MainActivity : BaseActivity() {
         }
 
         viewModel.allTransactions.observe(this) { transactions ->
-            populateTable(transactions)
+            transactionAdapter.updateData(transactions)
         }
 
         viewModel.chartData.observe(this) { entries ->
@@ -265,33 +270,6 @@ class MainActivity : BaseActivity() {
             val green = (2.55 * percentage).toInt()
             val red = 255 - green
             progressLayer.colorFilter = PorterDuffColorFilter(Color.rgb(red, green, 0), PorterDuff.Mode.SRC_IN)
-        }
-    }
-
-    private fun populateTable(transactions: List<Triple<String, Double, String>>) {
-        val header = tableLayout.getChildAt(0)
-        tableLayout.removeAllViews()
-        tableLayout.addView(header)
-
-        transactions.forEach { (category, amount, date) ->
-            val row = LayoutInflater.from(this).inflate(R.layout.table_row_layout, tableLayout, false) as TableRow
-
-            val iconTextView = row.findViewById<TextView>(R.id.column_icon)
-            val typeTextView = row.findViewById<TextView>(R.id.column_type)
-            val amountTextView = row.findViewById<TextView>(R.id.column_amount)
-            val dateTextView = row.findViewById<TextView>(R.id.column_date)
-
-            if (category.startsWith("Income")) {
-                iconTextView.text = "💰"
-            } else {
-                iconTextView.text = "💸"
-            }
-
-            typeTextView.text = category
-            amountTextView.text = String.format(Locale.US, "$%.2f", amount)
-            dateTextView.text = date
-
-            tableLayout.addView(row)
         }
     }
 }

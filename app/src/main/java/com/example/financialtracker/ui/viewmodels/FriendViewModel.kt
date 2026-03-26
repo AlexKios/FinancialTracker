@@ -3,12 +3,13 @@ package com.example.financialtracker.ui.viewmodels
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.example.financialtracker.data.model.Friend
 import com.example.financialtracker.data.repositories.UserRepository
 
 class FriendsViewModel : ViewModel() {
     private val userRepository = UserRepository()
-    private val _friendsList = MutableLiveData<List<Pair<String, String>>>()
-    val friendsList: LiveData<List<Pair<String, String>>> = _friendsList
+    private val _friendsList = MutableLiveData<List<Friend>>()
+    val friendsList: LiveData<List<Friend>> = _friendsList
 
     fun addFriendFromQrCode(
         scannedUid: String,
@@ -19,9 +20,9 @@ class FriendsViewModel : ViewModel() {
     }
 
     fun loadFriends() {
-        userRepository.getFriendUsernamesAndStatus(
-            onSuccess = { userPairs ->
-                _friendsList.value = userPairs
+        userRepository.getFriendsDetailed(
+            onSuccess = { friends ->
+                _friendsList.value = friends
             },
             onFailure = {
                 _friendsList.value = emptyList()
@@ -38,8 +39,8 @@ class FriendsViewModel : ViewModel() {
     }
 
     fun startListeningToFriendStatuses() {
-        userRepository.listenToCurrentUserFriendStatuses { friendData ->
-            _friendsList.postValue(friendData.values.toList())
+        userRepository.listenToCurrentUserFriendStatuses { friends ->
+            _friendsList.postValue(friends)
         }
     }
 

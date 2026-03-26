@@ -22,6 +22,7 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
 import com.example.financialtracker.R
 import com.example.financialtracker.data.adapter.FriendsAdapter
+import com.example.financialtracker.data.model.Friend
 import com.example.financialtracker.data.repositories.UserRepository
 import com.example.financialtracker.ui.viewmodels.FriendsViewModel
 import com.google.mlkit.vision.barcode.BarcodeScanning
@@ -33,7 +34,7 @@ class FriendsActivity : BaseActivity() {
 
     override val navMenuItemId = R.id.nav_friends
     private lateinit var friendsListView: ListView
-    private val friendsList = mutableListOf<Pair<String, String>>()
+    private val friendsList = mutableListOf<Friend>()
     private lateinit var friendsViewModel: FriendsViewModel
     private lateinit var scanButton: Button
     private lateinit var cameraExecutor: ExecutorService
@@ -88,7 +89,8 @@ class FriendsActivity : BaseActivity() {
                     .show()
             },
             onFriendClick = { friendName ->
-                startChat(friendName)
+                val friend = friendsList.find { it.username == friendName }
+                startChat(friendName, friend?.profileImageUrl ?: "")
             }
         )
 
@@ -101,13 +103,14 @@ class FriendsActivity : BaseActivity() {
         }
     }
 
-    private fun startChat(friendName: String) {
+    private fun startChat(friendName: String, profileImageUrl: String) {
         val userRepository = UserRepository()
 
         userRepository.getUserIdByUsername(friendName, { friendUid ->
             val intent = Intent(this, ChatActivity::class.java)
-            intent.putExtra("friend_name", friendName   )
+            intent.putExtra("friend_name", friendName)
             intent.putExtra("friend_uid", friendUid)
+            intent.putExtra("friend_profile_image_url", profileImageUrl)
             startActivity(intent)
         }, { error ->
             Toast.makeText(this, "Error: ${error.message}", Toast.LENGTH_SHORT).show()

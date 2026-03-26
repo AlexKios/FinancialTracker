@@ -8,5 +8,6 @@ data class SearchResult(
     val id: String,
     val title: String,
     val subtitle: String,
-    val type: SearchResultType
+    val type: SearchResultType,
+    val imageUrl: String = ""
 )

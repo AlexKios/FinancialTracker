@@ -6,32 +6,49 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.Button
+import android.widget.ImageView
 import android.widget.TextView
+import com.bumptech.glide.Glide
 import com.example.financialtracker.R
+import com.example.financialtracker.data.model.Friend
 import java.util.Locale
 
 class FriendsAdapter(
     private val context: Context,
-    private val friends: List<Pair<String, String>>,
+    private val friends: List<Friend>,
     private val onRemoveClick: (String) -> Unit,
     private val onFriendClick: (String) -> Unit
-) : ArrayAdapter<Pair<String, String>>(context, 0, friends) {
+) : ArrayAdapter<Friend>(context, 0, friends) {
 
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
-        val (username, status) = friends[position]
+        val friend = friends[position]
         val view = convertView ?: LayoutInflater.from(context).inflate(R.layout.friend_list_item, parent, false)
 
         val nameTextView = view.findViewById<TextView>(R.id.friendNameTextView)
         val statusTextView = view.findViewById<TextView>(R.id.friendStatusTextView)
         val removeButton = view.findViewById<Button>(R.id.removeFriendButton)
         val avatarTextView = view.findViewById<TextView>(R.id.friendAvatar)
+        val avatarImageView = view.findViewById<ImageView>(R.id.friendAvatarImage)
         val statusDot = view.findViewById<View>(R.id.statusDot)
 
-        nameTextView.text = username
+        nameTextView.text = friend.username
+        val status = friend.status
         statusTextView.text = status.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
         
-        // Set initials
-        avatarTextView.text = getInitials(username)
+        // Load profile picture if exists
+        if (friend.profileImageUrl.isNotEmpty()) {
+            avatarImageView.visibility = View.VISIBLE
+            avatarTextView.visibility = View.GONE
+            Glide.with(context)
+                .load(friend.profileImageUrl)
+                .circleCrop()
+                .into(avatarImageView)
+        } else {
+            avatarImageView.visibility = View.GONE
+            avatarTextView.visibility = View.VISIBLE
+            // Set initials
+            avatarTextView.text = getInitials(friend.username)
+        }
 
         // Update status dot and text color
         if (status.equals("online", ignoreCase = true)) {
@@ -43,11 +60,11 @@ class FriendsAdapter(
         }
 
         removeButton.setOnClickListener {
-            onRemoveClick(username)
+            onRemoveClick(friend.username)
         }
 
         view.setOnClickListener {
-            onFriendClick(username)
+            onFriendClick(friend.username)
         }
 
         return view

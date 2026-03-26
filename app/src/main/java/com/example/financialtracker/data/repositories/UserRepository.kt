@@ -5,6 +5,7 @@ import android.net.Uri
 import android.util.Log
 import com.example.financialtracker.data.helper.CloudinaryClient
 import com.example.financialtracker.data.model.User
+import com.example.financialtracker.data.model.Friend
 import com.google.android.gms.tasks.Task
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.DocumentSnapshot
@@ -17,19 +18,20 @@ class UserRepository {
     private val auth = FirebaseAuth.getInstance()
     private val friendListeners = mutableMapOf<String, ListenerRegistration>()
 
-    suspend fun getFriends(): List<com.example.financialtracker.data.model.Friend> {
+    suspend fun getFriends(): List<Friend> {
         val currentUserId = auth.currentUser?.uid ?: throw Exception("User not authenticated")
         val userDoc = db.collection("users").document(currentUserId).get().await()
         val friendUids = userDoc.get("friends") as? List<String> ?: emptyList()
 
-        val friends = mutableListOf<com.example.financialtracker.data.model.Friend>()
+        val friends = mutableListOf<Friend>()
         for (friendUid in friendUids) {
             try {
                 val friendDoc = db.collection("users").document(friendUid).get().await()
                 val username = friendDoc.getString("username")
+                val profileImageUrl = friendDoc.getString("profileImageUrl") ?: ""
                 val id = friendDoc.id
                 if (username != null) {
-                    friends.add(com.example.financialtracker.data.model.Friend(userId = id, username = username))
+                    friends.add(Friend(userId = id, username = username, profileImageUrl = profileImageUrl))
                 }
             } catch (e: Exception) {
                 Log.e("UserRepository", "Error fetching friend details for UID: $friendUid", e)
@@ -121,7 +123,7 @@ class UserRepository {
     }
 
         fun listenToCurrentUserFriendStatuses(
-            onUpdate: (Map<String, Pair<String, String>>) -> Unit
+            onUpdate: (List<Friend>) -> Unit
         ) {
             val currentUserId = auth.currentUser?.uid ?: return
 
@@ -136,9 +138,9 @@ class UserRepository {
 
     private fun listenToFriendStatuses(
         friendUids: List<String>,
-        onUpdate: (Map<String, Pair<String, String>>) -> Unit // uid -> (username, status)
+        onUpdate: (List<Friend>) -> Unit
     ) {
-        val friendData = mutableMapOf<String, Pair<String, String>>()
+        val friendData = mutableMapOf<String, Friend>()
 
         for (uid in friendUids) {
             val listener = db.collection("users").document(uid)
@@ -147,18 +149,19 @@ class UserRepository {
                         val username = snapshot.getString("username") ?: "Unknown"
                         val status = snapshot.getString("status") ?: "offline"
                         val online = snapshot.getBoolean("online") ?: false
+                        val profileImageUrl = snapshot.getString("profileImageUrl") ?: ""
                         val finalStatus = if (online) "online" else status
 
-                        friendData[uid] = username to finalStatus
-                        onUpdate(friendData)
+                        friendData[uid] = Friend(userId = uid, username = username, profileImageUrl = profileImageUrl, status = finalStatus)
+                        onUpdate(friendData.values.toList())
                     }
                 }
             friendListeners[uid] = listener
         }
     }
 
-    fun getFriendUsernamesAndStatus(
-        onSuccess: (List<Pair<String, String>>) -> Unit,
+    fun getFriendsDetailed(
+        onSuccess: (List<Friend>) -> Unit,
         onFailure: (Exception) -> Unit
     ) {
         val userId = auth.currentUser?.uid ?: return onSuccess(emptyList())
@@ -172,7 +175,7 @@ class UserRepository {
                     return@addOnSuccessListener
                 }
 
-                val friendsData = mutableListOf<Pair<String, String>>()
+                val friendsData = mutableListOf<Friend>()
                 var loaded = 0
 
                 for (uid in friendUids) {
@@ -182,7 +185,8 @@ class UserRepository {
                             .addOnSuccessListener { friendDoc ->
                                 val username = friendDoc.getString("username") ?: "Unknown"
                                 val status = friendDoc.getString("status") ?: "offline"
-                                friendsData.add(username to status)
+                                val profileImageUrl = friendDoc.getString("profileImageUrl") ?: ""
+                                friendsData.add(Friend(userId = uid, username = username, profileImageUrl = profileImageUrl, status = status))
                                 loaded++
                                 if (loaded == friendUids.size) {
                                     onSuccess(friendsData)

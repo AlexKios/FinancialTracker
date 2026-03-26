@@ -3,11 +3,14 @@ package com.example.financialtracker.ui.activities
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import android.widget.EditText
+import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
+import android.view.View
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.example.financialtracker.R
 import com.example.financialtracker.data.adapter.MessageAdapter
 import com.example.financialtracker.data.helper.ChatSessionTracker
@@ -35,12 +38,27 @@ class ChatActivity : AppCompatActivity() {
         setContentView(R.layout.activity_chat)
 
         friendName = intent.getStringExtra("friend_name") ?: "Unknown Friend"
+        val profileImageUrl = intent.getStringExtra("friend_profile_image_url") ?: ""
         
         // Setup Toolbar
         val toolbarTitle = findViewById<TextView>(R.id.toolbarTitle)
         val toolbarAvatar = findViewById<TextView>(R.id.toolbarAvatar)
+        val toolbarAvatarImage = findViewById<ImageView>(R.id.toolbarAvatarImage)
+        
         toolbarTitle.text = friendName
-        toolbarAvatar.text = getInitials(friendName)
+
+        if (profileImageUrl.isNotEmpty()) {
+            toolbarAvatarImage.visibility = View.VISIBLE
+            toolbarAvatar.visibility = View.GONE
+            Glide.with(this)
+                .load(profileImageUrl)
+                .circleCrop()
+                .into(toolbarAvatarImage)
+        } else {
+            toolbarAvatarImage.visibility = View.GONE
+            toolbarAvatar.visibility = View.VISIBLE
+            toolbarAvatar.text = getInitials(friendName)
+        }
 
         messagesRecyclerView = findViewById(R.id.messageList)
         messageInput = findViewById(R.id.messageInput)

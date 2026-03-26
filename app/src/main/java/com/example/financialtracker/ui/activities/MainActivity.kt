@@ -224,6 +224,7 @@ class MainActivity : BaseActivity() {
                 val intent = Intent(this, ChatActivity::class.java).apply {
                     putExtra("friend_uid", friend.id)
                     putExtra("friend_name", friend.name)
+                    putExtra("friend_profile_image_url", friend.profileImageUrl)
                 }
                 startActivity(intent)
             }

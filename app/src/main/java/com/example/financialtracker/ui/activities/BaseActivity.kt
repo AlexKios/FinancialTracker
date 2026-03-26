@@ -126,6 +126,7 @@ abstract class BaseActivity : AppCompatActivity() {
                     val intent = Intent(this, ChatActivity::class.java)
                     intent.putExtra("friend_uid", searchResult.id)
                     intent.putExtra("friend_name", searchResult.title)
+                    intent.putExtra("friend_profile_image_url", searchResult.imageUrl)
                     startActivity(intent)
                 }
                 SearchResultType.INCOME -> {
@@ -181,7 +182,8 @@ abstract class BaseActivity : AppCompatActivity() {
                             id = friend.userId,
                             title = friend.username,
                             subtitle = "Friend",
-                            type = SearchResultType.FRIEND
+                            type = SearchResultType.FRIEND,
+                            imageUrl = friend.profileImageUrl
                         )
                     )
                 }

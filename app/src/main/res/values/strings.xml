@@ -96,6 +96,10 @@
     <string name="monitor_your_spending">Monitor your spending</string>
     <string name="track_your_earnings">Track your earnings</string>
     <string name="customize_your_experience">Customize your experience</string>
+    <string name="log_your_earnings">Log your earnings</string>
+    <string name="track_your_spending">Track your spending</string>
+    <string name="modify_your_spending_entry">Modify your spending entry</string>
+    <string name="modify_your_entry">Modify your entry</string>
 
     <string-array name="expense_categories">
         <item>@string/groceries</item>

@@ -37,4 +37,6 @@
     <color name="expense_accent_end">#FF1744</color>
     <color name="expense_amount">#FF5252</color>
     <color name="header_text">#1A1A1A</color>
+
+    <color name="search_overlay_bg">#F2F5FBFB</color>
 </resources>

@@ -97,4 +97,8 @@
     <string name="monitor_your_spending">Наблюдавайте разходите си</string>
     <string name="track_your_earnings">Проследявайте приходите си</string>
     <string name="customize_your_experience">Персонализирайте вашето изживяване</string>
+    <string name="log_your_earnings">Запишете приходите си</string>
+    <string name="track_your_spending">Проследявайте разходите си</string>
+    <string name="modify_your_spending_entry">Променете записа за разходите си</string>
+    <string name="modify_your_entry">Променете записа си</string>
 </resources>

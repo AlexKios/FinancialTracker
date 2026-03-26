@@ -97,4 +97,8 @@
     <string name="monitor_your_spending">Controle sus gastos</string>
     <string name="track_your_earnings">Siga sus ingresos</string>
     <string name="customize_your_experience">Personalice su experiencia</string>
+    <string name="log_your_earnings">Registre sus ganancias</string>
+    <string name="track_your_spending">Siga sus gastos</string>
+    <string name="modify_your_spending_entry">Modifique su entrada de gastos</string>
+    <string name="modify_your_entry">Modifique su entrada</string>
 </resources>

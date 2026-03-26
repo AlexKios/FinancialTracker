@@ -40,4 +40,6 @@
     <color name="expense_accent_end">#FF5252</color>
     <color name="expense_amount">#FF5252</color>
     <color name="header_text">#FFFFFF</color>
+
+    <color name="search_overlay_bg">#F20B1222</color>
 </resources>

@@ -92,7 +92,7 @@ abstract class BaseActivity : AppCompatActivity() {
             }
         }
 
-        searchView = findViewById(toolbar.findViewById<SearchView>(R.id.search_view).id)
+        searchView = findViewById(R.id.search_view)
         setupSearchView()
         setupSearchRecyclerView()
 
@@ -125,16 +125,19 @@ abstract class BaseActivity : AppCompatActivity() {
                 SearchResultType.FRIEND -> {
                     val intent = Intent(this, ChatActivity::class.java)
                     intent.putExtra("friend_uid", searchResult.id)
+                    intent.putExtra("friend_name", searchResult.title)
                     startActivity(intent)
                 }
                 SearchResultType.INCOME -> {
                     val intent = Intent(this, EditIncomeActivity::class.java)
                     intent.putExtra("incomeId", searchResult.id)
+                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                     startActivity(intent)
                 }
                 SearchResultType.EXPENSE -> {
                     val intent = Intent(this, EditExpenseActivity::class.java)
                     intent.putExtra("expenseId", searchResult.id)
+                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                     startActivity(intent)
                 }
             }
@@ -143,6 +146,11 @@ abstract class BaseActivity : AppCompatActivity() {
     }
 
     private fun setupSearchView() {
+        // Make the entire SearchView clickable to focus on the search input
+        searchView.setOnClickListener {
+            searchView.isIconified = false
+        }
+
         searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
                 return true

@@ -97,4 +97,8 @@
     <string name="monitor_your_spending">Überwachen Sie Ihre Ausgaben</string>
     <string name="track_your_earnings">Verfolgen Sie Ihre Einnahmen</string>
     <string name="customize_your_experience">Passen Sie Ihr Erlebnis an</string>
+    <string name="log_your_earnings">Einnahmen protokollieren</string>
+    <string name="track_your_spending">Ausgaben verfolgen</string>
+    <string name="modify_your_spending_entry">Ausgabeneintrag ändern</string>
+    <string name="modify_your_entry">Eintrag ändern</string>
 </resources>

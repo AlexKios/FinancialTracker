@@ -32,6 +32,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="start"
+            app:iconifiedByDefault="false"
+            app:searchIcon="@null"
             android:queryHint="Search..." />
     </androidx.appcompat.widget.Toolbar>
 
@@ -49,7 +51,7 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:visibility="gone"
-        android:background="#F2F5FBFB"
+        android:background="@color/search_overlay_bg"
         android:paddingTop="8dp"
         android:paddingBottom="8dp"
         android:clipToPadding="false"

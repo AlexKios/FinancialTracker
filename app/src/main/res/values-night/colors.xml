@@ -1,20 +1,43 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-        <color name="primary">#BB86FC</color>
-        <color name="primary_variant">#3700B3</color>
-        <color name="secondary">#03DAC5</color>
-        <color name="on_primary">#000000</color>
-        <color name="on_secondary">#000000</color>
+    <!-- Overriding white to avoid hardcoded light backgrounds in cards -->
+    <color name="white">#152033</color>
 
-        <color name="background">#121212</color>
-        <color name="surface">#1E1E1E</color>
-        <color name="surface_variant">#49454F</color>
-        <color name="on_surface_variant">#CAC4D0</color>
-        <color name="textPrimary">#FFFFFF</color>
-        <color name="textSecondary">#B3B3B3</color>
-        <color name="toolbar_icon_color">#FFFFFF</color>
-        <color name="on_surface">#FFFFFF</color>
-        <color name="outline">#938F99</color>
-        <color name="message_sent_color">#2196F3</color>
-        <color name="message_received_color">#424242</color>
+    <!-- Brighter Primary Color for Dark Mode -->
+    <color name="primary">#00BCD4</color>
+    <color name="primary_variant">#0097A7</color>
+
+    <!-- Brighter Secondary/Income Green -->
+    <color name="secondary">#00E676</color>
+    <color name="secondary_variant">#00C853</color>
+
+    <color name="background">#0B1222</color>
+    <color name="surface">#152033</color>
+    <color name="surface_variant">#1F2937</color>
+    <color name="on_surface_variant">#B0BEC5</color>
+
+    <!-- Better Contrast for Text -->
+    <color name="textPrimary">#FFFFFF</color>
+    <color name="textSecondary">#B0BEC5</color>
+    <color name="outline">#374151</color>
+    <color name="toolbar_icon_color">#FFFFFF</color>
+
+    <color name="on_primary">#FFFFFF</color>
+    <color name="on_secondary">#000000</color>
+    <color name="on_surface">#FFFFFF</color>
+    <color name="error">#FF5252</color>
+
+    <color name="remove_button_bg">#2D1B24</color>
+    <color name="remove_button_text">#FF5252</color>
+    <color name="online_status">#00E676</color>
+    <color name="income_green">#00E676</color>
+    <color name="income_icon_bg">#00E676</color>
+
+    <color name="message_sent_color">#00BCD4</color>
+    <color name="message_received_color">#1F2937</color>
+
+    <color name="expense_accent">#FF7043</color>
+    <color name="expense_accent_end">#FF5252</color>
+    <color name="expense_amount">#FF5252</color>
+    <color name="header_text">#FFFFFF</color>
 </resources>

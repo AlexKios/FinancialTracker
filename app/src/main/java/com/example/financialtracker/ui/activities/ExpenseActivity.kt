@@ -28,7 +28,7 @@ class ExpenseActivity : BaseActivity() {
             startActivity(intent)
         }
 
-        val recyclerView = findViewById<RecyclerView>(R.id.rvExpenses)
+        val recyclerView = findViewById<RecyclerView>(R.id.expensesRecyclerView)
         recyclerView.layoutManager = LinearLayoutManager(this)
         adapter = ExpenseAdapter(emptyList()) { expense ->
             showEditDeleteDialog(expense)

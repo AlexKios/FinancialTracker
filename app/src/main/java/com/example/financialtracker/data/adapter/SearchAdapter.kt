@@ -3,6 +3,7 @@ package com.example.financialtracker.data.adapter
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
@@ -38,16 +39,20 @@ class SearchAdapter(
         private val titleTextView: TextView = view.findViewById(R.id.item_title)
         private val subtitleTextView: TextView = view.findViewById(R.id.item_subtitle)
         private val iconImageView: ImageView = view.findViewById(R.id.item_icon)
+        private val iconContainer: FrameLayout = view.findViewById(R.id.iconContainer)
 
         fun bind(searchResult: SearchResult) {
             titleTextView.text = searchResult.title
             subtitleTextView.text = searchResult.subtitle
-            val iconRes = when (searchResult.type) {
-                SearchResultType.FRIEND -> R.drawable.user
-                SearchResultType.INCOME -> R.drawable.profit
-                SearchResultType.EXPENSE -> R.drawable.expenses
+            
+            val (iconRes, bgRes) = when (searchResult.type) {
+                SearchResultType.FRIEND -> Pair(R.drawable.user, R.drawable.circle_avatar_bg)
+                SearchResultType.INCOME -> Pair(R.drawable.profit, R.drawable.circle_icon_bg_green)
+                SearchResultType.EXPENSE -> Pair(R.drawable.expenses, R.drawable.circle_icon_bg_red)
             }
+            
             iconImageView.setImageResource(iconRes)
+            iconContainer.setBackgroundResource(bgRes)
         }
     }
 }

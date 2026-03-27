@@ -1,4 +1,4 @@
-package com.example.financialtracker.ui.adapter
+package com.example.financialtracker.data.adapter
 
 import android.view.LayoutInflater
 import android.view.View

@@ -22,20 +22,14 @@ class ExpenseViewModel : ViewModel() {
             onSuccess = { expenses ->
                 _expenses.value = expenses
             },
-            onFailure = { 
-                // Handle error
-            }
+            onFailure = {}
         )
     }
 
     fun deleteExpense(expenseId: String) {
         expenseRepository.deleteExpense(expenseId,
-            onSuccess = {
-                // Expense deleted successfully, the listener will update the list
-            },
-            onFailure = {
-                // Handle error
-            }
+            onSuccess = {},
+            onFailure = {}
         )
     }
 

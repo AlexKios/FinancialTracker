@@ -13,7 +13,6 @@ import com.example.financialtracker.ui.viewmodels.LoginViewModel
 
 class LoginActivity : AppCompatActivity() {
 
-    // Declare the UI elements
     private lateinit var emailEditText: EditText
     private lateinit var passwordEditText: EditText
     private lateinit var loginButton: Button

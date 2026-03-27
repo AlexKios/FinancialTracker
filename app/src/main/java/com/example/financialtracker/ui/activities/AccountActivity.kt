@@ -11,7 +11,6 @@ import android.view.View
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageView
-import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
@@ -23,7 +22,6 @@ import com.google.zxing.BarcodeFormat
 import com.google.zxing.common.BitMatrix
 import com.google.zxing.qrcode.QRCodeWriter
 import androidx.core.net.toUri
-import androidx.core.view.isVisible
 import androidx.core.graphics.createBitmap
 import androidx.core.graphics.set
 
@@ -85,12 +83,11 @@ class AccountActivity : BaseActivity() {
             ViewModelProvider.AndroidViewModelFactory.getInstance(application)
         )[AccountViewModel::class.java]
 
-        // Observe user data to populate fields
         viewModel.currentUser.observe(this) { user ->
             usernameEditText.setText(user.username)
             emailEditText.setText(user.email)
             nameEditText.setText(user.name)
-            passwordEditText.setText("") // Do not display passwords
+            passwordEditText.setText("")
             if (user.profileImageUrl.isNotEmpty()) {
                 Glide.with(this)
                     .load(user.profileImageUrl.toUri())
@@ -119,10 +116,8 @@ class AccountActivity : BaseActivity() {
             }
         }
 
-        // Load user data
         viewModel.loadCurrentUser()
 
-        // Handle save button click
         saveChangesButton.setOnClickListener {
             val newUsername = usernameEditText.text?.toString()?.trim().takeIf { !it.isNullOrEmpty() }
             val newEmail = emailEditText.text?.toString()?.trim().takeIf { !it.isNullOrEmpty() }
@@ -139,7 +134,7 @@ class AccountActivity : BaseActivity() {
 
         showQrCode.setOnClickListener {
             viewModel.currentUser.value?.let { user ->
-                val userId = user.uid // Assuming `user.id` is the unique identifier
+                val userId = user.uid
                 Log.d("QR Code", "User ID: $userId")
                 generateQrCode(userId)
             }?: run {
@@ -185,10 +180,8 @@ class AccountActivity : BaseActivity() {
     private fun generateQrCode(userId: String) {
         val qrCodeWriter = QRCodeWriter()
         try {
-            // Create a BitMatrix based on user ID
             val bitMatrix: BitMatrix = qrCodeWriter.encode(userId, BarcodeFormat.QR_CODE, 512, 512)
 
-            // Convert BitMatrix to Bitmap
             val width = bitMatrix.width
             val height = bitMatrix.height
             val bmp = createBitmap(width, height, Bitmap.Config.RGB_565)

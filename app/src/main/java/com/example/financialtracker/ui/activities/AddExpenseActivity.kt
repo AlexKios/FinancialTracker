@@ -17,7 +17,6 @@ import java.util.Calendar
 class AddExpenseActivity : BaseActivity() {
 
     override val navMenuItemId = 0
-    // Declare the UI elements
     private lateinit var amountEditText: EditText
     private lateinit var categorySpinner: Spinner
     private lateinit var recurringCheckBox: CheckBox
@@ -29,21 +28,17 @@ class AddExpenseActivity : BaseActivity() {
         super.onCreate(savedInstanceState)
         layoutInflater.inflate(R.layout.add_expense, findViewById(R.id.content_container), true)
 
-        // Initialize UI elements
         amountEditText = findViewById(R.id.editTextNumber)
         categorySpinner = findViewById(R.id.spinner)
         recurringCheckBox = findViewById(R.id.checkBox)
         addExpenseButton = findViewById(R.id.button2)
 
-        // Create an ArrayAdapter using the string array and a default spinner layout
         ArrayAdapter.createFromResource(
             this,
             R.array.expense_categories,
             android.R.layout.simple_spinner_item
         ).also { adapter ->
-            // Specify the layout to use when the list of choices appears
             adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-            // Apply the adapter to the spinner
             categorySpinner.adapter = adapter
         }
 
@@ -53,7 +48,6 @@ class AddExpenseActivity : BaseActivity() {
             }
         }
 
-        // Set click listener for the Add Expense button
         addExpenseButton.setOnClickListener {
             onAddExpenseClicked()
         }
@@ -71,14 +65,11 @@ class AddExpenseActivity : BaseActivity() {
         datePickerDialog.show()
     }
 
-    // Handle the Add Expense button click
     private fun onAddExpenseClicked() {
-        // Get input values from EditText, Spinner, and CheckBox
         val amount = amountEditText.text.toString()
         val category = categorySpinner.selectedItem.toString()
         val isRecurring = recurringCheckBox.isChecked
 
-        // Basic validation for the amount field
         if (amount.isEmpty()) {
             Toast.makeText(this, "Amount is required", Toast.LENGTH_SHORT).show()
         } else {
@@ -95,7 +86,6 @@ class AddExpenseActivity : BaseActivity() {
         }
     }
 
-    // Save the expense (you can replace this with your actual saving logic, like database or API)
     private fun saveExpense(amount: Double, category: String, isRecurring: Boolean) {
         val recurringTimestamp = if (isRecurring) Timestamp(selectedDate.time) else null
         val expense = Expense(amount = amount, category = category, isRecurring = isRecurring, date = Timestamp.now(), recurringDate = recurringTimestamp)

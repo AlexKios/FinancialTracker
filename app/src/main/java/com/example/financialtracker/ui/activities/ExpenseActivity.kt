@@ -9,7 +9,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.financialtracker.R
 import com.example.financialtracker.data.model.Expense
-import com.example.financialtracker.ui.adapter.ExpenseAdapter
+import com.example.financialtracker.data.adapter.ExpenseAdapter
 import com.example.financialtracker.ui.viewmodels.ExpenseViewModel
 
 class ExpenseActivity : BaseActivity() {

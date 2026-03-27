@@ -29,21 +29,17 @@ class AddIncomeActivity : BaseActivity() {
         super.onCreate(savedInstanceState)
         layoutInflater.inflate(R.layout.add_income, findViewById(R.id.content_container), true)
 
-        // Initialize UI elements
         amountEditText = findViewById(R.id.editTextNumber2)
         categorySpinner = findViewById(R.id.spinner2)
         recurringCheckBox = findViewById(R.id.checkBox2)
         addIncomeButton = findViewById(R.id.button4)
 
-        // Create an ArrayAdapter using the string array and a default spinner layout
         ArrayAdapter.createFromResource(
             this,
             R.array.income_categories,
             android.R.layout.simple_spinner_item
         ).also { adapter ->
-            // Specify the layout to use when the list of choices appears
             adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-            // Apply the adapter to the spinner
             categorySpinner.adapter = adapter
         }
 
@@ -70,14 +66,11 @@ class AddIncomeActivity : BaseActivity() {
         datePickerDialog.show()
     }
 
-    // Handle the Add Income button click
     private fun onAddIncomeClicked() {
-        // Get input values from EditText, Spinner, and CheckBox
         val amount = amountEditText.text.toString()
         val source = categorySpinner.selectedItem.toString()
         val isRecurring = recurringCheckBox.isChecked
 
-        // Basic validation for the amount field
         if (amount.isEmpty()) {
             Toast.makeText(this, "Amount is required", Toast.LENGTH_SHORT).show()
         } else {
@@ -94,7 +87,6 @@ class AddIncomeActivity : BaseActivity() {
         }
     }
 
-    // Save the income (you can replace this with your actual saving logic, like database or API)
     private fun saveIncome(amount: Double, source: String, isRecurring: Boolean) {
         val recurringTimestamp = if (isRecurring) Timestamp(selectedDate.time) else null
         val income = Income(amount = amount, source = source, isRecurring = isRecurring, date = Timestamp.now(), recurringDate = recurringTimestamp)

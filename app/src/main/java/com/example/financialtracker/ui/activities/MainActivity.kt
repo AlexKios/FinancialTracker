@@ -24,7 +24,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.financialtracker.R
 import com.example.financialtracker.data.repositories.SettingsRepository
-import com.example.financialtracker.ui.adapter.TransactionAdapter
+import com.example.financialtracker.data.adapter.TransactionAdapter
 import com.example.financialtracker.ui.viewmodels.FriendProgressData
 import com.example.financialtracker.ui.viewmodels.MainViewModel
 import com.github.mikephil.charting.charts.LineChart

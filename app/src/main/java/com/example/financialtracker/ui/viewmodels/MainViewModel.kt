@@ -140,10 +140,10 @@ class MainViewModel : ViewModel() {
                             }
                             _friendsData.postValue(friendsList)
                         },
-                        onFailure = { /* Handle failure */ }
+                        onFailure = {}
                     )
                 },
-                onFailure = { /* Handle failure */ }
+                onFailure = {}
             )
         }
     }
@@ -178,9 +178,7 @@ class MainViewModel : ViewModel() {
 
                 _chartData.value = entries
             },
-            onFailure = {
-                // Handle failure
-            }
+            onFailure = {}
         )
     }
 
@@ -194,11 +192,9 @@ class MainViewModel : ViewModel() {
         userRepo.updateBudget(budget,
             onSuccess = {
                 currentUser?.budget = budget
-                listenForTransactions() // Recalculate
+                listenForTransactions()
             },
-            onFailure = {
-                // Handle failure
-            }
+            onFailure = {}
         )
     }
 

@@ -22,20 +22,14 @@ class IncomeViewModel : ViewModel() {
             onSuccess = { incomes ->
                 _incomes.value = incomes
             },
-            onFailure = { 
-                // Handle error
-            }
+            onFailure = {}
         )
     }
 
     fun deleteIncome(incomeId: String) {
         incomeRepository.deleteIncome(incomeId,
-            onSuccess = {
-                // Income deleted successfully, the listener will update the list
-            },
-            onFailure = {
-                // Handle error
-            }
+            onSuccess = {},
+            onFailure ={}
         )
     }
 

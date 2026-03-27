@@ -34,8 +34,7 @@ class FriendsAdapter(
         nameTextView.text = friend.username
         val status = friend.status
         statusTextView.text = status.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
-        
-        // Load profile picture if exists
+
         if (friend.profileImageUrl.isNotEmpty()) {
             avatarImageView.visibility = View.VISIBLE
             avatarTextView.visibility = View.GONE
@@ -46,11 +45,9 @@ class FriendsAdapter(
         } else {
             avatarImageView.visibility = View.GONE
             avatarTextView.visibility = View.VISIBLE
-            // Set initials
             avatarTextView.text = getInitials(friend.username)
         }
 
-        // Update status dot and text color
         if (status.equals("online", ignoreCase = true)) {
             statusDot.setBackgroundResource(R.drawable.status_dot_online)
             statusTextView.setTextColor(context.getColor(R.color.online_status))

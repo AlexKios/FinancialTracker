@@ -39,8 +39,7 @@ class ChatActivity : AppCompatActivity() {
 
         friendName = intent.getStringExtra("friend_name") ?: "Unknown Friend"
         val profileImageUrl = intent.getStringExtra("friend_profile_image_url") ?: ""
-        
-        // Setup Toolbar
+
         val toolbarTitle = findViewById<TextView>(R.id.toolbarTitle)
         val toolbarAvatar = findViewById<TextView>(R.id.toolbarAvatar)
         val toolbarAvatarImage = findViewById<ImageView>(R.id.toolbarAvatarImage)

@@ -49,7 +49,7 @@ class ExpenseAdapter(
             "Education" -> R.drawable.expenses
             "Healthcare" -> R.drawable.expenses
             "Car Payment" -> R.drawable.expenses
-            else -> R.drawable.expenses // Default icon
+            else -> R.drawable.expenses
         }
         holder.icon.setImageResource(iconResource)
 

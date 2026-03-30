@@ -1,5 +1,6 @@
 package com.example.financialtracker.ui.activities
 
+import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
@@ -7,6 +8,7 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.appcompat.widget.SearchView
 import androidx.appcompat.widget.Toolbar
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -42,6 +44,7 @@ abstract class BaseActivity : AppCompatActivity() {
     private val expenseRepository = ExpenseRepository()
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        applyThemeSync()
         super.onCreate(savedInstanceState)
         setContentView(R.layout.base_layout)
 
@@ -102,6 +105,16 @@ abstract class BaseActivity : AppCompatActivity() {
             attachGlobalChatListener(currentUserId)
         }
     }
+
+    private fun applyThemeSync() {
+        val prefs = getSharedPreferences("user_settings", Context.MODE_PRIVATE)
+        val isDarkMode = prefs.getBoolean("darkMode", false)
+        val mode = if (isDarkMode) AppCompatDelegate.MODE_NIGHT_YES else AppCompatDelegate.MODE_NIGHT_NO
+        if (AppCompatDelegate.getDefaultNightMode() != mode) {
+            AppCompatDelegate.setDefaultNightMode(mode)
+        }
+    }
+
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.menu_toolbar, menu)
         return true
@@ -120,7 +133,6 @@ abstract class BaseActivity : AppCompatActivity() {
         searchResultsRecyclerView = findViewById(R.id.search_results_recycler_view)
         searchResultsRecyclerView.layoutManager = LinearLayoutManager(this)
         searchAdapter = SearchAdapter(emptyList()) { searchResult ->
-            // Handle search result click
             when (searchResult.type) {
                 SearchResultType.FRIEND -> {
                     val intent = Intent(this, ChatActivity::class.java)
@@ -147,7 +159,6 @@ abstract class BaseActivity : AppCompatActivity() {
     }
 
     private fun setupSearchView() {
-        // Make the entire SearchView clickable to focus on the search input
         searchView.setOnClickListener {
             searchView.isIconified = false
         }

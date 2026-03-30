@@ -78,7 +78,7 @@
     <string name="type_message">Πληκτρολογήστε ένα μήνυμα</string>
     <string name="stop_scan">Διακοπή σάρωσης</string>
     <string name="change_language">Αλλαγή γλώσσας</string>
-    <string name="amount_format">%1$.2f €</string>
+    <string name="amount_format">%1$.2f€</string>
     <string name="friends_list">friends_list</string>
     <string name="friendProfilePic" />
     <string name="profilePic" />

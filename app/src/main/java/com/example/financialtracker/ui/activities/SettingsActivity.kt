@@ -2,6 +2,7 @@ package com.example.financialtracker.ui.activities
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.content.Context
 import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.os.Build
@@ -46,7 +47,6 @@ class SettingsActivity : AppCompatActivity() {
 
     @SuppressLint("SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
-
         super.onCreate(savedInstanceState)
         setContentView(R.layout.settings)
 
@@ -88,14 +88,6 @@ class SettingsActivity : AppCompatActivity() {
 
     @SuppressLint("SetTextI18n")
     private fun setupListeners() {
-        darkModeSwitch.setOnCheckedChangeListener { buttonView, isChecked ->
-            if (buttonView.isPressed) {
-                AppCompatDelegate.setDefaultNightMode(
-                    if (isChecked) AppCompatDelegate.MODE_NIGHT_YES else AppCompatDelegate.MODE_NIGHT_NO
-                )
-            }
-        }
-
         notificationsSwitch.setOnCheckedChangeListener { buttonView, isChecked ->
             if (!buttonView.isPressed) return@setOnCheckedChangeListener
 
@@ -140,6 +132,9 @@ class SettingsActivity : AppCompatActivity() {
 
         viewModel.saveUserSettings(settings,
             onSuccess = {
+                val prefs = getSharedPreferences("user_settings", Context.MODE_PRIVATE)
+                prefs.edit().putBoolean("darkMode", isDarkMode).apply()
+
                 Toast.makeText(this, "Settings saved", Toast.LENGTH_SHORT).show()
 
                 val currentLang = AppCompatDelegate.getApplicationLocales().get(0)?.language ?: Locale.getDefault().language
@@ -153,6 +148,12 @@ class SettingsActivity : AppCompatActivity() {
                 val currentNightMode = resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK
                 val themeChanged = (isDarkMode && currentNightMode != Configuration.UI_MODE_NIGHT_YES) ||
                         (!isDarkMode && currentNightMode != Configuration.UI_MODE_NIGHT_NO)
+
+                if (themeChanged) {
+                    AppCompatDelegate.setDefaultNightMode(
+                        if (isDarkMode) AppCompatDelegate.MODE_NIGHT_YES else AppCompatDelegate.MODE_NIGHT_NO
+                    )
+                }
 
                 if (themeChanged || languageChanged) {
                     setResult(RESULT_OK)

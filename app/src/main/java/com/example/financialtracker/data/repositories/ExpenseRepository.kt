@@ -72,6 +72,8 @@ class ExpenseRepository {
     fun listenForExpenses(onSuccess: (List<Expense>) -> Unit, onFailure: (Exception) -> Unit) {
         val userId = auth.currentUser?.uid
         if (userId != null) {
+            if (expenseListener != null) return
+
             expenseListener = db.collection("users").document(userId).collection("expenses")
                 .addSnapshotListener { snapshot, e ->
                     if (e != null) {
@@ -89,6 +91,8 @@ class ExpenseRepository {
     }
 
     fun listenForExpensesForUser(userId: String, onSuccess: (List<Expense>) -> Unit, onFailure: (Exception) -> Unit) {
+        if (userExpenseListeners.containsKey(userId)) return // Already listening
+
         val listener = db.collection("users").document(userId).collection("expenses")
             .addSnapshotListener { snapshot, e ->
                 if (e != null) {

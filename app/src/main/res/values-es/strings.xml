@@ -78,9 +78,9 @@
     <string name="type_message">Escribe un mensaje</string>
     <string name="stop_scan">Detener escaneo</string>
     <string name="change_language">Cambiar idioma</string>
-    <string name="amount_format">%1$.2f €</string>
+    <string name="amount_format">%1$.2f€</string>
     <string name="friends_list">friends_list</string>
-    <string name="friendProfilePic" />
+    <string name="friendProfilePic" />s
     <string name="profilePic" />
     <string name="update_expense">Actualizar Gasto</string>
     <string name="update_income">Actualizar Ingreso</string>

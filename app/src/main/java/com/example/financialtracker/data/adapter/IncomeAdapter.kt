@@ -40,7 +40,7 @@ class IncomeAdapter(
 
         holder.source.text = income.source
         holder.date.text = income.date?.toDate()?.let { formatter.format(it) } ?: ""
-        holder.amount.text = String.format(Locale.getDefault(), "$%.2f", income.amount)
+        holder.amount.text = holder.itemView.context.getString(R.string.amount_format, income.amount)
 
         val iconResource = when (income.source) {
             "Salary" -> R.drawable.profit

@@ -6,9 +6,9 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.core.content.ContextCompat
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.example.financialtracker.R
-import java.util.Locale
 
 class TransactionAdapter(
     private var transactions: List<Triple<String, Double, String>>
@@ -34,7 +34,7 @@ class TransactionAdapter(
 
         holder.title.text = category
         holder.date.text = date
-        holder.amount.text = String.format(Locale.US, "$%.2f", amount)
+        holder.amount.text = context.getString(R.string.amount_format, amount)
 
         if (category.startsWith("Income")) {
             holder.icon.setImageResource(R.drawable.profit)
@@ -50,7 +50,24 @@ class TransactionAdapter(
     override fun getItemCount() = transactions.size
 
     fun updateData(newTransactions: List<Triple<String, Double, String>>) {
+        val diffResult = DiffUtil.calculateDiff(TransactionDiffCallback(transactions, newTransactions))
         transactions = newTransactions
-        notifyDataSetChanged()
+        diffResult.dispatchUpdatesTo(this)
+    }
+
+    class TransactionDiffCallback(
+        private val oldList: List<Triple<String, Double, String>>,
+        private val newList: List<Triple<String, Double, String>>
+    ) : DiffUtil.Callback() {
+        override fun getOldListSize(): Int = oldList.size
+        override fun getNewListSize(): Int = newList.size
+
+        override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+            return oldList[oldItemPosition] == newList[newItemPosition]
+        }
+
+        override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+            return oldList[oldItemPosition] == newList[newItemPosition]
+        }
     }
 }

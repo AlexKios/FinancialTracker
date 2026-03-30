@@ -98,6 +98,8 @@ class IncomeRepository {
     fun listenForIncomes(onSuccess: (List<Income>) -> Unit, onFailure: (Exception) -> Unit) {
         val userId = auth.currentUser?.uid
         if (userId != null) {
+            if (incomeListener != null) return
+
             incomeListener = db.collection("users").document(userId).collection("incomes")
                 .addSnapshotListener { snapshot, e ->
                     if (e != null) {
@@ -116,6 +118,7 @@ class IncomeRepository {
 
     fun unregisterListener() {
         incomeListener?.remove()
+        incomeListener = null
     }
 
     fun getIncomeById(

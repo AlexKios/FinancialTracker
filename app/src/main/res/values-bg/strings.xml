@@ -78,7 +78,7 @@
     <string name="type_message">Въведете съобщение</string>
     <string name="stop_scan">Спрете сканирането</string>
     <string name="change_language">Промяна на езика</string>
-    <string name="amount_format">%1$.2f €</string>
+    <string name="amount_format">%1$.2f€</string>
     <string name="friends_list">friends_list</string>
     <string name="friendProfilePic" />
     <string name="profilePic" />

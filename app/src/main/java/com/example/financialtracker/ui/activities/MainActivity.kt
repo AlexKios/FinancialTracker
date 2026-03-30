@@ -1,6 +1,5 @@
 package com.example.financialtracker.ui.activities
 
-import android.content.Intent
 import android.graphics.Color
 import android.graphics.PorterDuff
 import android.graphics.PorterDuffColorFilter
@@ -10,22 +9,17 @@ import android.view.LayoutInflater
 import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.EditText
-import android.widget.ImageView
-import android.widget.LinearLayout
 import android.widget.ListView
 import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
-import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.bumptech.glide.Glide
 import com.example.financialtracker.R
-import com.example.financialtracker.data.repositories.SettingsRepository
+import com.example.financialtracker.data.adapter.HomeFriendsAdapter
 import com.example.financialtracker.data.adapter.TransactionAdapter
-import com.example.financialtracker.ui.viewmodels.FriendProgressData
 import com.example.financialtracker.ui.viewmodels.MainViewModel
 import com.github.mikephil.charting.charts.LineChart
 import com.github.mikephil.charting.components.XAxis
@@ -43,27 +37,31 @@ class MainActivity : BaseActivity() {
     private lateinit var viewModel: MainViewModel
     private lateinit var setBudgetButton: Button
     private lateinit var lineChart: LineChart
-    private lateinit var friendsLinearLayout: LinearLayout
-    private lateinit var settingsRepository: SettingsRepository
     private lateinit var transactionAdapter: TransactionAdapter
+    private lateinit var friendsAdapter: HomeFriendsAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        settingsRepository = SettingsRepository()
-        applyTheme()
         super.onCreate(savedInstanceState)
 
-        layoutInflater.inflate(R.layout.activity_main, findViewById(R.id.content_container), true)
+        val contentContainer = findViewById<android.view.ViewGroup>(R.id.content_container)
+        if (contentContainer != null) {
+            layoutInflater.inflate(R.layout.activity_main, contentContainer, true)
+        }
 
         progressBar = findViewById(R.id.progressBudget)
         textViewAmount = findViewById(R.id.remainingBudget)
         setBudgetButton = findViewById(R.id.setBudgetButton)
         lineChart = findViewById(R.id.lineChart)
-        friendsLinearLayout = findViewById(R.id.friendsLinearLayout)
 
+        // Initialize RecyclerViews
         val rvTransactions = findViewById<RecyclerView>(R.id.rvTransactions)
-        rvTransactions.layoutManager = LinearLayoutManager(this)
+        rvTransactions?.layoutManager = LinearLayoutManager(this)
         transactionAdapter = TransactionAdapter(emptyList())
-        rvTransactions.adapter = transactionAdapter
+        rvTransactions?.adapter = transactionAdapter
+
+        val rvFriends = findViewById<RecyclerView>(R.id.rvFriendsProgress)
+        friendsAdapter = HomeFriendsAdapter()
+        rvFriends?.adapter = friendsAdapter
 
         textViewAmount.text = ""
 
@@ -78,26 +76,6 @@ class MainActivity : BaseActivity() {
         lineChart.setOnClickListener {
             showMonthPicker()
         }
-    }
-
-    private fun applyTheme() {
-        settingsRepository.getUserSettings(
-            onSuccess = { settings ->
-                val mode = if (settings.darkMode) {
-                    AppCompatDelegate.MODE_NIGHT_YES
-                } else {
-                    AppCompatDelegate.MODE_NIGHT_NO
-                }
-                if (AppCompatDelegate.getDefaultNightMode() != mode) {
-                    AppCompatDelegate.setDefaultNightMode(mode)
-                }
-            },
-            onFailure = {
-                if (AppCompatDelegate.getDefaultNightMode() != AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM) {
-                    AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
-                }
-            }
-        )
     }
 
     private fun showMonthPicker() {
@@ -144,7 +122,7 @@ class MainActivity : BaseActivity() {
 
     private fun observeViewModel() {
         viewModel.budget.observe(this) { remaining ->
-            textViewAmount.text = String.format(Locale.US, "$%.2f", remaining)
+            textViewAmount.text = getString(R.string.amount_format, remaining)
             val percentage = viewModel.calculateBudgetPercentage(remaining)
             updateProgressBar(remaining, percentage)
         }
@@ -153,22 +131,21 @@ class MainActivity : BaseActivity() {
             transactionAdapter.updateData(transactions)
         }
 
+        viewModel.userSettings.observe(this) { settings ->
+            viewModel.chartData.value?.let { entries ->
+                setupChartWithData(entries, settings.graphSize.toFloat())
+            }
+        }
+
         viewModel.chartData.observe(this) { entries ->
             if (entries.isNotEmpty()) {
-                settingsRepository.getUserSettings(
-                    onSuccess = { settings ->
-                        setupChartWithData(entries, settings.graphSize.toFloat())
-                    },
-                    onFailure = {
-                        // Fallback to a default value
-                        setupChartWithData(entries, 16f)
-                    }
-                )
+                val graphSize = viewModel.userSettings.value?.graphSize?.toFloat() ?: 16f
+                setupChartWithData(entries, graphSize)
             }
         }
 
         viewModel.friendsData.observe(this) { friends ->
-            populateFriends(friends)
+            friendsAdapter.submitList(friends)
         }
     }
 
@@ -195,42 +172,7 @@ class MainActivity : BaseActivity() {
 
         val lineData = LineData(dataSet)
         lineChart.data = lineData
-        lineChart.invalidate() // refresh
-    }
-
-    private fun populateFriends(friends: List<FriendProgressData>) {
-        friendsLinearLayout.removeAllViews()
-        val inflater = LayoutInflater.from(this)
-        for (friend in friends) {
-            val friendView = inflater.inflate(R.layout.item_friend_progress, friendsLinearLayout, false)
-            val friendProgressBar = friendView.findViewById<ProgressBar>(R.id.friendProgressBar)
-            val friendNameTextView = friendView.findViewById<TextView>(R.id.friendNameTextView)
-            val friendProfileImageView = friendView.findViewById<ImageView>(R.id.friendProfileImageView)
-
-            friendProgressBar.progress = friend.progress
-            friendNameTextView.text = friend.name
-
-            if (friend.profileImageUrl.isNotEmpty()) {
-                Glide.with(this)
-                    .load(friend.profileImageUrl)
-                    .placeholder(R.drawable.user)
-                    .error(R.drawable.user)
-                    .into(friendProfileImageView)
-            } else {
-                friendProfileImageView.setImageResource(R.drawable.user)
-            }
-
-            friendView.setOnClickListener {
-                val intent = Intent(this, ChatActivity::class.java).apply {
-                    putExtra("friend_uid", friend.id)
-                    putExtra("friend_name", friend.name)
-                    putExtra("friend_profile_image_url", friend.profileImageUrl)
-                }
-                startActivity(intent)
-            }
-
-            friendsLinearLayout.addView(friendView)
-        }
+        lineChart.invalidate()
     }
 
     private fun setupChart(chart: LineChart, textSize: Float) {

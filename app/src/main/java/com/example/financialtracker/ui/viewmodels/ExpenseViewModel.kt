@@ -3,8 +3,11 @@ package com.example.financialtracker.ui.viewmodels
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.financialtracker.data.model.Expense
 import com.example.financialtracker.data.repositories.ExpenseRepository
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.launch
 
 class ExpenseViewModel : ViewModel() {
 
@@ -18,23 +21,21 @@ class ExpenseViewModel : ViewModel() {
     }
 
     private fun listenForExpenses() {
-        expenseRepository.listenForExpenses(
-            onSuccess = { expenses ->
-                _expenses.value = expenses
-            },
-            onFailure = {}
-        )
+        viewModelScope.launch {
+            expenseRepository.listenForExpenses()
+                .catch { /* Handle error */ }
+                .collect { expenses ->
+                    _expenses.value = expenses
+                }
+        }
     }
 
     fun deleteExpense(expenseId: String) {
-        expenseRepository.deleteExpense(expenseId,
-            onSuccess = {},
-            onFailure = {}
-        )
-    }
-
-    override fun onCleared() {
-        super.onCleared()
-        expenseRepository.unregisterListener()
+        viewModelScope.launch {
+            try {
+                expenseRepository.deleteExpense(expenseId)
+            } catch (e: Exception) {
+            }
+        }
     }
 }

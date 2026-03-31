@@ -8,10 +8,12 @@ import android.widget.CheckBox
 import android.widget.EditText
 import android.widget.Spinner
 import android.widget.Toast
+import androidx.lifecycle.lifecycleScope
 import com.example.financialtracker.R
 import com.example.financialtracker.data.model.Income
 import com.example.financialtracker.data.repositories.IncomeRepository
 import com.google.firebase.Timestamp
+import kotlinx.coroutines.launch
 import java.util.Calendar
 
 class EditIncomeActivity : BaseActivity() {
@@ -70,8 +72,9 @@ class EditIncomeActivity : BaseActivity() {
     }
 
     private fun loadIncomeData(id: String) {
-        incomeRepository.getIncomeById(id,
-            onSuccess = { income ->
+        lifecycleScope.launch {
+            try {
+                val income = incomeRepository.getIncomeById(id)
                 amountEditText.setText(income.amount.toString())
                 val sources = resources.getStringArray(R.array.income_categories)
                 val sourcePosition = sources.indexOf(income.source)
@@ -82,14 +85,13 @@ class EditIncomeActivity : BaseActivity() {
                 if (income.isRecurring && income.recurringDate != null) {
                     selectedDate.time = income.recurringDate.toDate()
                 } else {
-                    selectedDate.time = income.date?.toDate()
+                    selectedDate.time = income.date?.toDate() ?: Calendar.getInstance().time
                 }
-            },
-            onFailure = { exception ->
-                Toast.makeText(this, "Failed to load income: ${exception.message}", Toast.LENGTH_LONG).show()
+            } catch (e: Exception) {
+                Toast.makeText(this@EditIncomeActivity, "Failed to load income: ${e.message}", Toast.LENGTH_LONG).show()
                 finish()
             }
-        )
+        }
     }
 
     private fun showDatePickerDialog() {
@@ -117,7 +119,7 @@ class EditIncomeActivity : BaseActivity() {
                 if (amountValue <= 0) {
                     Toast.makeText(this, "Amount must be greater than zero", Toast.LENGTH_SHORT).show()
                 } else {
-                    updateIncome(incomeId!!, amountValue, source, isRecurring)
+                    updateIncomeRecord(incomeId!!, amountValue, source, isRecurring)
                 }
             } catch (e: NumberFormatException) {
                 Toast.makeText(this, "Invalid amount entered", Toast.LENGTH_SHORT).show()
@@ -125,14 +127,25 @@ class EditIncomeActivity : BaseActivity() {
         }
     }
 
-    private fun updateIncome(id: String, amount: Double, source: String, isRecurring: Boolean) {
+    private fun updateIncomeRecord(id: String, amount: Double, source: String, isRecurring: Boolean) {
         val recurringTimestamp = if (isRecurring) Timestamp(selectedDate.time) else null
-        val income = Income(id = id, amount = amount, source = source, isRecurring = isRecurring, date = Timestamp(selectedDate.time), recurringDate = recurringTimestamp)
-        incomeRepository.updateIncome(income, {
-            Toast.makeText(this, "Income updated successfully", Toast.LENGTH_SHORT).show()
-            finish()
-        }, {
-            Toast.makeText(this, "Failed to update income: ${it.message}", Toast.LENGTH_LONG).show()
-        })
+        val income = Income(
+            id = id,
+            amount = amount,
+            source = source,
+            isRecurring = isRecurring,
+            date = Timestamp(selectedDate.time),
+            recurringDate = recurringTimestamp
+        )
+
+        lifecycleScope.launch {
+            try {
+                incomeRepository.updateIncome(income)
+                Toast.makeText(this@EditIncomeActivity, "Income updated successfully", Toast.LENGTH_SHORT).show()
+                finish()
+            } catch (e: Exception) {
+                Toast.makeText(this@EditIncomeActivity, "Failed to update income: ${e.message}", Toast.LENGTH_LONG).show()
+            }
+        }
     }
 }

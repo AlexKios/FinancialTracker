@@ -100,6 +100,9 @@
     <string name="track_your_spending">Track your spending</string>
     <string name="modify_your_spending_entry">Modify your spending entry</string>
     <string name="modify_your_entry">Modify your entry</string>
+    <string name="online">online</string>
+    <string name="offline">offline</string>"
+
 
     <string-array name="expense_categories">
         <item>@string/groceries</item>

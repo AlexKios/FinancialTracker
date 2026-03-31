@@ -8,10 +8,12 @@ import android.widget.CheckBox
 import android.widget.EditText
 import android.widget.Spinner
 import android.widget.Toast
+import androidx.lifecycle.lifecycleScope
 import com.example.financialtracker.R
 import com.example.financialtracker.data.model.Income
 import com.example.financialtracker.data.repositories.IncomeRepository
 import com.google.firebase.Timestamp
+import kotlinx.coroutines.launch
 import java.util.Calendar
 
 class AddIncomeActivity : BaseActivity() {
@@ -89,12 +91,22 @@ class AddIncomeActivity : BaseActivity() {
 
     private fun saveIncome(amount: Double, source: String, isRecurring: Boolean) {
         val recurringTimestamp = if (isRecurring) Timestamp(selectedDate.time) else null
-        val income = Income(amount = amount, source = source, isRecurring = isRecurring, date = Timestamp.now(), recurringDate = recurringTimestamp)
-        incomeRepository.addIncome(income, {
-            Toast.makeText(this, "Income added successfully", Toast.LENGTH_SHORT).show()
-            finish()
-        }, {
-            Toast.makeText(this, "Failed to add income: ${it.message}", Toast.LENGTH_LONG).show()
-        })
+        val income = Income(
+            amount = amount,
+            source = source,
+            isRecurring = isRecurring,
+            date = Timestamp.now(),
+            recurringDate = recurringTimestamp
+        )
+
+        lifecycleScope.launch {
+            try {
+                incomeRepository.addIncome(income)
+                Toast.makeText(this@AddIncomeActivity, "Income added successfully", Toast.LENGTH_SHORT).show()
+                finish()
+            } catch (e: Exception) {
+                Toast.makeText(this@AddIncomeActivity, "Failed to add income: ${e.message}", Toast.LENGTH_LONG).show()
+            }
+        }
     }
 }

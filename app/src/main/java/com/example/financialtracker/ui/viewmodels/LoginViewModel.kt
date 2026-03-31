@@ -3,7 +3,9 @@ package com.example.financialtracker.ui.viewmodels
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.financialtracker.data.repositories.UserRepository
+import kotlinx.coroutines.launch
 
 class LoginViewModel : ViewModel() {
 
@@ -16,14 +18,14 @@ class LoginViewModel : ViewModel() {
     val errorMessage: LiveData<String?> get() = _errorMessage
 
     fun login(email: String, password: String) {
-        userRepository.loginUser(email, password,
-            onSuccess = {
+        viewModelScope.launch {
+            try {
+                userRepository.loginUser(email, password)
                 _loginSuccess.value = true
-            },
-            onFailure = { exception ->
-                _errorMessage.value = exception.message
+            } catch (e: Exception) {
+                _errorMessage.value = e.message
             }
-        )
+        }
     }
 
     fun clearError() {

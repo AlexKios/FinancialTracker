@@ -4,10 +4,12 @@ import android.net.Uri
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.financialtracker.data.model.User
 import com.example.financialtracker.data.repositories.UserRepository
+import kotlinx.coroutines.launch
 
-class AccountViewModel: ViewModel() {
+class AccountViewModel : ViewModel() {
 
     private val userRepo = UserRepository()
     private val _currentUser = MutableLiveData<User>()
@@ -20,48 +22,42 @@ class AccountViewModel: ViewModel() {
     val uploadResult: LiveData<Result<String>> = _uploadResult
 
     fun loadCurrentUser() {
-        userRepo.getCurrentUser(
-            onSuccess = { user ->
-                _currentUser.postValue(user)
-            },
-            onFailure = { error ->
-                _updateResult.postValue(Result.failure(error))
+        viewModelScope.launch {
+            try {
+                val user = userRepo.getCurrentUser()
+                _currentUser.value = user
+            } catch (e: Exception) {
+                _updateResult.value = Result.failure(e)
             }
-        )
+        }
     }
 
     fun updateProfile(
         newUsername: String? = null,
-        newEmail:    String? = null,
+        newEmail: String? = null,
         newPassword: String? = null,
-        newName:     String? = null
+        newName: String? = null
     ) {
-        userRepo.updateUserData(
-            newUsername = newUsername,
-            newEmail    = newEmail,
-            newPassword = newPassword,
-            newName     = newName,
-            onSuccess = {
-                _updateResult.postValue(Result.success(Unit))
-
+        viewModelScope.launch {
+            try {
+                userRepo.updateUserData(newUsername, newEmail, newPassword, newName)
+                _updateResult.value = Result.success(Unit)
                 loadCurrentUser()
-            },
-            onFailure = { exception ->
-                _updateResult.postValue(Result.failure(exception))
+            } catch (e: Exception) {
+                _updateResult.value = Result.failure(e)
             }
-        )
+        }
     }
 
     fun uploadProfilePicture(uri: Uri) {
-        userRepo.updateUserProfilePicture(
-            imageUri = uri,
-            onSuccess = {
+        viewModelScope.launch {
+            try {
+                val imageUrl = userRepo.updateUserProfilePicture(uri)
                 loadCurrentUser()
-                _uploadResult.postValue(Result.success(uri.toString()))
-            },
-            onFailure = { exception ->
-                _uploadResult.postValue(Result.failure(exception))
+                _uploadResult.value = Result.success(imageUrl)
+            } catch (e: Exception) {
+                _uploadResult.value = Result.failure(e)
             }
-        )
+        }
     }
 }

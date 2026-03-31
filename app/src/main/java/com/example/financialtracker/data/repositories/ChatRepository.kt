@@ -5,82 +5,55 @@ import com.example.financialtracker.data.model.Message
 import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.Query
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.tasks.await
 
 class ChatRepository {
 
     private val db = FirebaseFirestore.getInstance()
     private val auth = FirebaseAuth.getInstance()
 
-    private var globalListener: ListenerRegistration? = null
-    private var chatListener: ListenerRegistration? = null
-
-    fun createChat(friendUid: String, onSuccess: (String) -> Unit, onFailure: (Exception) -> Unit) {
-        val currentUserId = auth.currentUser?.uid
-        if (currentUserId != null) {
-            val chatId = if (currentUserId < friendUid) {
-                "${currentUserId}_$friendUid"
-            } else {
-                "${friendUid}_$currentUserId"
-            }
-
-            val chat = Chat(
-                chatId = chatId,
-                participants = listOf(currentUserId, friendUid),
-                timestamp = Timestamp(System.currentTimeMillis() / 1000, 0)
-            )
-
-            db.collection("chats")
-                .document(chatId)
-                .set(chat)
-                .addOnSuccessListener {
-                    onSuccess(chatId)
-                }
-                .addOnFailureListener { exception ->
-                    onFailure(exception)
-                }
+    suspend fun createChat(friendUid: String): String {
+        val currentUserId = auth.currentUser?.uid ?: throw Exception("User is not authenticated")
+        val chatId = if (currentUserId < friendUid) {
+            "${currentUserId}_$friendUid"
         } else {
-            onFailure(Exception("User is not authenticated"))
+            "${friendUid}_$currentUserId"
         }
+
+        val chat = Chat(
+            chatId = chatId,
+            participants = listOf(currentUserId, friendUid),
+            timestamp = Timestamp(System.currentTimeMillis() / 1000, 0)
+        )
+
+        db.collection("chats").document(chatId).set(chat).await()
+        return chatId
     }
 
-    fun sendMessage(chatId: String, message: Message, onSuccess: () -> Unit, onFailure: (Exception) -> Unit) {
-        val currentUserId = auth.currentUser?.uid
-        if (currentUserId != null) {
-            val messageId = db.collection("chats").document(chatId).collection("messages").document().id
-            db.collection("chats")
-                .document(chatId)
-                .collection("messages")
-                .document(messageId)
-                .set(message)
-                .addOnSuccessListener {
-                    db.collection("chats")
-                        .document(chatId)
-                        .update("timestamp", message.timestamp)
-                        .addOnSuccessListener {
-                            updateMessageStatus(chatId, message, "sent")
-                            onSuccess()
-                        }
-                        .addOnFailureListener { e ->
-                            onFailure(e)
-                        }
-                }
-                .addOnFailureListener { exception ->
-                    onFailure(exception)
-                }
-        } else {
-            onFailure(Exception("User is not authenticated"))
-        }
-    }
-
-    fun listenToAllIncomingMessages(
-        currentUserId: String,
-        onNewMessage: (Message, String, String) -> Unit
-    ) {
-        globalListener?.remove()
+    suspend fun sendMessage(chatId: String, message: Message) {
+        val messageId = db.collection("chats").document(chatId).collection("messages").document().id
+        
+        db.collection("chats")
+            .document(chatId)
+            .collection("messages")
+            .document(messageId)
+            .set(message)
+            .await()
 
         db.collection("chats")
+            .document(chatId)
+            .update("timestamp", message.timestamp)
+            .await()
+            
+        updateMessageStatus(chatId, message, "sent")
+    }
+
+    fun listenToAllIncomingMessages(currentUserId: String): Flow<Triple<Message, String, String>> = callbackFlow {
+        val registration = db.collection("chats")
             .whereArrayContains("participants", currentUserId)
             .addSnapshotListener { chatSnapshots, error ->
                 if (error != null || chatSnapshots == null) return@addSnapshotListener
@@ -98,62 +71,44 @@ class ChatRepository {
 
                             val message = msgSnap.documents.firstOrNull()?.toObject(Message::class.java)
                             if (message != null && message.senderId != currentUserId && message.status == "sent") {
-                                onNewMessage(message, message.senderId!!, chatId)
+                                trySend(Triple(message, message.senderId!!, chatId))
                             }
                         }
                 }
-            }.also { globalListener = it }
+            }
+        awaitClose { registration.remove() }
     }
 
-    fun removeGlobalListener() {
-        globalListener?.remove()
-        globalListener = null
-    }
-
-    fun listenForMessages(
-        chatId: String,
-        onSuccess: (List<Message>) -> Unit,
-        onFailure: (Exception) -> Unit
-    ) {
-        chatListener?.remove()
-
-        chatListener = db.collection("chats")
+    fun listenForMessages(chatId: String): Flow<List<Message>> = callbackFlow {
+        val registration = db.collection("chats")
             .document(chatId)
             .collection("messages")
             .orderBy("timestamp", Query.Direction.ASCENDING)
             .addSnapshotListener { snapshots, error ->
                 if (error != null) {
-                    onFailure(error)
+                    close(error)
                     return@addSnapshotListener
                 }
 
-                try {
-                    val messages = snapshots?.documents?.mapNotNull {
-                        it.toObject(Message::class.java)
-                    } ?: emptyList()
+                val messages = snapshots?.documents?.mapNotNull {
+                    it.toObject(Message::class.java)
+                } ?: emptyList()
 
-                    onSuccess(messages)
-                } catch (e: Exception) {
-                    onFailure(e)
-                }
+                trySend(messages)
             }
+        awaitClose { registration.remove() }
     }
 
-    fun stopSingleChatListener() {
-        chatListener?.remove()
-        chatListener = null
-    }
-
-    fun updateMessageStatus(chatId: String, message: Message, newStatus: String) {
-        db.collection("chats")
+    suspend fun updateMessageStatus(chatId: String, message: Message, newStatus: String) {
+        val result = db.collection("chats")
             .document(chatId)
             .collection("messages")
             .whereEqualTo("timestamp", message.timestamp)
             .get()
-            .addOnSuccessListener { result ->
-                for (document in result.documents) {
-                    document.reference.update("status", newStatus)
-                }
-            }
+            .await()
+            
+        for (document in result.documents) {
+            document.reference.update("status", newStatus).await()
+        }
     }
 }

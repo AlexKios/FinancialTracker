@@ -23,10 +23,10 @@ class NotificationHelper(private val context: Context) {
         }
     }
 
-    fun sendNotification(senderId: String, message: String, chatId: String) {
-
-        userRepository.getUsername(senderId).addOnSuccessListener { document ->
-            val senderName = document.getString("name") ?: "Unknown Sender"
+    suspend fun sendNotification(senderId: String, message: String, chatId: String) {
+        try {
+            val user = userRepository.getUserById(senderId)
+            val senderName = user.name
 
             val intent = Intent(context, ChatActivity::class.java).apply {
                 putExtra("chat_id", chatId)
@@ -50,18 +50,17 @@ class NotificationHelper(private val context: Context) {
                 .build()
 
             val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-            notificationManager.notify(0, notification)
-        }
-            .addOnFailureListener {
-                val notification = NotificationCompat.Builder(context, channelId)
-                    .setContentTitle("New message from Unknown Sender")
-                    .setContentText(message)
-                    .setSmallIcon(android.R.drawable.ic_dialog_info)
-                    .setAutoCancel(true)
-                    .build()
+            notificationManager.notify(senderId.hashCode(), notification)
+        } catch (e: Exception) {
+            val notification = NotificationCompat.Builder(context, channelId)
+                .setContentTitle("New message")
+                .setContentText(message)
+                .setSmallIcon(android.R.drawable.ic_dialog_info)
+                .setAutoCancel(true)
+                .build()
 
-                val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-                notificationManager.notify(0, notification)
-            }
+            val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            notificationManager.notify(senderId.hashCode(), notification)
+        }
     }
 }

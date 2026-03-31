@@ -23,10 +23,14 @@ class IncomeActivity : BaseActivity() {
         super.onCreate(savedInstanceState)
         layoutInflater.inflate(R.layout.income, findViewById(R.id.content_container), true)
 
+        initViews()
+        setupViewModel()
+    }
+
+    private fun initViews() {
         val addButton = findViewById<Button>(R.id.button5)
         addButton.setOnClickListener {
-            val intent = Intent(this, AddIncomeActivity::class.java)
-            startActivity(intent)
+            startActivity(Intent(this, AddIncomeActivity::class.java))
         }
 
         recyclerView = findViewById(R.id.incomeRecyclerView)
@@ -36,7 +40,9 @@ class IncomeActivity : BaseActivity() {
             showEditDeleteDialog(income)
         }
         recyclerView.adapter = adapter
+    }
 
+    private fun setupViewModel() {
         viewModel = ViewModelProvider(this)[IncomeViewModel::class.java]
 
         viewModel.incomes.observe(this) { incomes ->
@@ -52,8 +58,9 @@ class IncomeActivity : BaseActivity() {
             .setItems(options) { _, which ->
                 when (which) {
                     0 -> {
-                        val intent = Intent(this, EditIncomeActivity::class.java)
-                        intent.putExtra("incomeId", income.id)
+                        val intent = Intent(this, EditIncomeActivity::class.java).apply {
+                            putExtra("incomeId", income.id)
+                        }
                         startActivity(intent)
                     }
                     1 -> {

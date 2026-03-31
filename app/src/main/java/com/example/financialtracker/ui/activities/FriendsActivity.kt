@@ -23,7 +23,6 @@ import androidx.lifecycle.ViewModelProvider
 import com.example.financialtracker.R
 import com.example.financialtracker.data.adapter.FriendsAdapter
 import com.example.financialtracker.data.model.Friend
-import com.example.financialtracker.data.repositories.UserRepository
 import com.example.financialtracker.ui.viewmodels.FriendsViewModel
 import com.google.mlkit.vision.barcode.BarcodeScanning
 import com.google.mlkit.vision.common.InputImage
@@ -50,6 +49,32 @@ class FriendsActivity : BaseActivity() {
         previewView = findViewById(R.id.previewView)
         cameraExecutor = Executors.newSingleThreadExecutor()
 
+        friendsViewModel = ViewModelProvider(this)[FriendsViewModel::class.java]
+
+        setupFriendsList()
+        setupScanButton()
+        observeViewModel()
+
+        friendsViewModel.loadFriends()
+        friendsViewModel.startListeningToFriendStatuses()
+    }
+
+    private fun setupFriendsList() {
+        val adapter = FriendsAdapter(
+            this,
+            friendsList,
+            onRemoveClick = { friendName ->
+                showRemoveFriendDialog(friendName)
+            },
+            onFriendClick = { friendName ->
+                val friend = friendsList.find { it.username == friendName }
+                startChat(friend)
+            }
+        )
+        friendsListView.adapter = adapter
+    }
+
+    private fun setupScanButton() {
         scanButton.setOnClickListener {
             if (isScanning) {
                 stopCamera()
@@ -61,60 +86,40 @@ class FriendsActivity : BaseActivity() {
                 }
             }
         }
+    }
 
-        friendsViewModel = ViewModelProvider(this)[FriendsViewModel::class.java]
-
-        friendsViewModel.loadFriends()
-        friendsViewModel.startListeningToFriendStatuses()
-
-        val adapter = FriendsAdapter(
-            this,
-            friendsList,
-            onRemoveClick = { friendName ->
-                AlertDialog.Builder(this)
-                    .setTitle("Remove Friend")
-                    .setMessage("Are you sure you want to remove $friendName?")
-                    .setPositiveButton("Yes") { _, _ ->
-                        friendsViewModel.removeFriend(friendName,
-                            onSuccess = {
-                                Toast.makeText(this, "$friendName removed", Toast.LENGTH_SHORT).show()
-                                friendsViewModel.loadFriends()
-                            },
-                            onFailure = { e ->
-                                Toast.makeText(this, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
-                            }
-                        )
-                    }
-                    .setNegativeButton("Cancel", null)
-                    .show()
-            },
-            onFriendClick = { friendName ->
-                val friend = friendsList.find { it.username == friendName }
-                startChat(friendName, friend?.profileImageUrl ?: "")
-            }
-        )
-
-        friendsListView.adapter = adapter
-
+    private fun observeViewModel() {
         friendsViewModel.friendsList.observe(this) { updatedList ->
             friendsList.clear()
             friendsList.addAll(updatedList)
-            adapter.notifyDataSetChanged()
+            (friendsListView.adapter as? FriendsAdapter)?.notifyDataSetChanged()
+        }
+
+        friendsViewModel.error.observe(this) { errorMessage ->
+            Toast.makeText(this, errorMessage, Toast.LENGTH_SHORT).show()
         }
     }
 
-    private fun startChat(friendName: String, profileImageUrl: String) {
-        val userRepository = UserRepository()
+    private fun showRemoveFriendDialog(friendName: String) {
+        AlertDialog.Builder(this)
+            .setTitle("Remove Friend")
+            .setMessage("Are you sure you want to remove $friendName?")
+            .setPositiveButton("Yes") { _, _ ->
+                friendsViewModel.removeFriend(friendName)
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
+    }
 
-        userRepository.getUserIdByUsername(friendName, { friendUid ->
-            val intent = Intent(this, ChatActivity::class.java)
-            intent.putExtra("friend_name", friendName)
-            intent.putExtra("friend_uid", friendUid)
-            intent.putExtra("friend_profile_image_url", profileImageUrl)
+    private fun startChat(friend: Friend?) {
+        friend?.let {
+            val intent = Intent(this, ChatActivity::class.java).apply {
+                putExtra("friend_name", it.username)
+                putExtra("friend_uid", it.userId)
+                putExtra("friend_profile_image_url", it.profileImageUrl)
+            }
             startActivity(intent)
-        }, { error ->
-            Toast.makeText(this, "Error: ${error.message}", Toast.LENGTH_SHORT).show()
-        })
+        }
     }
 
     @OptIn(ExperimentalGetImage::class)
@@ -125,7 +130,7 @@ class FriendsActivity : BaseActivity() {
 
         val cameraProviderFuture = ProcessCameraProvider.getInstance(this)
         cameraProviderFuture.addListener({
-            val cameraProvider = cameraProviderFuture.get()
+            cameraProvider = cameraProviderFuture.get()
             val preview = Preview.Builder().build().also {
                 it.setSurfaceProvider(previewView.surfaceProvider)
             }
@@ -145,16 +150,8 @@ class FriendsActivity : BaseActivity() {
                                 val rawValue = barcode.rawValue
                                 if (!rawValue.isNullOrEmpty()) {
                                     runOnUiThread {
-                                        previewView.visibility = View.GONE
-                                        cameraProvider.unbindAll()
-                                        friendsViewModel.addFriendFromQrCode(rawValue,
-                                            onSuccess = {
-                                                Toast.makeText(this, "Friend added!", Toast.LENGTH_SHORT).show()
-                                            },
-                                            onFailure = { e ->
-                                                Toast.makeText(this, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
-                                            }
-                                        )
+                                        stopCamera()
+                                        friendsViewModel.addFriendFromQrCode(rawValue)
                                     }
                                 }
                             }
@@ -175,8 +172,8 @@ class FriendsActivity : BaseActivity() {
                 .build()
 
             try {
-                cameraProvider.unbindAll()
-                cameraProvider.bindToLifecycle(this, cameraSelector, preview, analysisUseCase)
+                cameraProvider?.unbindAll()
+                cameraProvider?.bindToLifecycle(this, cameraSelector, preview, analysisUseCase)
             } catch (e: Exception) {
                 Log.e("CameraX", "Use case binding failed", e)
             }
@@ -184,16 +181,16 @@ class FriendsActivity : BaseActivity() {
         }, ContextCompat.getMainExecutor(this))
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-        cameraExecutor.shutdown()
-    }
-
     private fun stopCamera() {
         cameraProvider?.unbindAll()
         previewView.visibility = View.GONE
         scanButton.text = getString(R.string.scan)
         isScanning = false
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        cameraExecutor.shutdown()
     }
 
     override fun onSaveInstanceState(outState: Bundle) {

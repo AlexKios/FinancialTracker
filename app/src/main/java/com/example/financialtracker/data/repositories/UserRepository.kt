@@ -1,411 +1,230 @@
 package com.example.financialtracker.data.repositories
 
-
 import android.net.Uri
 import android.util.Log
 import com.example.financialtracker.data.helper.CloudinaryClient
 import com.example.financialtracker.data.model.User
 import com.example.financialtracker.data.model.Friend
-import com.google.android.gms.tasks.Task
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.tasks.await
+import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
 
 class UserRepository {
     private val db = FirebaseFirestore.getInstance()
     private val auth = FirebaseAuth.getInstance()
-    private val friendListeners = mutableMapOf<String, ListenerRegistration>()
 
     suspend fun getFriends(): List<Friend> {
         val currentUserId = auth.currentUser?.uid ?: throw Exception("User not authenticated")
         val userDoc = db.collection("users").document(currentUserId).get().await()
-        val friendUids = userDoc.get("friends") as? List<String> ?: emptyList()
+        val friendUids = (userDoc.get("friends") as? List<*>)?.filterIsInstance<String>() ?: emptyList()
 
-        val friends = mutableListOf<Friend>()
-        for (friendUid in friendUids) {
+        return friendUids.mapNotNull { friendUid ->
             try {
                 val friendDoc = db.collection("users").document(friendUid).get().await()
                 val username = friendDoc.getString("username")
                 val profileImageUrl = friendDoc.getString("profileImageUrl") ?: ""
-                val id = friendDoc.id
+                val online = friendDoc.getBoolean("online") ?: false
                 if (username != null) {
-                    friends.add(Friend(userId = id, username = username, profileImageUrl = profileImageUrl))
-                }
+                    Friend(
+                        userId = friendDoc.id,
+                        username = username,
+                        profileImageUrl = profileImageUrl,
+                        online = online
+                    )
+                } else null
             } catch (e: Exception) {
                 Log.e("UserRepository", "Error fetching friend details for UID: $friendUid", e)
+                null
             }
         }
-        return friends
     }
 
-    fun updateUserProfilePicture(
-        imageUri: Uri,
-        onSuccess: () -> Unit,
-        onFailure: (Exception) -> Unit
-    ) {
-        CloudinaryClient.uploadImage(
-            uri = imageUri,
-            uploadPreset = "DipProject",
-            onSuccess = { imageUrl ->
-                val sanitizedUrl = imageUrl.trim()
-                val userId = auth.currentUser?.uid
-                if (userId != null) {
-                    db.collection("users").document(userId)
-                        .update("profileImageUrl", sanitizedUrl)
-                        .addOnSuccessListener { onSuccess() }
-                        .addOnFailureListener { onFailure(it) }
-                } else {
-                    onFailure(Exception("User not authenticated"))
-                }
-            },
-            onError = { errorMessage ->
-                onFailure(Exception(errorMessage))
-            }
-        )
-    }
-
-    fun getCurrentUser(onSuccess: (User) -> Unit, onFailure: (Exception) -> Unit) {
-        val userId = auth.currentUser?.uid
-        if (userId != null) {
-            db.collection("users")
-                .document(userId)
-                .get()
-                .addOnSuccessListener { document ->
-                    val user = document.toObject(User::class.java)
-                    if (user != null) {
-                        onSuccess(user)
-                    } else {
-                        onFailure(Exception("User not found"))
-                    }
-                }
-                .addOnFailureListener { exception ->
-                    onFailure(exception)
-                }
-        } else {
-            onFailure(Exception("User is not authenticated"))
-        }
-    }
-
-    fun getUserById(userId: String, onSuccess: (User) -> Unit, onFailure: (Exception) -> Unit) {
-        db.collection("users")
-            .document(userId)
-            .get()
-            .addOnSuccessListener { document ->
-                val user = document.toObject(User::class.java)
-                if (user != null) {
-                    onSuccess(user)
-                } else {
-                    onFailure(Exception("User not found"))
-                }
-            }
-            .addOnFailureListener { exception ->
-                onFailure(exception)
-            }
-    }
-
-    fun getUserIdByUsername(username: String, onSuccess: (String) -> Unit, onFailure: (Exception) -> Unit) {
-        db.collection("users")
-            .whereEqualTo("username", username)
-            .get()
-            .addOnSuccessListener { querySnapshot ->
-                if (!querySnapshot.isEmpty) {
-                    val userId = querySnapshot.documents[0].id
-                    onSuccess(userId)
-                } else {
-                    onFailure(Exception("User not found"))
-                }
-            }
-            .addOnFailureListener { exception ->
-                onFailure(exception)
-            }
-    }
-
-        fun listenToCurrentUserFriendStatuses(
-            onUpdate: (List<Friend>) -> Unit
-        ) {
-            val currentUserId = auth.currentUser?.uid ?: return
-
-            db.collection("users").document(currentUserId)
-                .get()
-                .addOnSuccessListener { doc ->
-                    val rawList = doc.get("friends") as? List<*> ?: emptyList<Any>()
-                    val friendUids = rawList.filterIsInstance<String>()
-                    listenToFriendStatuses(friendUids, onUpdate)
-                }
-        }
-
-    private fun listenToFriendStatuses(
-        friendUids: List<String>,
-        onUpdate: (List<Friend>) -> Unit
-    ) {
-        val friendData = mutableMapOf<String, Friend>()
-
-        for (uid in friendUids) {
-            val listener = db.collection("users").document(uid)
-                .addSnapshotListener { snapshot, _ ->
-                    if (snapshot != null && snapshot.exists()) {
-                        val username = snapshot.getString("username") ?: "Unknown"
-                        val status = snapshot.getString("status") ?: "offline"
-                        val online = snapshot.getBoolean("online") ?: false
-                        val profileImageUrl = snapshot.getString("profileImageUrl") ?: ""
-                        val finalStatus = if (online) "online" else status
-
-                        friendData[uid] = Friend(userId = uid, username = username, profileImageUrl = profileImageUrl, status = finalStatus)
-                        onUpdate(friendData.values.toList())
-                    }
-                }
-            friendListeners[uid] = listener
-        }
-    }
-
-    fun getFriendsDetailed(
-        onSuccess: (List<Friend>) -> Unit,
-        onFailure: (Exception) -> Unit
-    ) {
-        val userId = auth.currentUser?.uid ?: return onSuccess(emptyList())
-
-        db.collection("users").document(userId)
-            .get()
-            .addOnSuccessListener { document ->
-                val friendUids = document.get("friends") as? List<*> ?: emptyList<String>()
-                if (friendUids.isEmpty()) {
-                    onSuccess(emptyList())
-                    return@addOnSuccessListener
-                }
-
-                val friendsData = mutableListOf<Friend>()
-                var loaded = 0
-
-                for (uid in friendUids) {
-                    if (uid is String) {
-                        db.collection("users").document(uid)
-                            .get()
-                            .addOnSuccessListener { friendDoc ->
-                                val username = friendDoc.getString("username") ?: "Unknown"
-                                val status = friendDoc.getString("status") ?: "offline"
-                                val profileImageUrl = friendDoc.getString("profileImageUrl") ?: ""
-                                friendsData.add(Friend(userId = uid, username = username, profileImageUrl = profileImageUrl, status = status))
-                                loaded++
-                                if (loaded == friendUids.size) {
-                                    onSuccess(friendsData)
-                                }
-                            }
-                            .addOnFailureListener {
-                                loaded++
-                                if (loaded == friendUids.size) {
-                                    onSuccess(friendsData)
-                                }
-                            }
-                    } else {
-                        loaded++
-                        if (loaded == friendUids.size) {
-                            onSuccess(friendsData)
-                        }
-                    }
-                }
-            }
-            .addOnFailureListener { exception ->
-                onFailure(exception)
-            }
-    }
-
-    fun addFriend(friendUid: String, onSuccess: () -> Unit, onFailure: (Exception) -> Unit) {
-        val userId = auth.currentUser?.uid
-        if (userId != null) {
-            val userRef = db.collection("users").document(userId)
-            val friendRef = db.collection("users").document(friendUid)
-
-            db.runTransaction { transaction ->
-                val userDoc = transaction.get(userRef)
-                val friendDoc = transaction.get(friendRef)
-
-                val currentFriends = userDoc.toObject(User::class.java)?.friends?.toMutableList() ?: mutableListOf()
-                if (!currentFriends.contains(friendUid)) {
-                    currentFriends.add(friendUid)
-                    transaction.update(userRef, "friends", currentFriends)
-                }
-
-                val friendFriends = friendDoc.toObject(User::class.java)?.friends?.toMutableList() ?: mutableListOf()
-                if (!friendFriends.contains(userId)) {
-                    friendFriends.add(userId)
-                    transaction.update(friendRef, "friends", friendFriends)
-                }
-            }.addOnSuccessListener {
-                onSuccess()
-            }.addOnFailureListener { exception ->
-                onFailure(exception)
-            }
-        } else {
-            onFailure(Exception("User is not authenticated"))
-        }
-    }
-
-    fun registerUser(
-        name: String,
-        email: String,
-        password: String,
-        username: String,
-        onSuccess: () -> Unit,
-        onFailure: (Exception) -> Unit
-    ) {
-        auth.createUserWithEmailAndPassword(email, password)
-            .addOnCompleteListener { task ->
-                if (task.isSuccessful) {
+    suspend fun updateUserProfilePicture(imageUri: Uri): String {
+        return suspendCancellableCoroutine { continuation ->
+            CloudinaryClient.uploadImage(
+                uri = imageUri,
+                uploadPreset = "DipProject",
+                onSuccess = { imageUrl ->
+                    val sanitizedUrl = imageUrl.trim()
                     val userId = auth.currentUser?.uid
                     if (userId != null) {
-                        val user = User(
-                            uid = userId,
-                            username = username,
-                            name = name,
-                            email = email,
-                            friends = listOf()
-                        )
-                        db.collection("users")
-                            .document(userId)
-                            .set(user)
-                            .addOnSuccessListener {
-                                auth.currentUser?.sendEmailVerification()
-                                    ?.addOnSuccessListener {
-                                        Log.d("FirebaseAuth", "Verification email sent.")
-                                        onSuccess()
-                                    }
-                                    ?.addOnFailureListener { e ->
-                                        Log.e("FirebaseAuth", "Error sending verification email", e)
-                                        onFailure(e)
-                                    }
-                            }
-                            .addOnFailureListener { e ->
-                                onFailure(e)
-                            }
+                        db.collection("users").document(userId)
+                            .update("profileImageUrl", sanitizedUrl)
+                            .addOnSuccessListener { continuation.resume(sanitizedUrl) }
+                            .addOnFailureListener { continuation.resumeWithException(it) }
                     } else {
-                        onFailure(Exception("Failed to get user ID after registration"))
+                        continuation.resumeWithException(Exception("User not authenticated"))
                     }
-                } else {
-                    task.exception?.let {
-                        onFailure(it)
-                    }
+                },
+                onError = { errorMessage ->
+                    continuation.resumeWithException(Exception(errorMessage))
                 }
-            }
-    }
-
-    fun loginUser(email: String, password: String, onSuccess: () -> Unit, onFailure: (Exception) -> Unit) {
-        auth.signInWithEmailAndPassword(email, password)
-            .addOnCompleteListener { task ->
-                if (task.isSuccessful) {
-                    val user = auth.currentUser
-                    if (user != null && user.isEmailVerified) {
-                        onSuccess()
-                    } else {
-                        onFailure(Exception("Email not verified"))
-                    }
-                } else {
-                    task.exception?.let {
-                        onFailure(it)
-                    }
-                }
-            }
-    }
-
-    fun updateUserData(
-        newUsername: String?,
-        newEmail: String?,
-        newPassword: String?,
-        newName: String?,
-        onSuccess: () -> Unit,
-        onFailure: (Exception) -> Unit
-    ) {
-        val user = auth.currentUser
-        val userId = user?.uid
-
-        if (user != null && userId != null) {
-            val updates = mutableMapOf<String, Any>()
-
-            if (!newUsername.isNullOrBlank()) updates["username"] = newUsername
-            if (!newName.isNullOrBlank()) updates["name"] = newName
-            if (!newEmail.isNullOrBlank()) updates["email"] = newEmail
-
-            val userDocRef = db.collection("users").document(userId)
-
-            userDocRef.update(updates)
-                .addOnSuccessListener {
-                    val emailTasks = if (!newEmail.isNullOrBlank()) {
-                        user.verifyBeforeUpdateEmail(newEmail)
-                    } else null
-
-                    val passwordTasks = if (!newPassword.isNullOrBlank()) {
-                        user.updatePassword(newPassword)
-                    } else null
-
-                    if (emailTasks != null && passwordTasks != null) {
-                        emailTasks.addOnSuccessListener {
-                            passwordTasks.addOnSuccessListener {
-                                onSuccess()
-                            }.addOnFailureListener { onFailure(it) }
-                        }.addOnFailureListener { onFailure(it) }
-                    } else if (emailTasks != null) {
-                        emailTasks.addOnSuccessListener { onSuccess() }
-                            .addOnFailureListener { onFailure(it) }
-                    } else if (passwordTasks != null) {
-                        passwordTasks.addOnSuccessListener { onSuccess() }
-                            .addOnFailureListener { onFailure(it) }
-                    } else {
-                        onSuccess()
-                    }
-                }
-                .addOnFailureListener { onFailure(it) }
-        } else {
-            onFailure(Exception("User not authenticated"))
+            )
         }
     }
-    fun removeFriendByUsername(username: String, onSuccess: () -> Unit, onFailure: (Exception) -> Unit) {
-        val currentUid = auth.currentUser?.uid ?: return onFailure(Exception("Not authenticated"))
 
-        db.collection("users")
-            .whereEqualTo("username", username)
-            .get()
-            .addOnSuccessListener { querySnapshot ->
-                if (!querySnapshot.isEmpty) {
-                    val friendUid = querySnapshot.documents[0].id
+    suspend fun getCurrentUser(): User {
+        val userId = auth.currentUser?.uid ?: throw Exception("User is not authenticated")
+        val document = db.collection("users").document(userId).get().await()
+        return document.toObject(User::class.java) ?: throw Exception("User not found")
+    }
 
-                    db.runTransaction { transaction ->
-                        val userRef = db.collection("users").document(currentUid)
-                        val friendRef = db.collection("users").document(friendUid)
+    suspend fun getUserById(userId: String): User {
+        val document = db.collection("users").document(userId).get().await()
+        return document.toObject(User::class.java) ?: throw Exception("User not found")
+    }
 
-                        val userFriends = transaction.get(userRef).toObject(User::class.java)?.friends?.toMutableList() ?: mutableListOf()
-                        val friendFriends = transaction.get(friendRef).toObject(User::class.java)?.friends?.toMutableList() ?: mutableListOf()
+    fun listenToFriendsStatuses(): Flow<List<Friend>> = callbackFlow {
+        val currentUserId = auth.currentUser?.uid ?: run {
+            close(Exception("User not authenticated"))
+            return@callbackFlow
+        }
 
-                        userFriends.remove(friendUid)
-                        friendFriends.remove(currentUid)
+        val friendData = mutableMapOf<String, Friend>()
+        val friendListeners = mutableMapOf<String, ListenerRegistration>()
 
-                        transaction.update(userRef, "friends", userFriends)
-                        transaction.update(friendRef, "friends", friendFriends)
-                    }.addOnSuccessListener {
-                        onSuccess()
-                    }.addOnFailureListener {
-                        onFailure(it)
+        val userListener = db.collection("users").document(currentUserId)
+            .addSnapshotListener { doc, _ ->
+                val friendUids = (doc?.get("friends") as? List<*>)?.filterIsInstance<String>() ?: emptyList()
+
+                val currentListeners = friendListeners.keys.toSet()
+                currentListeners.subtract(friendUids.toSet()).forEach { uidToRemove ->
+                    friendListeners[uidToRemove]?.remove()
+                    friendListeners.remove(uidToRemove)
+                    friendData.remove(uidToRemove)
+                }
+
+                friendUids.forEach { uid ->
+                    if (!friendListeners.containsKey(uid)) {
+                        val listener = db.collection("users").document(uid)
+                            .addSnapshotListener { snapshot, _ ->
+                                if (snapshot != null && snapshot.exists()) {
+                                    val username = snapshot.getString("username") ?: "Unknown"
+                                    val online = snapshot.getBoolean("online") ?: false
+                                    val profileImageUrl = snapshot.getString("profileImageUrl") ?: ""
+
+                                    friendData[uid] = Friend(
+                                        userId = uid, 
+                                        username = username, 
+                                        profileImageUrl = profileImageUrl, 
+                                        online = online
+                                    )
+                                    trySend(friendData.values.toList().sortedBy { it.username })
+                                }
+                            }
+                        friendListeners[uid] = listener
                     }
-                } else {
-                    onFailure(Exception("Friend not found"))
                 }
             }
-            .addOnFailureListener { onFailure(it) }
+
+        awaitClose {
+            userListener.remove()
+            friendListeners.values.forEach { it.remove() }
+            friendListeners.clear()
+        }
     }
 
-    fun getUsername(userId: String): Task<DocumentSnapshot> {
-        return db.collection("users").document(userId).get()
+    suspend fun addFriend(friendUid: String) {
+        val userId = auth.currentUser?.uid ?: throw Exception("User is not authenticated")
+        val userRef = db.collection("users").document(userId)
+        val friendRef = db.collection("users").document(friendUid)
+
+        db.runTransaction { transaction ->
+            val userDoc = transaction.get(userRef)
+            val friendDoc = transaction.get(friendRef)
+
+            val currentFriends = userDoc.toObject(User::class.java)?.friends?.toMutableList() ?: mutableListOf()
+            if (!currentFriends.contains(friendUid)) {
+                currentFriends.add(friendUid)
+                transaction.update(userRef, "friends", currentFriends)
+            }
+
+            val friendFriends = friendDoc.toObject(User::class.java)?.friends?.toMutableList() ?: mutableListOf()
+            if (!friendFriends.contains(userId)) {
+                friendFriends.add(userId)
+                transaction.update(friendRef, "friends", friendFriends)
+            }
+        }.await()
     }
 
-    fun updateBudget(budget: Double, onSuccess: () -> Unit, onFailure: (Exception) -> Unit) {
-        val userId = auth.currentUser?.uid
-        if (userId != null) {
-            db.collection("users").document(userId)
-                .update("budget", budget)
-                .addOnSuccessListener { onSuccess() }
-                .addOnFailureListener { onFailure(it) }
-        } else {
-            onFailure(Exception("User not authenticated"))
+    suspend fun removeFriendByUsername(username: String) {
+        val currentUid = auth.currentUser?.uid ?: throw Exception("Not authenticated")
+        val querySnapshot = db.collection("users")
+            .whereEqualTo("username", username)
+            .get()
+            .await()
+
+        if (querySnapshot.isEmpty) throw Exception("Friend not found")
+        val friendUid = querySnapshot.documents[0].id
+
+        db.runTransaction { transaction ->
+            val userRef = db.collection("users").document(currentUid)
+            val friendRef = db.collection("users").document(friendUid)
+
+            val userFriends = transaction.get(userRef).toObject(User::class.java)?.friends?.toMutableList() ?: mutableListOf()
+            val friendFriends = transaction.get(friendRef).toObject(User::class.java)?.friends?.toMutableList() ?: mutableListOf()
+
+            userFriends.remove(friendUid)
+            friendFriends.remove(currentUid)
+
+            transaction.update(userRef, "friends", userFriends)
+            transaction.update(friendRef, "friends", friendFriends)
+        }.await()
+    }
+
+    suspend fun updateBudget(budget: Double) {
+        val userId = auth.currentUser?.uid ?: throw Exception("User not authenticated")
+        db.collection("users").document(userId).update("budget", budget).await()
+    }
+
+    suspend fun registerUser(name: String, email: String, password: String, username: String) {
+        val task = auth.createUserWithEmailAndPassword(email, password).await()
+        val userId = task.user?.uid ?: throw Exception("Failed to get user ID after registration")
+        
+        val user = User(
+            uid = userId,
+            username = username,
+            name = name,
+            email = email,
+            friends = listOf()
+        )
+        db.collection("users").document(userId).set(user).await()
+        auth.currentUser?.sendEmailVerification()?.await()
+    }
+
+    suspend fun loginUser(email: String, password: String) {
+        val task = auth.signInWithEmailAndPassword(email, password).await()
+        val user = task.user
+        if (user == null || !user.isEmailVerified) {
+            throw Exception("Email not verified")
+        }
+    }
+
+    suspend fun updateUserData(newUsername: String?, newEmail: String?, newPassword: String?, newName: String?) {
+        val user = auth.currentUser ?: throw Exception("User not authenticated")
+        val userId = user.uid
+        val updates = mutableMapOf<String, Any>()
+
+        if (!newUsername.isNullOrBlank()) updates["username"] = newUsername
+        if (!newName.isNullOrBlank()) updates["name"] = newName
+        if (!newEmail.isNullOrBlank()) updates["email"] = newEmail
+
+        if (updates.isNotEmpty()) {
+            db.collection("users").document(userId).update(updates).await()
+        }
+
+        if (!newEmail.isNullOrBlank()) {
+            user.verifyBeforeUpdateEmail(newEmail).await()
+        }
+        if (!newPassword.isNullOrBlank()) {
+            user.updatePassword(newPassword).await()
         }
     }
 }

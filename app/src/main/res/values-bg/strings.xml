@@ -79,7 +79,7 @@
     <string name="stop_scan">Спрете сканирането</string>
     <string name="change_language">Промяна на езика</string>
     <string name="amount_format">%1$.2f€</string>
-    <string name="friends_list">friends_list</string>
+    <string name="friends_list">Списък с приятели</string>
     <string name="friendProfilePic" />
     <string name="profilePic" />
     <string name="update_expense">Актуализиране на разхода</string>
@@ -101,4 +101,6 @@
     <string name="track_your_spending">Проследявайте разходите си</string>
     <string name="modify_your_spending_entry">Променете записа за разходите си</string>
     <string name="modify_your_entry">Променете записа си</string>
+    <string name="online">онлайн</string>
+    <string name="offline">офлайн</string>
 </resources>

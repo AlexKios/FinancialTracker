@@ -15,28 +15,40 @@ class SettingsViewModel : ViewModel() {
     private val _userSettings = MutableStateFlow<UserSettings?>(null)
     val userSettings: StateFlow<UserSettings?> = _userSettings
 
+    private val _saveSuccess = MutableStateFlow<Boolean>(false)
+    val saveSuccess: StateFlow<Boolean> = _saveSuccess
+
+    private val _error = MutableStateFlow<String?>(null)
+    val error: StateFlow<String?> = _error
+
     fun loadUserSettings() {
         viewModelScope.launch {
-            settingsRepository.getUserSettings(
-                onSuccess = { settings ->
-                    _userSettings.value = settings
-                },
-                onFailure = { 
-                    // Handle error, maybe expose an error state
-                }
-            )
+            try {
+                val settings = settingsRepository.getUserSettings()
+                _userSettings.value = settings
+            } catch (e: Exception) {
+                _error.value = e.message
+            }
         }
     }
 
-    fun saveUserSettings(settings: UserSettings, onSuccess: () -> Unit, onFailure: (Exception) -> Unit) {
+    fun saveUserSettings(settings: UserSettings) {
         viewModelScope.launch {
-            settingsRepository.saveUserSettings(settings,
-                onSuccess = {
-                    _userSettings.value = settings
-                    onSuccess()
-                },
-                onFailure = onFailure
-            )
+            try {
+                settingsRepository.saveUserSettings(settings)
+                _userSettings.value = settings
+                _saveSuccess.value = true
+            } catch (e: Exception) {
+                _error.value = e.message
+            }
         }
+    }
+
+    fun resetSaveSuccess() {
+        _saveSuccess.value = false
+    }
+
+    fun clearError() {
+        _error.value = null
     }
 }

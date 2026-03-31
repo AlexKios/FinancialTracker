@@ -24,21 +24,23 @@ class RecurringIncomeWorker(appContext: Context, workerParams: WorkerParameters)
                     }
 
                     if (now.after(recurringDateCalendar)) {
-                        // Add a new income record
                         val newIncome = income.copy(
-                            id = "", // Firestore will generate a new ID
+                            id = "",
                             date = Timestamp.now(),
-                            isRecurring = false, // The new record is not a recurring template
+                            isRecurring = false,
                             recurringDate = null
                         )
                         incomeRepository.addIncome(newIncome)
 
-                        // Update the recurring income's next date
                         val nextRecurringDate = Calendar.getInstance().apply {
                             time = recurringDate.toDate()
                             add(Calendar.MONTH, 1)
                         }
-                        incomeRepository.updateIncome(income.id, mapOf("recurringDate" to Timestamp(nextRecurringDate.time)))
+                        
+                        val updatedIncome = income.copy(
+                            recurringDate = Timestamp(nextRecurringDate.time)
+                        )
+                        incomeRepository.updateIncome(updatedIncome)
                     }
                 }
             }

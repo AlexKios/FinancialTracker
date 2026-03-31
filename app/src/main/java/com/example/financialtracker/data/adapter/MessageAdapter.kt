@@ -15,7 +15,7 @@ class MessageAdapter(private var messages: List<Message>) :
 
     private val currentUserId = FirebaseAuth.getInstance().currentUser?.uid
 
-    inner class MessageViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+    class MessageViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val senderNameTextView: TextView = itemView.findViewById(R.id.senderName)
         val messageContentTextView: TextView = itemView.findViewById(R.id.textMessage)
         val messageStatusTextView: TextView = itemView.findViewById(R.id.messageStatus)
@@ -58,7 +58,6 @@ class MessageAdapter(private var messages: List<Message>) :
 
         userDocRef.get().addOnSuccessListener { document ->
             if (document.exists()) {
-                // Assuming you have a "name" field in your user document
                 val senderName = document.getString("name") ?: "Unknown"
                 onResult(senderName)
             } else {

@@ -8,10 +8,12 @@ import android.widget.CheckBox
 import android.widget.EditText
 import android.widget.Spinner
 import android.widget.Toast
+import androidx.lifecycle.lifecycleScope
 import com.example.financialtracker.R
 import com.example.financialtracker.data.model.Expense
 import com.example.financialtracker.data.repositories.ExpenseRepository
 import com.google.firebase.Timestamp
+import kotlinx.coroutines.launch
 import java.util.Calendar
 
 class AddExpenseActivity : BaseActivity() {
@@ -88,12 +90,22 @@ class AddExpenseActivity : BaseActivity() {
 
     private fun saveExpense(amount: Double, category: String, isRecurring: Boolean) {
         val recurringTimestamp = if (isRecurring) Timestamp(selectedDate.time) else null
-        val expense = Expense(amount = amount, category = category, isRecurring = isRecurring, date = Timestamp.now(), recurringDate = recurringTimestamp)
-        expenseRepository.addExpense(expense, {
-            Toast.makeText(this, "Expense added successfully", Toast.LENGTH_SHORT).show()
-            finish()
-        }, {
-            Toast.makeText(this, "Failed to add expense: ${it.message}", Toast.LENGTH_LONG).show()
-        })
+        val expense = Expense(
+            amount = amount,
+            category = category,
+            isRecurring = isRecurring,
+            date = Timestamp.now(),
+            recurringDate = recurringTimestamp
+        )
+        
+        lifecycleScope.launch {
+            try {
+                expenseRepository.addExpense(expense)
+                Toast.makeText(this@AddExpenseActivity, "Expense added successfully", Toast.LENGTH_SHORT).show()
+                finish()
+            } catch (e: Exception) {
+                Toast.makeText(this@AddExpenseActivity, "Failed to add expense: ${e.message}", Toast.LENGTH_LONG).show()
+            }
+        }
     }
 }

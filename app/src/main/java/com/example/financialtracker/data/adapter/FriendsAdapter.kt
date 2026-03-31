@@ -11,7 +11,6 @@ import android.widget.TextView
 import com.bumptech.glide.Glide
 import com.example.financialtracker.R
 import com.example.financialtracker.data.model.Friend
-import java.util.Locale
 
 class FriendsAdapter(
     private val context: Context,
@@ -32,8 +31,6 @@ class FriendsAdapter(
         val statusDot = view.findViewById<View>(R.id.statusDot)
 
         nameTextView.text = friend.username
-        val status = friend.status
-        statusTextView.text = status.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
 
         if (friend.profileImageUrl.isNotEmpty()) {
             avatarImageView.visibility = View.VISIBLE
@@ -48,10 +45,12 @@ class FriendsAdapter(
             avatarTextView.text = getInitials(friend.username)
         }
 
-        if (status.equals("online", ignoreCase = true)) {
+        if (friend.online) {
+            statusTextView.text = context.getString(R.string.online)
             statusDot.setBackgroundResource(R.drawable.status_dot_online)
             statusTextView.setTextColor(context.getColor(R.color.online_status))
         } else {
+            statusTextView.text = context.getString(R.string.offline)
             statusDot.setBackgroundResource(R.drawable.status_dot_offline)
             statusTextView.setTextColor(context.getColor(R.color.textSecondary))
         }

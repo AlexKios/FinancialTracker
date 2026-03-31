@@ -5,7 +5,7 @@ data class User (
     val username: String = "",
     val email: String = "",
     val profileImageUrl: String = "",
-    val isOnline : Boolean = false,
+    val online : Boolean = false,
     val name : String = "",
     var budget : Double = 0.0,
     val friends: List<String> = emptyList()

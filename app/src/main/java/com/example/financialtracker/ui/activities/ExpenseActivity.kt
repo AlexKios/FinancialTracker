@@ -22,10 +22,14 @@ class ExpenseActivity : BaseActivity() {
         super.onCreate(savedInstanceState)
         layoutInflater.inflate(R.layout.expenses, findViewById(R.id.content_container), true)
 
+        initViews()
+        setupViewModel()
+    }
+
+    private fun initViews() {
         val button = findViewById<Button>(R.id.buttonAddExpense)
         button.setOnClickListener {
-            val intent = Intent(this, AddExpenseActivity::class.java)
-            startActivity(intent)
+            startActivity(Intent(this, AddExpenseActivity::class.java))
         }
 
         val recyclerView = findViewById<RecyclerView>(R.id.expensesRecyclerView)
@@ -34,7 +38,9 @@ class ExpenseActivity : BaseActivity() {
             showEditDeleteDialog(expense)
         }
         recyclerView.adapter = adapter
+    }
 
+    private fun setupViewModel() {
         viewModel = ViewModelProvider(this)[ExpenseViewModel::class.java]
         viewModel.expenses.observe(this) { expenses ->
             adapter.updateData(expenses)
@@ -49,8 +55,9 @@ class ExpenseActivity : BaseActivity() {
             .setItems(options) { _, which ->
                 when (which) {
                     0 -> {
-                        val intent = Intent(this, EditExpenseActivity::class.java)
-                        intent.putExtra("expenseId", expense.id)
+                        val intent = Intent(this, EditExpenseActivity::class.java).apply {
+                            putExtra("expenseId", expense.id)
+                        }
                         startActivity(intent)
                     }
                     1 -> {

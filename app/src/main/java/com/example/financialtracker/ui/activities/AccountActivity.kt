@@ -6,7 +6,6 @@ import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import android.widget.Button
 import android.widget.EditText
@@ -43,8 +42,8 @@ class AccountActivity : BaseActivity() {
 
     private val pickImageLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
         if (it.resultCode == RESULT_OK) {
-            it.data?.data?.let {
-                uri -> viewModel.uploadProfilePicture(uri)
+            it.data?.data?.let { uri ->
+                viewModel.uploadProfilePicture(uri)
             }
         }
     }
@@ -62,6 +61,14 @@ class AccountActivity : BaseActivity() {
         super.onCreate(savedInstanceState)
         layoutInflater.inflate(R.layout.account, findViewById(R.id.content_container), true)
 
+        initViews()
+        setupViewModel()
+        setupListeners()
+
+        viewModel.loadCurrentUser()
+    }
+
+    private fun initViews() {
         profilePicture = findViewById(R.id.profile_picture)
         changeProfilePictureButton = findViewById(R.id.change_profile_picture_button)
         usernameEditText = findViewById(R.id.username_input)
@@ -73,15 +80,10 @@ class AccountActivity : BaseActivity() {
         qrCodeImageView = findViewById(R.id.qr_code_image_view)
         toggleQrCodeButton = findViewById(R.id.toggle_qr_code_button)
         qrContainer = findViewById(R.id.qr_container)
+    }
 
-        changeProfilePictureButton.setOnClickListener {
-            requestStoragePermission()
-        }
-
-        viewModel = ViewModelProvider(
-            this,
-            ViewModelProvider.AndroidViewModelFactory.getInstance(application)
-        )[AccountViewModel::class.java]
+    private fun setupViewModel() {
+        viewModel = ViewModelProvider(this)[AccountViewModel::class.java]
 
         viewModel.currentUser.observe(this) { user ->
             usernameEditText.setText(user.username)
@@ -107,7 +109,6 @@ class AccountActivity : BaseActivity() {
             }
         }
 
-        // Observe update results
         viewModel.updateResult.observe(this) { result ->
             result.onSuccess {
                 Toast.makeText(this, "Changes saved successfully", Toast.LENGTH_SHORT).show()
@@ -115,8 +116,12 @@ class AccountActivity : BaseActivity() {
                 Toast.makeText(this, "Error: ${error.message}", Toast.LENGTH_LONG).show()
             }
         }
+    }
 
-        viewModel.loadCurrentUser()
+    private fun setupListeners() {
+        changeProfilePictureButton.setOnClickListener {
+            requestStoragePermission()
+        }
 
         saveChangesButton.setOnClickListener {
             val newUsername = usernameEditText.text?.toString()?.trim().takeIf { !it.isNullOrEmpty() }
@@ -134,10 +139,8 @@ class AccountActivity : BaseActivity() {
 
         showQrCode.setOnClickListener {
             viewModel.currentUser.value?.let { user ->
-                val userId = user.uid
-                Log.d("QR Code", "User ID: $userId")
-                generateQrCode(userId)
-            }?: run {
+                generateQrCode(user.uid)
+            } ?: run {
                 Toast.makeText(this, "User not found", Toast.LENGTH_SHORT).show()
             }
         }
@@ -155,10 +158,7 @@ class AccountActivity : BaseActivity() {
         }
 
         when {
-            ContextCompat.checkSelfPermission(
-                this,
-                permission
-            ) == PackageManager.PERMISSION_GRANTED -> {
+            ContextCompat.checkSelfPermission(this, permission) == PackageManager.PERMISSION_GRANTED -> {
                 launchImagePicker()
             }
             shouldShowRequestPermissionRationale(permission) -> {
@@ -181,18 +181,13 @@ class AccountActivity : BaseActivity() {
         val qrCodeWriter = QRCodeWriter()
         try {
             val bitMatrix: BitMatrix = qrCodeWriter.encode(userId, BarcodeFormat.QR_CODE, 512, 512)
-
             val width = bitMatrix.width
             val height = bitMatrix.height
             val bmp = createBitmap(width, height, Bitmap.Config.RGB_565)
 
             for (x in 0 until width) {
                 for (y in 0 until height) {
-                    bmp[x, y] = if (bitMatrix.get(
-                            x,
-                            y
-                        )
-                    ) android.graphics.Color.BLACK else android.graphics.Color.WHITE
+                    bmp[x, y] = if (bitMatrix.get(x, y)) android.graphics.Color.BLACK else android.graphics.Color.WHITE
                 }
             }
 

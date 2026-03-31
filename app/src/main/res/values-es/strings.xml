@@ -79,8 +79,8 @@
     <string name="stop_scan">Detener escaneo</string>
     <string name="change_language">Cambiar idioma</string>
     <string name="amount_format">%1$.2f€</string>
-    <string name="friends_list">friends_list</string>
-    <string name="friendProfilePic" />s
+    <string name="friends_list">Lista de amigos</string>
+    <string name="friendProfilePic" />
     <string name="profilePic" />
     <string name="update_expense">Actualizar Gasto</string>
     <string name="update_income">Actualizar Ingreso</string>
@@ -101,4 +101,6 @@
     <string name="track_your_spending">Siga sus gastos</string>
     <string name="modify_your_spending_entry">Modifique su entrada de gastos</string>
     <string name="modify_your_entry">Modifique su entrada</string>
+    <string name="online">en línea</string>
+    <string name="offline">desconectado</string>
 </resources>

@@ -44,16 +44,27 @@ class MainActivity : BaseActivity() {
         super.onCreate(savedInstanceState)
 
         val contentContainer = findViewById<android.view.ViewGroup>(R.id.content_container)
-        if (contentContainer != null) {
-            layoutInflater.inflate(R.layout.activity_main, contentContainer, true)
+        contentContainer?.let {
+            layoutInflater.inflate(R.layout.activity_main, it, true)
         }
 
+        initViews()
+        setupRecyclerViews()
+        setupViewModel()
+        setupListeners()
+
+        viewModel.loadUserData()
+    }
+
+    private fun initViews() {
         progressBar = findViewById(R.id.progressBudget)
         textViewAmount = findViewById(R.id.remainingBudget)
         setBudgetButton = findViewById(R.id.setBudgetButton)
         lineChart = findViewById(R.id.lineChart)
+        textViewAmount.text = ""
+    }
 
-        // Initialize RecyclerViews
+    private fun setupRecyclerViews() {
         val rvTransactions = findViewById<RecyclerView>(R.id.rvTransactions)
         rvTransactions?.layoutManager = LinearLayoutManager(this)
         transactionAdapter = TransactionAdapter(emptyList())
@@ -62,13 +73,40 @@ class MainActivity : BaseActivity() {
         val rvFriends = findViewById<RecyclerView>(R.id.rvFriendsProgress)
         friendsAdapter = HomeFriendsAdapter()
         rvFriends?.adapter = friendsAdapter
+    }
 
-        textViewAmount.text = ""
-
+    private fun setupViewModel() {
         viewModel = ViewModelProvider(this)[MainViewModel::class.java]
-        observeViewModel()
-        viewModel.loadUserData()
 
+        viewModel.budget.observe(this) { remaining ->
+            textViewAmount.text = getString(R.string.amount_format, remaining)
+            val percentage = viewModel.calculateBudgetPercentage(remaining)
+            updateProgressBar(remaining, percentage)
+        }
+
+        viewModel.allTransactions.observe(this) { transactions ->
+            transactionAdapter.updateData(transactions)
+        }
+
+        viewModel.userSettings.observe(this) { settings ->
+            viewModel.chartData.value?.let { entries ->
+                setupChartWithData(entries, settings.graphSize.toFloat())
+            }
+        }
+
+        viewModel.chartData.observe(this) { entries ->
+            if (entries.isNotEmpty()) {
+                val graphSize = viewModel.userSettings.value?.graphSize?.toFloat() ?: 16f
+                setupChartWithData(entries, graphSize)
+            }
+        }
+
+        viewModel.friendsData.observe(this) { friends ->
+            friendsAdapter.submitList(friends)
+        }
+    }
+
+    private fun setupListeners() {
         setBudgetButton.setOnClickListener {
             showSetBudgetDialog()
         }
@@ -102,76 +140,41 @@ class MainActivity : BaseActivity() {
     }
 
     private fun showSetBudgetDialog() {
-        val builder = AlertDialog.Builder(this)
-        val inflater = layoutInflater
-        val dialogLayout = inflater.inflate(R.layout.dialog_set_budget, null)
+        val dialogLayout = layoutInflater.inflate(R.layout.dialog_set_budget, null)
         val editText = dialogLayout.findViewById<EditText>(R.id.editTextBudget)
 
-        builder.setView(dialogLayout)
-        builder.setPositiveButton("OK") { _, _ ->
-            val budgetString = editText.text.toString()
-            if (budgetString.isNotEmpty()) {
-                val budget = budgetString.toDouble()
-                viewModel.setBudget(budget)
+        AlertDialog.Builder(this)
+            .setView(dialogLayout)
+            .setPositiveButton("OK") { _, _ ->
+                val budgetString = editText.text.toString()
+                if (budgetString.isNotEmpty()) {
+                    val budget = budgetString.toDouble()
+                    viewModel.setBudget(budget)
+                }
             }
-        }
-        builder.setNegativeButton("Cancel") { _, _ ->
-        }
-        builder.show()
-    }
-
-    private fun observeViewModel() {
-        viewModel.budget.observe(this) { remaining ->
-            textViewAmount.text = getString(R.string.amount_format, remaining)
-            val percentage = viewModel.calculateBudgetPercentage(remaining)
-            updateProgressBar(remaining, percentage)
-        }
-
-        viewModel.allTransactions.observe(this) { transactions ->
-            transactionAdapter.updateData(transactions)
-        }
-
-        viewModel.userSettings.observe(this) { settings ->
-            viewModel.chartData.value?.let { entries ->
-                setupChartWithData(entries, settings.graphSize.toFloat())
-            }
-        }
-
-        viewModel.chartData.observe(this) { entries ->
-            if (entries.isNotEmpty()) {
-                val graphSize = viewModel.userSettings.value?.graphSize?.toFloat() ?: 16f
-                setupChartWithData(entries, graphSize)
-            }
-        }
-
-        viewModel.friendsData.observe(this) { friends ->
-            friendsAdapter.submitList(friends)
-        }
+            .setNegativeButton("Cancel", null)
+            .show()
     }
 
     private fun setupChartWithData(entries: List<com.github.mikephil.charting.data.Entry>, graphSize: Float) {
         setupChart(lineChart, graphSize)
-        val dataSet = LineDataSet(entries, "Daily Spending")
-        dataSet.color = ContextCompat.getColor(this, R.color.primary)
-        dataSet.valueTextColor = ContextCompat.getColor(this, R.color.textPrimary)
-        dataSet.valueTextSize = graphSize
-        dataSet.setCircleColor(ContextCompat.getColor(this, R.color.primary))
-        dataSet.circleHoleColor = ContextCompat.getColor(this, R.color.primary)
-        dataSet.setDrawFilled(true)
-        dataSet.fillColor = ContextCompat.getColor(this, R.color.primary)
-        dataSet.fillAlpha = 100
-
-        dataSet.valueFormatter = object : ValueFormatter() {
-            override fun getFormattedValue(value: Float): String {
-                if (value == 0f) {
-                    return ""
+        val dataSet = LineDataSet(entries, "Daily Spending").apply {
+            color = ContextCompat.getColor(this@MainActivity, R.color.primary)
+            valueTextColor = ContextCompat.getColor(this@MainActivity, R.color.textPrimary)
+            valueTextSize = graphSize
+            setCircleColor(ContextCompat.getColor(this@MainActivity, R.color.primary))
+            circleHoleColor = ContextCompat.getColor(this@MainActivity, R.color.primary)
+            setDrawFilled(true)
+            fillColor = ContextCompat.getColor(this@MainActivity, R.color.primary)
+            fillAlpha = 100
+            valueFormatter = object : ValueFormatter() {
+                override fun getFormattedValue(value: Float): String {
+                    return if (value == 0f) "" else String.format(Locale.US, "%.0f", value)
                 }
-                return String.format(Locale.US, "%.0f", value)
             }
         }
 
-        val lineData = LineData(dataSet)
-        lineChart.data = lineData
+        lineChart.data = LineData(dataSet)
         lineChart.invalidate()
     }
 
@@ -179,23 +182,23 @@ class MainActivity : BaseActivity() {
         chart.description.isEnabled = false
         chart.setDrawGridBackground(false)
 
-        val xAxis = chart.xAxis
-        xAxis.position = XAxis.XAxisPosition.BOTTOM
-        xAxis.setDrawGridLines(false)
-        xAxis.textColor = ContextCompat.getColor(this, R.color.textPrimary)
-        xAxis.textSize = textSize
-        xAxis.granularity = 1f
-        xAxis.valueFormatter = object : ValueFormatter() {
-            override fun getFormattedValue(value: Float): String {
-                return value.toInt().toString()
+        chart.xAxis.apply {
+            position = XAxis.XAxisPosition.BOTTOM
+            setDrawGridLines(false)
+            textColor = ContextCompat.getColor(this@MainActivity, R.color.textPrimary)
+            this.textSize = textSize
+            granularity = 1f
+            valueFormatter = object : ValueFormatter() {
+                override fun getFormattedValue(value: Float): String = value.toInt().toString()
             }
         }
 
-        val leftAxis = chart.axisLeft
-        leftAxis.setDrawGridLines(true)
-        leftAxis.textColor = ContextCompat.getColor(this, R.color.textPrimary)
-        leftAxis.textSize = textSize
-        leftAxis.axisMinimum = 0f
+        chart.axisLeft.apply {
+            setDrawGridLines(true)
+            textColor = ContextCompat.getColor(this@MainActivity, R.color.textPrimary)
+            this.textSize = textSize
+            axisMinimum = 0f
+        }
 
         chart.axisRight.isEnabled = false
         chart.legend.isEnabled = false

@@ -26,11 +26,9 @@ object CloudinaryClient {
             .unsigned(uploadPreset)
             .callback(object : UploadCallback {
                 override fun onStart(requestId: String) {
-                    // your code here
                 }
 
                 override fun onProgress(requestId: String, bytes: Long, totalBytes: Long) {
-                    // your code here
                 }
 
                 override fun onSuccess(requestId: String, resultData: Map<*, *>) {
@@ -47,7 +45,6 @@ object CloudinaryClient {
                 }
 
                 override fun onReschedule(requestId: String, error: ErrorInfo) {
-                    // your code here
                 }
             })
             .dispatch()

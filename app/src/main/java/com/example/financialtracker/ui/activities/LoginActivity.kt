@@ -7,7 +7,6 @@ import android.widget.EditText
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.Observer
 import com.example.financialtracker.R
 import com.example.financialtracker.ui.viewmodels.LoginViewModel
 
@@ -29,26 +28,33 @@ class LoginActivity : AppCompatActivity() {
         loginButton = findViewById(R.id.login)
         registerButton = findViewById(R.id.register)
 
+        setupListeners()
+        observeViewModel()
+    }
+
+    private fun setupListeners() {
         loginButton.setOnClickListener { onLoginClicked() }
 
         registerButton.setOnClickListener {
             startActivity(Intent(this, RegisterActivity::class.java))
         }
+    }
 
-        loginViewModel.loginSuccess.observe(this, Observer { success ->
+    private fun observeViewModel() {
+        loginViewModel.loginSuccess.observe(this) { success ->
             if (success) {
                 Toast.makeText(this, "Login successful", Toast.LENGTH_SHORT).show()
                 startActivity(Intent(this, MainActivity::class.java))
                 finish()
             }
-        })
+        }
 
-        loginViewModel.errorMessage.observe(this, Observer { error ->
+        loginViewModel.errorMessage.observe(this) { error ->
             error?.let {
                 Toast.makeText(this, it, Toast.LENGTH_LONG).show()
                 loginViewModel.clearError()
             }
-        })
+        }
     }
 
     private fun onLoginClicked() {

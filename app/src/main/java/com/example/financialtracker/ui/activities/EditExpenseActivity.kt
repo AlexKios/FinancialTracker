@@ -8,10 +8,12 @@ import android.widget.CheckBox
 import android.widget.EditText
 import android.widget.Spinner
 import android.widget.Toast
+import androidx.lifecycle.lifecycleScope
 import com.example.financialtracker.R
 import com.example.financialtracker.data.model.Expense
 import com.example.financialtracker.data.repositories.ExpenseRepository
 import com.google.firebase.Timestamp
+import kotlinx.coroutines.launch
 import java.util.Calendar
 
 class EditExpenseActivity : BaseActivity() {
@@ -71,8 +73,9 @@ class EditExpenseActivity : BaseActivity() {
     }
 
     private fun loadExpenseData(id: String) {
-        expenseRepository.getExpenseById(id,
-            onSuccess = { expense ->
+        lifecycleScope.launch {
+            try {
+                val expense = expenseRepository.getExpenseById(id)
                 amountEditText.setText(expense.amount.toString())
                 val categories = resources.getStringArray(R.array.expense_categories)
                 val categoryPosition = categories.indexOf(expense.category)
@@ -83,14 +86,13 @@ class EditExpenseActivity : BaseActivity() {
                 if (expense.isRecurring && expense.recurringDate != null) {
                     selectedDate.time = expense.recurringDate.toDate()
                 } else {
-                    selectedDate.time = expense.date?.toDate()
+                    selectedDate.time = expense.date?.toDate() ?: Calendar.getInstance().time
                 }
-            },
-            onFailure = { exception ->
-                Toast.makeText(this, "Failed to load expense: ${exception.message}", Toast.LENGTH_LONG).show()
+            } catch (e: Exception) {
+                Toast.makeText(this@EditExpenseActivity, "Failed to load expense: ${e.message}", Toast.LENGTH_LONG).show()
                 finish()
             }
-        )
+        }
     }
 
 
@@ -119,7 +121,7 @@ class EditExpenseActivity : BaseActivity() {
                 if (amountValue <= 0) {
                     Toast.makeText(this, "Amount must be greater than zero", Toast.LENGTH_SHORT).show()
                 } else {
-                    updateExpense(expenseId!!, amountValue, category, isRecurring)
+                    updateExpenseRecord(expenseId!!, amountValue, category, isRecurring)
                 }
             } catch (e: NumberFormatException) {
                 Toast.makeText(this, "Invalid amount entered", Toast.LENGTH_SHORT).show()
@@ -127,14 +129,25 @@ class EditExpenseActivity : BaseActivity() {
         }
     }
 
-    private fun updateExpense(id: String, amount: Double, category: String, isRecurring: Boolean) {
+    private fun updateExpenseRecord(id: String, amount: Double, category: String, isRecurring: Boolean) {
         val recurringTimestamp = if (isRecurring) Timestamp(selectedDate.time) else null
-        val expense = Expense(id = id, amount = amount, category = category, isRecurring = isRecurring, date = Timestamp(selectedDate.time), recurringDate = recurringTimestamp)
-        expenseRepository.updateExpense(expense, {
-            Toast.makeText(this, "Expense updated successfully", Toast.LENGTH_SHORT).show()
-            finish()
-        }, {
-            Toast.makeText(this, "Failed to update expense: ${it.message}", Toast.LENGTH_LONG).show()
-        })
+        val expense = Expense(
+            id = id,
+            amount = amount,
+            category = category,
+            isRecurring = isRecurring,
+            date = Timestamp(selectedDate.time),
+            recurringDate = recurringTimestamp
+        )
+        
+        lifecycleScope.launch {
+            try {
+                expenseRepository.updateExpense(expense)
+                Toast.makeText(this@EditExpenseActivity, "Expense updated successfully", Toast.LENGTH_SHORT).show()
+                finish()
+            } catch (e: Exception) {
+                Toast.makeText(this@EditExpenseActivity, "Failed to update expense: ${e.message}", Toast.LENGTH_LONG).show()
+            }
+        }
     }
 }

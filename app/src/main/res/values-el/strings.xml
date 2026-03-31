@@ -51,7 +51,7 @@
     <string name="account_subtitle">Διαχειριστείτε το προφίλ σας</string>
     <string name="full_name">Ονοματεπώνυμο</string>
     <string name="enter_full_name">Εισαγάγετε το ονοματεπώνυμό σας</string>
-    <string name="app_theme">Θέμα εφαρμογής</string> Greek (`values-el/strings.xml`)
+    <string name="app_theme">Θέμα εφαρμογής</string>
     <string name="enable_notifications">Ενεργοποίηση ειδοποιήσεων</string>
     <string name="dark_mode">Σκοτεινή λειτουργία</string>
     <string name="graph_size">Μέγεθος γραφήματος</string>
@@ -79,7 +79,7 @@
     <string name="stop_scan">Διακοπή σάρωσης</string>
     <string name="change_language">Αλλαγή γλώσσας</string>
     <string name="amount_format">%1$.2f€</string>
-    <string name="friends_list">friends_list</string>
+    <string name="friends_list">Λίστα φίλων</string>
     <string name="friendProfilePic" />
     <string name="profilePic" />
     <string name="update_expense">Ενημέρωση εξόδου</string>
@@ -95,10 +95,12 @@
     <string name="friends">Φίλοι</string>
     <string name="manage_your_connections">Διαχειριστείτε τις συνδέσεις σας</string>
     <string name="monitor_your_spending">Παρακολουθήστε τις δαπάνες σας</string>
-    <string name="track_your_earnings">Παρακολουθήστε τα κέρδη σας</string> Greek (`values-el/strings.xml`)
+    <string name="track_your_earnings">Παρακολουθήστε τα κέρδη σας</string>
     <string name="customize_your_experience">Προσαρμόστε την εμπειρία σας</string>
     <string name="log_your_earnings">Καταγράψτε τα κέρδη σας</string>
     <string name="track_your_spending">Παρακολουθήστε τις δαπάνες σας</string>
     <string name="modify_your_spending_entry">Τροποποιήστε την καταχώρηση δαπανών σας</string>
     <string name="modify_your_entry">Τροποποιήστε την καταχώρησή σας</string>
+    <string name="online">σε σύνδεση</string>
+    <string name="offline">εκτός σύνδεσης</string>
 </resources>

@@ -3,6 +3,7 @@ package com.example.financialtracker.ui.viewmodels
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.financialtracker.data.model.User
 import com.example.financialtracker.data.model.Income
 import com.example.financialtracker.data.model.Expense
@@ -12,10 +13,14 @@ import com.example.financialtracker.data.repositories.IncomeRepository
 import com.example.financialtracker.data.repositories.SettingsRepository
 import com.example.financialtracker.data.repositories.UserRepository
 import com.github.mikephil.charting.data.Entry
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
+import java.util.concurrent.ConcurrentHashMap
 
 data class FriendProgressData(
     val id: String,
@@ -53,43 +58,39 @@ class MainViewModel : ViewModel() {
     private var selectedChartMonth: Int = Calendar.getInstance().get(Calendar.MONTH)
     private var selectedChartYear: Int = Calendar.getInstance().get(Calendar.YEAR)
 
+    private val friendsMap = ConcurrentHashMap<String, FriendProgressData>()
+
     fun loadUserData() {
-        userRepo.getCurrentUser(
-            onSuccess = { user ->
-                currentUser = user
+        viewModelScope.launch {
+            try {
+                currentUser = userRepo.getCurrentUser()
+                loadSettings()
                 listenForTransactions()
                 loadFriendsData()
-                loadSettings()
-            },
-            onFailure = {
+            } catch (e: Exception) {
             }
-        )
+        }
     }
 
-    private fun loadSettings() {
-        settingsRepo.getUserSettings(
-            onSuccess = { settings ->
-                _userSettings.value = settings
-            },
-            onFailure = {}
-        )
+    private suspend fun loadSettings() {
+        try {
+            _userSettings.value = settingsRepo.getUserSettings()
+        } catch (e: Exception) {
+        }
     }
 
     private fun listenForTransactions() {
-        incomeRepo.listenForIncomes(
-            onSuccess = { incomes ->
+        viewModelScope.launch {
+            combine(
+                incomeRepo.listenForIncomes(),
+                expenseRepo.listenForExpenses()
+            ) { incomes, expenses ->
                 currentIncomes = incomes
-                updateUI()
-            },
-            onFailure = {}
-        )
-        expenseRepo.listenForExpenses(
-            onSuccess = { expenses ->
                 currentExpenses = expenses
                 updateUI()
-            },
-            onFailure = {}
-        )
+            }.catch {
+            }.collect {}
+        }
     }
 
     private fun updateUI() {
@@ -106,7 +107,6 @@ class MainViewModel : ViewModel() {
             combinedList.add(Triple("Expense: ${expense.category}", expense.amount, date))
         }
 
-        // Sort by date descending (newest first)
         combinedList.sortByDescending { it.third }
 
         val transactions = combinedList.map { item ->
@@ -136,46 +136,43 @@ class MainViewModel : ViewModel() {
     }
 
     fun loadFriendsData() {
-        expenseRepo.unregisterUserListeners()
-        val friendsList = mutableListOf<FriendProgressData>()
+        friendsMap.clear()
         val calendar = Calendar.getInstance()
         val currentMonth = calendar.get(Calendar.MONTH)
         val currentYear = calendar.get(Calendar.YEAR)
 
         currentUser?.friends?.forEach { friendId ->
-            userRepo.getUserById(friendId,
-                onSuccess = { friend ->
-                    expenseRepo.listenForExpensesForUser(friend.uid,
-                        onSuccess = { expenses ->
-                            val monthlyExpenses = expenses.filter { expense ->
-                                val expenseCalendar = Calendar.getInstance()
-                                expense.date?.let { timestamp ->
-                                    expenseCalendar.time = timestamp.toDate()
-                                    expenseCalendar.get(Calendar.MONTH) == currentMonth &&
-                                    expenseCalendar.get(Calendar.YEAR) == currentYear
-                                } ?: false
-                            }
-                            val totalMonthlyExpenses = monthlyExpenses.sumOf { it.amount }
+            viewModelScope.launch {
+                try {
+                    val friend = userRepo.getUserById(friendId)
+                    expenseRepo.listenForExpensesForUser(friend.uid).collect { expenses ->
+                        val monthlyExpenses = expenses.filter { expense ->
+                            val expenseCalendar = Calendar.getInstance()
+                            expense.date?.let { timestamp ->
+                                expenseCalendar.time = timestamp.toDate()
+                                expenseCalendar.get(Calendar.MONTH) == currentMonth &&
+                                expenseCalendar.get(Calendar.YEAR) == currentYear
+                            } ?: false
+                        }
+                        val totalMonthlyExpenses = monthlyExpenses.sumOf { it.amount }
 
-                            val budgetPercentage = if (friend.budget > 0) {
-                                ((friend.budget - totalMonthlyExpenses) / friend.budget * 100).toInt().coerceIn(0, 100)
-                            } else {
-                                0
-                            }
+                        val budgetPercentage = if (friend.budget > 0) {
+                            ((friend.budget - totalMonthlyExpenses) / friend.budget * 100).toInt().coerceIn(0, 100)
+                        } else {
+                            0
+                        }
 
-                            val friendIndex = friendsList.indexOfFirst { it.id == friend.uid }
-                            if (friendIndex != -1) {
-                                friendsList[friendIndex] = FriendProgressData(friend.uid, friend.name, friend.profileImageUrl, budgetPercentage)
-                            } else {
-                                friendsList.add(FriendProgressData(friend.uid, friend.name, friend.profileImageUrl, budgetPercentage))
-                            }
-                            _friendsData.postValue(friendsList.toList())
-                        },
-                        onFailure = {}
-                    )
-                },
-                onFailure = {}
-            )
+                        friendsMap[friend.uid] = FriendProgressData(
+                            friend.uid, 
+                            friend.name, 
+                            friend.profileImageUrl, 
+                            budgetPercentage
+                        )
+                        _friendsData.postValue(friendsMap.values.toList())
+                    }
+                } catch (e: Exception) {
+                }
+            }
         }
     }
 
@@ -221,18 +218,13 @@ class MainViewModel : ViewModel() {
     }
 
     fun setBudget(budget: Double) {
-        userRepo.updateBudget(budget,
-            onSuccess = {
+        viewModelScope.launch {
+            try {
+                userRepo.updateBudget(budget)
                 currentUser?.budget = budget
                 updateUI()
-            },
-            onFailure = {}
-        )
-    }
-
-    override fun onCleared() {
-        super.onCleared()
-        incomeRepo.unregisterListener()
-        expenseRepo.unregisterListener()
+            } catch (e: Exception) {
+            }
+        }
     }
 }

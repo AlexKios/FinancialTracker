@@ -50,6 +50,15 @@ class SettingsActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.settings)
 
+        initViews()
+        setupLanguageSpinner()
+        setupListeners()
+        observeViewModel()
+
+        viewModel.loadUserSettings()
+    }
+
+    private fun initViews() {
         darkModeSwitch = findViewById(R.id.switch_dark_mode)
         notificationsSwitch = findViewById(R.id.switch_notifications)
         graphSizeSeekBar = findViewById(R.id.graph_size_seekbar)
@@ -60,16 +69,10 @@ class SettingsActivity : AppCompatActivity() {
         graphSizeSeekBar.valueFrom = 10f
         graphSizeSeekBar.valueTo = 30f
         graphSizeSeekBar.stepSize = 1f
-
-        setupLanguageSpinner()
-        setupListeners()
-        observeUserSettings()
-
-        viewModel.loadUserSettings()
     }
 
     @SuppressLint("SetTextI18n")
-    private fun observeUserSettings() {
+    private fun observeViewModel() {
         lifecycleScope.launch {
             viewModel.userSettings.collect { settings ->
                 settings?.let {
@@ -84,6 +87,57 @@ class SettingsActivity : AppCompatActivity() {
                 }
             }
         }
+
+        lifecycleScope.launch {
+            viewModel.saveSuccess.collect { success ->
+                if (success) {
+                    applySettings()
+                    viewModel.resetSaveSuccess()
+                }
+            }
+        }
+
+        lifecycleScope.launch {
+            viewModel.error.collect { error ->
+                error?.let {
+                    Toast.makeText(this@SettingsActivity, "Error: $it", Toast.LENGTH_SHORT).show()
+                    viewModel.clearError()
+                }
+            }
+        }
+    }
+
+    private fun applySettings() {
+        val isDarkMode = darkModeSwitch.isChecked
+        val selectedLanguage = getSelectedLanguageCode()
+
+        val prefs = getSharedPreferences("user_settings", Context.MODE_PRIVATE)
+        prefs.edit().putBoolean("darkMode", isDarkMode).apply()
+
+        Toast.makeText(this, "Settings saved", Toast.LENGTH_SHORT).show()
+
+        val currentLang = AppCompatDelegate.getApplicationLocales().get(0)?.language ?: Locale.getDefault().language
+        val languageChanged = currentLang != selectedLanguage
+
+        if (languageChanged) {
+            val appLocale = LocaleListCompat.forLanguageTags(selectedLanguage)
+            AppCompatDelegate.setApplicationLocales(appLocale)
+        }
+
+        val currentNightMode = resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK
+        val themeChanged = (isDarkMode && currentNightMode != Configuration.UI_MODE_NIGHT_YES) ||
+                (!isDarkMode && currentNightMode != Configuration.UI_MODE_NIGHT_NO)
+
+        if (themeChanged) {
+            AppCompatDelegate.setDefaultNightMode(
+                if (isDarkMode) AppCompatDelegate.MODE_NIGHT_YES else AppCompatDelegate.MODE_NIGHT_NO
+            )
+        }
+
+        if (themeChanged || languageChanged) {
+            setResult(RESULT_OK)
+        }
+        finish()
     }
 
     @SuppressLint("SetTextI18n")
@@ -117,53 +171,23 @@ class SettingsActivity : AppCompatActivity() {
     }
 
     private fun onSaveClicked() {
-        val isDarkMode = darkModeSwitch.isChecked
-        val isNotificationsEnabled = notificationsSwitch.isChecked
-        val graphSize = graphSizeSeekBar.value.toInt()
-        val selectedLanguage = when (languageSpinner.selectedItem.toString()) {
+        val settings = UserSettings(
+            darkMode = darkModeSwitch.isChecked,
+            notificationsEnabled = notificationsSwitch.isChecked,
+            graphSize = graphSizeSeekBar.value.toInt(),
+            language = getSelectedLanguageCode()
+        )
+        viewModel.saveUserSettings(settings)
+    }
+
+    private fun getSelectedLanguageCode(): String {
+        return when (languageSpinner.selectedItem.toString()) {
             "Bulgarian" -> "bg"
             "German" -> "de"
             "Greek" -> "el"
             "Spanish" -> "es"
             else -> "en"
         }
-
-        val settings = UserSettings(isDarkMode, isNotificationsEnabled, graphSize, selectedLanguage)
-
-        viewModel.saveUserSettings(settings,
-            onSuccess = {
-                val prefs = getSharedPreferences("user_settings", Context.MODE_PRIVATE)
-                prefs.edit().putBoolean("darkMode", isDarkMode).apply()
-
-                Toast.makeText(this, "Settings saved", Toast.LENGTH_SHORT).show()
-
-                val currentLang = AppCompatDelegate.getApplicationLocales().get(0)?.language ?: Locale.getDefault().language
-                val languageChanged = currentLang != selectedLanguage
-
-                if (languageChanged) {
-                    val appLocale = LocaleListCompat.forLanguageTags(selectedLanguage)
-                    AppCompatDelegate.setApplicationLocales(appLocale)
-                }
-
-                val currentNightMode = resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK
-                val themeChanged = (isDarkMode && currentNightMode != Configuration.UI_MODE_NIGHT_YES) ||
-                        (!isDarkMode && currentNightMode != Configuration.UI_MODE_NIGHT_NO)
-
-                if (themeChanged) {
-                    AppCompatDelegate.setDefaultNightMode(
-                        if (isDarkMode) AppCompatDelegate.MODE_NIGHT_YES else AppCompatDelegate.MODE_NIGHT_NO
-                    )
-                }
-
-                if (themeChanged || languageChanged) {
-                    setResult(RESULT_OK)
-                }
-                finish()
-            },
-            onFailure = { e ->
-                Toast.makeText(this, "Failed to save settings: ${e.message}", Toast.LENGTH_SHORT).show()
-            }
-        )
     }
 
     private fun hasNotificationPermission(): Boolean {

@@ -8,38 +8,47 @@ import android.widget.TextView
 import android.widget.Toast
 import android.view.View
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.financialtracker.R
 import com.example.financialtracker.data.adapter.MessageAdapter
 import com.example.financialtracker.data.helper.ChatSessionTracker
-import com.example.financialtracker.data.helper.NotificationHelper
 import com.example.financialtracker.data.model.Message
 import com.example.financialtracker.data.repositories.ChatRepository
 import com.example.financialtracker.ui.viewmodels.ChatViewModel
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.firebase.auth.FirebaseAuth
+import kotlinx.coroutines.launch
 
 class ChatActivity : AppCompatActivity() {
 
     private lateinit var messageInput: EditText
     private lateinit var sendButton: FloatingActionButton
-    private lateinit var friendName: String
     private lateinit var viewModel: ChatViewModel
     private lateinit var messagesRecyclerView: RecyclerView
     private lateinit var messageAdapter: MessageAdapter
     private lateinit var chatId: String
     private lateinit var currentUserId: String
-    private lateinit var notificationHelper: NotificationHelper
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_chat)
 
-        friendName = intent.getStringExtra("friend_name") ?: "Unknown Friend"
+        val friendName = intent.getStringExtra("friend_name") ?: "Unknown Friend"
         val profileImageUrl = intent.getStringExtra("friend_profile_image_url") ?: ""
+        val friendUid = intent.getStringExtra("friend_uid") ?: return
 
+        setupToolbar(friendName, profileImageUrl)
+        setupRecyclerView()
+        setupViewModel(friendUid)
+        setupListeners()
+
+        ChatSessionTracker.activeChatUserId = friendUid
+    }
+
+    private fun setupToolbar(friendName: String, profileImageUrl: String) {
         val toolbarTitle = findViewById<TextView>(R.id.toolbarTitle)
         val toolbarAvatar = findViewById<TextView>(R.id.toolbarAvatar)
         val toolbarAvatarImage = findViewById<ImageView>(R.id.toolbarAvatarImage)
@@ -58,48 +67,53 @@ class ChatActivity : AppCompatActivity() {
             toolbarAvatar.visibility = View.VISIBLE
             toolbarAvatar.text = getInitials(friendName)
         }
+    }
 
+    private fun setupRecyclerView() {
         messagesRecyclerView = findViewById(R.id.messageList)
-        messageInput = findViewById(R.id.messageInput)
-        sendButton = findViewById(R.id.sendButton)
         messageAdapter = MessageAdapter(emptyList())
-        val layoutManager = LinearLayoutManager(this)
-        layoutManager.stackFromEnd = true
+        val layoutManager = LinearLayoutManager(this).apply {
+            stackFromEnd = true
+        }
         messagesRecyclerView.layoutManager = layoutManager
         messagesRecyclerView.adapter = messageAdapter
-        notificationHelper = NotificationHelper(this)
+    }
 
-        val friendUid = intent.getStringExtra("friend_uid")!!
+    private fun setupViewModel(friendUid: String) {
         currentUserId = FirebaseAuth.getInstance().currentUser?.uid ?: return
+        viewModel = ViewModelProvider(this)[ChatViewModel::class.java]
 
-        viewModel = ViewModelProvider(this, ViewModelProvider.NewInstanceFactory())[ChatViewModel::class.java]
-
-        val repo = ChatRepository()
-        repo.createChat(friendUid, { generatedChatId ->
-            chatId = generatedChatId
-            viewModel.listenForMessages(chatId, currentUserId, friendUid)
-        }, {
-            Toast.makeText(this, "Failed to get chat", Toast.LENGTH_SHORT).show()
-        })
+        lifecycleScope.launch {
+            try {
+                val repo = ChatRepository()
+                chatId = repo.createChat(friendUid)
+                viewModel.listenForMessages(chatId, currentUserId, friendUid)
+            } catch (e: Exception) {
+                Toast.makeText(this@ChatActivity, "Failed to initialize chat", Toast.LENGTH_SHORT).show()
+            }
+        }
 
         viewModel.messages.observe(this) { messages ->
             messageAdapter.updateMessages(messages)
-
             messages.filter { it.senderId != currentUserId }.forEach {
                 viewModel.markMessageAsSeen(chatId, it)
             }
-
             if (messages.isNotEmpty()) {
                 messagesRecyclerView.scrollToPosition(messages.size - 1)
             }
         }
 
-        viewModel.setOnNewMessageListener {}
+        viewModel.error.observe(this) { error ->
+            Toast.makeText(this, error, Toast.LENGTH_SHORT).show()
+        }
+    }
 
-        ChatSessionTracker.activeChatUserId = friendUid
+    private fun setupListeners() {
+        messageInput = findViewById(R.id.messageInput)
+        sendButton = findViewById(R.id.sendButton)
 
         sendButton.setOnClickListener {
-            val text = messageInput.text.toString()
+            val text = messageInput.text.toString().trim()
             if (text.isNotBlank()) {
                 val msg = Message(senderId = currentUserId, messageContent = text)
                 viewModel.sendMessage(chatId, msg)
@@ -120,7 +134,6 @@ class ChatActivity : AppCompatActivity() {
     override fun onDestroy() {
         super.onDestroy()
         ChatSessionTracker.activeChatUserId = null
-        viewModel.stopSingleChatListener()
     }
 
     override fun onSaveInstanceState(outState: Bundle) {

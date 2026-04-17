@@ -11,7 +11,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.appcompat.widget.SearchView
 import androidx.appcompat.widget.Toolbar
-import androidx.lifecycle.ProcessLifecycleOwner
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -25,10 +24,8 @@ import com.example.financialtracker.data.repositories.ExpenseRepository
 import com.example.financialtracker.data.repositories.IncomeRepository
 import com.example.financialtracker.data.repositories.UserRepository
 import com.example.financialtracker.data.adapter.SearchAdapter
-import com.example.financialtracker.data.presence.PresenceManager
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.launch
 
@@ -98,8 +95,6 @@ abstract class BaseActivity : AppCompatActivity() {
         if (currentUserId != null) {
             attachGlobalChatListener(currentUserId)
         }
-
-        setupPresenceManager()
     }
 
     private fun applyThemeSync() {
@@ -124,14 +119,6 @@ abstract class BaseActivity : AppCompatActivity() {
             }
             else -> super.onOptionsItemSelected(item)
         }
-    }
-
-    private fun setupPresenceManager() {
-        val presenceManager = PresenceManager(
-            FirebaseFirestore.getInstance(),
-            FirebaseAuth.getInstance()
-        )
-        ProcessLifecycleOwner.get().lifecycle.addObserver(presenceManager)
     }
 
     private fun setupSearchRecyclerView() {

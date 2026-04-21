@@ -42,6 +42,17 @@ class ExpenseRepository {
             .await()
     }
 
+    suspend fun getRecurringExpenses(): List<Expense> {
+        val userId = auth.currentUser?.uid ?: throw Exception("User not logged in")
+        val snapshot = db.collection("users").document(userId).collection("expenses")
+            .whereEqualTo("isRecurring", true)
+            .get()
+            .await()
+        return snapshot.documents.mapNotNull {
+            it.toObject(Expense::class.java)?.copy(id = it.id)
+        }
+    }
+
     fun listenForExpenses(): Flow<List<Expense>> = callbackFlow {
         val userId = auth.currentUser?.uid ?: run {
             close(Exception("User not logged in"))

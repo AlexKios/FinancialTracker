@@ -19,26 +19,32 @@ class RecurringIncomeWorker(appContext: Context, workerParams: WorkerParameters)
 
             for (income in recurringIncomes) {
                 income.recurringDate?.let { recurringDate ->
-                    val recurringDateCalendar = Calendar.getInstance().apply {
+                    var recurringDateCalendar = Calendar.getInstance().apply {
                         time = recurringDate.toDate()
                     }
 
-                    if (now.after(recurringDateCalendar)) {
+                    if (recurringDateCalendar.after(now)) {
+                        val day = recurringDateCalendar.get(Calendar.DAY_OF_MONTH)
+                        recurringDateCalendar.set(now.get(Calendar.YEAR), now.get(Calendar.MONTH), day)
+
+                        if (recurringDateCalendar.after(now)) {
+                            recurringDateCalendar.add(Calendar.MONTH, -1)
+                        }
+                    }
+
+                    while (now.after(recurringDateCalendar)) {
                         val newIncome = income.copy(
                             id = "",
-                            date = Timestamp.now(),
+                            date = Timestamp(recurringDateCalendar.time),
                             isRecurring = false,
                             recurringDate = null
                         )
                         incomeRepository.addIncome(newIncome)
 
-                        val nextRecurringDate = Calendar.getInstance().apply {
-                            time = recurringDate.toDate()
-                            add(Calendar.MONTH, 1)
-                        }
-                        
+                        recurringDateCalendar.add(Calendar.MONTH, 1)
+
                         val updatedIncome = income.copy(
-                            recurringDate = Timestamp(nextRecurringDate.time)
+                            recurringDate = Timestamp(recurringDateCalendar.time)
                         )
                         incomeRepository.updateIncome(updatedIncome)
                     }

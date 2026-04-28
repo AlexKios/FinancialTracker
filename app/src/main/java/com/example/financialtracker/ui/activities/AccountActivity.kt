@@ -180,14 +180,14 @@ class AccountActivity : BaseActivity() {
     private fun generateQrCode(userId: String) {
         val qrCodeWriter = QRCodeWriter()
         try {
-            val bitMatrix: BitMatrix = qrCodeWriter.encode(userId, BarcodeFormat.QR_CODE, 512, 512)
-            val width = bitMatrix.width
-            val height = bitMatrix.height
-            val bmp = createBitmap(width, height, Bitmap.Config.RGB_565)
+            val bitMatrix: BitMatrix = qrCodeWriter.encode(userId,
+                BarcodeFormat.QR_CODE, 512, 512)
+            val bmp = createBitmap(bitMatrix.width, bitMatrix.height, Bitmap.Config.RGB_565)
 
-            for (x in 0 until width) {
-                for (y in 0 until height) {
-                    bmp[x, y] = if (bitMatrix.get(x, y)) android.graphics.Color.BLACK else android.graphics.Color.WHITE
+            for (x in 0 until bitMatrix.width) {
+                for (y in 0 until bitMatrix.height) {
+                    bmp[x, y] = if (bitMatrix.get(x, y))
+                        android.graphics.Color.BLACK else android.graphics.Color.WHITE
                 }
             }
 

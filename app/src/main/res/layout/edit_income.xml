@@ -105,7 +105,7 @@
         android:layout_width="match_parent"
         android:layout_height="56dp"
         android:layout_marginBottom="16dp"
-        android:backgroundTint="@color/primary"
+        android:backgroundTint="@color/income_green"
         android:text="@string/update_income"
         android:textAllCaps="false"
         android:textColor="@color/white"
